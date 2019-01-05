@@ -27,8 +27,6 @@ public:
 	glm::vec3 Normal;
 	glm::vec3 Tangent;
 	glm::vec2 Texcoord;
-	glm::vec4 Extra0;
-	int ObjectId;
 };
 
 class Mesh

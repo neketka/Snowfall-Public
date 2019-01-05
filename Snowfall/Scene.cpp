@@ -88,6 +88,10 @@ Entity& Scene::GetEntityObject(EntityUUID uuid)
 	return *m_entities.at(uuid).Entity;
 }
 
+void Scene::SetMainCamera(ICamera & camera)
+{
+}
+
 void Scene::AddCamera(ICamera& camera)
 {
 	m_cameras.push_back(&camera);
@@ -127,7 +131,7 @@ void Scene::RenderUI(ICamera& camera)
 	}
 }
 
-void Scene::RenderScene(float deltaTime, ICamera& camera)
+void Scene::RenderScene(ICamera& camera)
 {
 	CommandBuffer buffer;
 	camera.GetRenderTarget().ClearColor(0, glm::vec4(0, 0, 0, 1));
@@ -146,7 +150,7 @@ void Scene::RenderCameras(float deltaTime)
 {
 	for (ICamera *camera : m_cameras)
 	{
-		this->RenderScene(deltaTime, *camera);
+		this->RenderScene(*camera);
 		if (camera->HasUI())
 			this->RenderUI(*camera);
 	}

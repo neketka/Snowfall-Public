@@ -31,12 +31,13 @@ public:
 	EntityUUID GetEntityByName(std::string name);
 	Entity& GetEntityObject(EntityUUID uuid);
 
+	void SetMainCamera(ICamera& camera);
 	void AddCamera(ICamera& camera);
 	void RemoveCamera(ICamera& camera);
 
 	void PerformUpdate(float deltaTime);
 	void RenderUI(ICamera& camera);
-	void RenderScene(float deltaTime, ICamera& camera);
+	void RenderScene(ICamera& camera);
 
 	void RenderCameras(float deltaTime);
 
@@ -44,6 +45,7 @@ public:
 private:
 	Entity *AddEntity(Entity *entity);
 	MeshRenderer m_meshRenderer;
+	ICamera *m_mainCamera;
 
 	SceneConfiguration *m_sceneConfiguration;
 

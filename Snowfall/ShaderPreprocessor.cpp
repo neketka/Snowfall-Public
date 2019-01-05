@@ -55,7 +55,7 @@ std::vector<Directive> FindAndRemoveDirectives(std::string& src, std::vector<std
 					mode = ParseMode::None;
 				}
 			}
-			else if (ch == '\r' || ch == '\n')
+			else if (ch == '\n')
 			{
 				if (std::find(directives.begin(), directives.end(), working.DirectiveName) != directives.end())
 				{
@@ -80,7 +80,7 @@ std::vector<Directive> FindAndRemoveDirectives(std::string& src, std::vector<std
 				working.DirectiveName += ch;
 			break;
 		case ParseMode::ParsingArgument:
-			if (ch == '\r' || ch == '\n')
+			if (ch == '\n')
 			{
 				if (skipNewline)
 					break;
@@ -117,7 +117,7 @@ PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 	{
 		if (dir.DirectiveName == "include")
 		{
-			ShaderAsset& asset = m_assetManager.LocateAsset<ShaderAsset>(dir.Arguments.substr(1, dir.Arguments.length() - 2));
+			ShaderAsset& asset = m_assetManager.LocateAsset<ShaderAsset>(dir.Arguments.substr(1, dir.Arguments.length() - 3));
 			asset.Load();
 
 			if (asset.IsValid())

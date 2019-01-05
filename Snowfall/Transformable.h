@@ -29,17 +29,18 @@ public:
 	EntityOptions(EntityOptions& options)
 		: Instanced(options.Instanced), Dynamic(options.Dynamic), UseCustomRendering(options.UseCustomRendering),
 		EnableUpdate(options.EnableUpdate), EnablePhysics(options.EnablePhysics), EnableRendering(options.EnableRendering),
-		EnableUIRendering(options.EnableUIRendering) {}
+		EnableUIRendering(options.EnableUIRendering), Unbatched(options.Unbatched) {}
 
 	EntityOptions(bool instanced, bool dynamic, bool customRendering, bool enableUpdate, 
-		bool enablePhysics, bool enableRendering, bool enableUiRendering)
+		bool enablePhysics, bool enableRendering, bool enableUiRendering, bool unbatched)
 		: Instanced(instanced), Dynamic(dynamic), UseCustomRendering(customRendering),
 		EnableUpdate(enableUpdate), EnablePhysics(enablePhysics), EnableRendering(enableRendering),
-		EnableUIRendering(enableUiRendering) {}
+		EnableUIRendering(enableUiRendering), Unbatched(unbatched) {}
 
 	bool Instanced = false;
 	bool Dynamic = true;
 	bool Skeletal = false;
+	bool Unbatched = false;
 
 	bool UseCustomRendering = false;
 

@@ -15,7 +15,7 @@ AssetManager::~AssetManager()
 		asset.second->Unload();
 	}
 }
-
+/*
 void AssetManager::EnumerateLocalPath(bool asRoot, std::string path)
 {
 	for (filesystem::directory_entry entry : filesystem::recursive_directory_iterator(path))
@@ -30,6 +30,25 @@ void AssetManager::EnumerateLocalPath(bool asRoot, std::string path)
 			{
 				LocalAssetStreamSource *src = new LocalAssetStreamSource(entry.path().string());
 				reader_iter->second->LoadAssets(ext, relPath.substr(0, relPath.length() - ext.length()), src, *this);
+			}
+		}
+	}
+}
+*/
+
+void AssetManager::EnumerateUnpackedFolder(std::string path)
+{
+	for (filesystem::directory_entry entry : filesystem::recursive_directory_iterator(path))
+	{
+		if (!filesystem::is_directory(entry))
+		{
+			std::string ext = filesystem::path(entry).extension().string();
+			auto reader_iter = m_readers.find(ext);
+			std::string relPath = filesystem::path(entry).lexically_relative(path).string();
+			if (reader_iter != m_readers.end())
+			{
+				LocalAssetStreamSource *src = new LocalAssetStreamSource(entry.path().string());
+				reader_iter->second->LoadAssets(ext, src, *this);
 			}
 		}
 	}

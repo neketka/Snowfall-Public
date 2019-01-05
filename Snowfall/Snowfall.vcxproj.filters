@@ -215,9 +215,6 @@
     <ClInclude Include="CollisionShape.h">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="NullStreamSource.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
@@ -233,9 +230,15 @@
     <ClInclude Include="MeshAsset.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SnowfallShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Lighting.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

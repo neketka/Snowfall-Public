@@ -17,7 +17,7 @@ glm::mat4 BasicCamera::GetViewMatrix()
 	return mat;
 }
 
-Quad2D BasicCamera::GetRegion()
+IQuad2D BasicCamera::GetRegion()
 {
 	return m_region;
 }
@@ -30,5 +30,10 @@ Framebuffer BasicCamera::GetRenderTarget()
 bool BasicCamera::HasUI()
 {
 	return m_uiEnabled;
+}
+
+LayerMask BasicCamera::GetLayerMask()
+{
+	return m_layerMask;
 }
 

@@ -6,7 +6,7 @@ LocalAssetStreamSource::LocalAssetStreamSource(std::string path) : m_path(path)
 
 void LocalAssetStreamSource::OpenStream()
 {
-	m_stream = std::ifstream(m_path);
+	m_stream = std::ifstream(m_path, std::ifstream::binary);
 	m_stream.seekg(0, std::ios::end);
 	m_length = static_cast<int>(m_stream.tellg());
 	m_stream.seekg(0);

@@ -1,3 +1,8 @@
+#ifndef SNOWFALL_SHADER_INCLUDE
+#define SNOWFALL_SHADER_INCLUDE
+
+#define PI 3.14159265359
+
 #ifdef VERTEX
 
 layout(location = 0) in vec3 Position;
@@ -5,14 +10,14 @@ layout(location = 1) in vec4 Color;
 layout(location = 2) in vec3 Normal;
 layout(location = 3) in vec3 Tangent;
 layout(location = 4) in vec2 Texcoord;
-layout(location = 5) in vec4 Extra0;
-layout(location = 6) in int ObjectId;
+layout(location = 5) in int ObjectId;
 
 layout(location = 0) out vec3 out_Position;
 layout(location = 1) out vec4 out_Color;
 layout(location = 2) out vec3 out_Normal;
 layout(location = 3) out vec3 out_Tangent;
 layout(location = 4) out vec2 out_Texcoord;
+layout(location = 5) out int out_ObjectId;
 
 layout(location = 0) uniform mat4 ProjectionMatrix;
 layout(location = 1) uniform mat4 ViewMatrix;
@@ -20,9 +25,22 @@ layout(location = 1) uniform mat4 ViewMatrix;
 #ifdef DYNAMIC
 layout(std140, binding = 0) uniform DynamicTransformBuffer
 {
-	mat4 ModelMatrices[128];
-	mat4 NormalMatrices[128];
+	mat4 ModelMatrices[MAX_DYNAMIC_OBJECTS];
+	mat4 NormalMatrices[MAX_DYNAMIC_OBJECTS];
 };
+
+#ifdef HAS_PARAMS
+layout(std140, binding = 1) uniform ObjectParamsBuffer
+{
+	vec4 ObjectParameters[OBJECT_PARAMS * MAX_DYNAMIC_OBJECTS];
+};
+
+vec4 Snowfall_GetObjectParameter(int index)
+{
+	return ObjectParameters[ObjectId * OBJECT_PARAMS];
+}
+#endif
+
 #endif
 
 struct VertexOutputData
@@ -42,7 +60,8 @@ void Snowfall_SetOutputData(VertexOutputData oData)
 	out_Color = oData.Color;
 	out_Normal = oData.Normal;
 	out_Tangent = oData.Tangent;
-	out_Texcoord = oData.Texcoord;
+	out_Texcoord = oData.Texcoord; 
+	out_ObjectId = ObjectId;
 }
 
 vec3 Snowfall_GetWorldSpacePosition()
@@ -59,6 +78,11 @@ vec4 Snowfall_GetColor()
 	return Color;
 }
 
+int Snowfall_GetObjectID()
+{
+	return ObjectId;
+}
+
 vec3 Snowfall_GetWorldSpaceNormal()
 {
 #ifdef STATIC
@@ -70,7 +94,11 @@ vec3 Snowfall_GetWorldSpaceNormal()
 
 vec3 Snowfall_GetTangent()
 {
+#ifdef STATIC
 	return Tangent;
+#else
+	return mat3(NormalMatrices[ObjectId]) * Tangent;
+#endif
 }
 
 vec2 Snowfall_GetTexcoord()
@@ -104,6 +132,7 @@ void main()
 
 #ifdef FRAGMENT
 
+
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
 #ifdef FLAT_NORMAL
@@ -113,6 +142,19 @@ layout(location = 2) in vec3 Normal;
 #endif
 layout(location = 3) in vec3 Tangent;
 layout(location = 4) in vec2 Texcoord;
+layout(location = 5) flat in int ObjectId;
+
+#ifdef HAS_PARAMS
+layout(std140, binding = 1) uniform ObjectParamsBuffer
+{
+	vec4 ObjectParameters[OBJECT_PARAMS * MAX_DYNAMIC_OBJECTS];
+};
+
+vec4 Snowfall_GetObjectParameter(int index)
+{
+	return ObjectParameters[ObjectId * OBJECT_PARAMS];
+}
+#endif
 
 vec3 Snowfall_GetPosition()
 {
@@ -134,9 +176,22 @@ vec3 Snowfall_GetTangent()
 	return Tangent;
 }
 
+int Snowfall_GetObjectID()
+{
+	return ObjectId;
+}
+
+vec3 Snowfall_GetBinormal()
+{
+	return cross(Normal, Tangent);
+}
+
 vec2 Snowfall_GetTexcoord()
 {
 	return Texcoord;
 }
 
+
+
+#endif
 #endif

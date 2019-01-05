@@ -24,6 +24,8 @@ public:
 	inline static Snowfall& GetGameInstance() { return *m_gameInstance; }
 	inline AssetManager& GetAssetManager() { return m_assetManager; }
 
+	glm::ivec2 GetViewportSize();
+
 	inline float GetFPS() { return m_fps; }
 
 	void Log(LogType type, std::string message);

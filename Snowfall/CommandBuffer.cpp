@@ -84,36 +84,44 @@ void CommandBuffer::BindComputeShaderCommand(Shader shader)
 void CommandBuffer::BindPipelineCommand(Pipeline pipeline)
 {
 	m_pipelines.push_back(pipeline);
-	Pipeline *p = &m_pipelines[m_pipelines.size() - 1];
+	int index = m_pipelines.size() - 1;
+	std::vector<Pipeline> *pipelines = &m_pipelines;
+
+	Pipeline *p = &m_pipelines[index];
 	if (m_pipelines.size() != 1)
 		p->Optimize(m_pipelines[m_pipelines.size() - 2]);
-	m_commands.push_back([p]() {
-		p->BindPipeline();
+
+	m_commands.push_back([index, pipelines]() {
+		(*pipelines)[index].BindPipeline();
 	});
 }
 
 void CommandBuffer::BindConstantsCommand(ShaderConstants constants)
 {
 	m_constants.push_back(constants);
-	ShaderConstants *sc = &m_constants[m_constants.size() - 1];
-	m_commands.push_back([sc]() {
-		sc->BindConstants();
+	int index = m_constants.size() - 1;
+	std::vector<ShaderConstants> *constantsVec = &m_constants;
+
+	m_commands.push_back([index, constantsVec]() {
+		(*constantsVec)[index].BindConstants();
 	});
 }
 
 void CommandBuffer::BindDescriptorCommand(ShaderDescriptor descriptor)
 {
 	m_descriptors.push_back(descriptor);
-	ShaderDescriptor *sd = &m_descriptors[m_descriptors.size() - 1];
-	m_commands.push_back([sd]() {
-		sd->BindDescriptor();
+	int index = m_descriptors.size() - 1;
+	std::vector<ShaderDescriptor> *descriptors = &m_descriptors;
+
+	m_commands.push_back([index, descriptors]() {
+		(*descriptors)[index].BindDescriptor();
 	});
 }
 
 void CommandBuffer::DrawIndexedCommand(PrimitiveType type, int count, int instances, int baseIndex, int baseVertex, int baseInstance)
 {
 	m_commands.push_back([type, count, instances, baseIndex, baseVertex, baseInstance]() {
-		glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(type), count, GL_UNSIGNED_INT, 
+		glDrawElementsInstancedBaseVertexBaseInstance(static_cast<GLenum>(type), count, GL_UNSIGNED_INT,
 			reinterpret_cast<GLvoid *>(baseIndex), instances, baseVertex, baseInstance);
 	});
 }

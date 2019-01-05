@@ -20,7 +20,7 @@ Snowfall::Snowfall() : m_preprocessor(m_assetManager)
 	glewInit();
 	m_assetManager.RegisterReader(new ShaderAssetReader);
 	m_assetManager.RegisterReader(new MeshAssetReader);
-	m_assetManager.EnumerateLocalPath(true, "./");
+	m_assetManager.EnumerateUnpackedFolder(".\\Assets");
 }
 
 Snowfall::~Snowfall()
@@ -30,8 +30,7 @@ Snowfall::~Snowfall()
 void Snowfall::StartGame()
 {
 	glfwShowWindow(m_window);
-	clock_t lastLogic = clock();
-	clock_t lastRender = clock();
+	clock_t lastFrame = clock();
 
 	clock_t fpsTime = 0;
 	int fpsCounted = 0;
@@ -40,13 +39,12 @@ void Snowfall::StartGame()
 	while (!glfwWindowShouldClose(m_window))
 	{
 		clock_t beginTime = clock();
+		float clockDiff = static_cast<float>(beginTime - lastFrame) / CLOCKS_PER_SEC;
+
 		glfwPollEvents(); // Check for user events
 
-		m_scene->PerformUpdate((clock() - lastLogic) / (float)CLOCKS_PER_SEC);
-		lastLogic = clock();
-
-		m_scene->RenderCameras((clock() - lastRender) / (float)CLOCKS_PER_SEC);
-		lastRender = clock();
+		m_scene->PerformUpdate(clockDiff);
+		m_scene->RenderCameras(clockDiff);
 
 		glfwSwapBuffers(m_window);
 
@@ -56,6 +54,8 @@ void Snowfall::StartGame()
 		fpsTime += endTime - beginTime;
 		if (fpsCounted >= maxFpsCounts)
 			m_fps = static_cast<float>(CLOCKS_PER_SEC / fpsTime) * fpsCounted;
+
+		lastFrame = beginTime;
 	}
 
 	glfwDestroyWindow(m_window);
@@ -67,6 +67,13 @@ void Snowfall::StartGame()
 void Snowfall::InitGlobalInstance()
 {
 	m_gameInstance = new Snowfall;
+}
+
+glm::ivec2 Snowfall::GetViewportSize()
+{
+	int w = 0, h = 0;
+	glfwGetWindowSize(m_window, &w, &h);
+	return glm::ivec2(w, h);
 }
 
 void Snowfall::Log(LogType type, std::string message)

@@ -22,6 +22,7 @@ VertexArray::VertexArray(std::vector<BufferStructure> structures) :
 void VertexArray::SetIndexBuffer(Buffer<int> buffer)
 {
 	glVertexArrayElementBuffer(m_id, buffer.GetID());
+	m_length = buffer.GetLength();
 	m_hasIndex = true;
 }
 

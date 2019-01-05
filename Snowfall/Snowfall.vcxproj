@@ -231,6 +231,7 @@
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Lighting.glsl" />
     <None Include="SnowfallShader.glsl">
       <DeploymentContent>true</DeploymentContent>
       <FileType>Document</FileType>

@@ -76,8 +76,8 @@ public:
 	Framebuffer Framebuffer;
 	std::vector<int> DrawTargets;
 	
-	Quad2D Viewport;
-	Quad2D ScissorRegion;
+	IQuad2D Viewport;
+	IQuad2D ScissorRegion;
 	bool ScissorTest;
 	bool RasterizerDiscard;
 	bool DepthTest;

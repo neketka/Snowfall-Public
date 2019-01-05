@@ -10,3 +10,13 @@ public:
 	glm::vec2 Size;
 	bool operator==(const Quad2D& other) { return Position == other.Position && Size == other.Size; }
 };
+
+class IQuad2D
+{
+public:
+	IQuad2D() { }
+	IQuad2D(glm::ivec2 pos, glm::ivec2 size) : Position(pos), Size(size) { }
+	glm::ivec2 Position;
+	glm::ivec2 Size;
+	bool operator==(const IQuad2D& other) { return Position == other.Position && Size == other.Size; }
+};

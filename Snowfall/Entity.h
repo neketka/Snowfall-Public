@@ -50,6 +50,8 @@ protected:
 	void SetMaterial(Material& material);
 	void SetCollisionShape(CollisionShape& shape);
 	void SetInstances(int instances);
+	void SetMaterialParameter(int index, glm::vec4 param);
+	void SetLayerMask(LayerMask mask);
 
 	virtual void OnSceneAddition() = 0; // Called after scene addition
 	virtual void OnUpdate(float deltaTime) {} // Called once per frame 
@@ -63,5 +65,3 @@ private:
 	EntityRenderHandle *m_renderHandle;
 	std::string m_name;
 };
-
-void AddPrototypeInternal(Entity *entityPrototype, std::string name);

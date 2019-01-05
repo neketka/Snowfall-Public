@@ -26,7 +26,6 @@ void Transformable::SetParent(Transformable& transformable)
 void Transformable::Orphan()
 {
 	m_parent = nullptr;
-	
 }
 
 std::vector<Transformable*> Transformable::GetChildren()
@@ -112,4 +111,14 @@ void Entity::SetCollisionShape(CollisionShape& shape)
 
 void Entity::SetInstances(int instances)
 {
+}
+
+void Entity::SetMaterialParameter(int index, glm::vec4 param)
+{
+	m_renderHandle->SetMaterialParameter(index, param);
+}
+
+void Entity::SetLayerMask(LayerMask mask)
+{
+	m_renderHandle->SetLayerMask(mask);
 }

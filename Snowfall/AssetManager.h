@@ -32,7 +32,7 @@ class IAssetReader
 {
 public:
 	virtual std::vector<std::string> GetExtensions() = 0;
-	virtual void LoadAssets(std::string ext, std::string path, IAssetStreamSource *streamSource, AssetManager& assetManager) = 0;
+	virtual void LoadAssets(std::string ext, IAssetStreamSource *streamSource, AssetManager& assetManager) = 0;
 };
 
 class IAsset
@@ -55,7 +55,8 @@ class AssetManager
 public:
 	AssetManager();
 	~AssetManager();
-	void EnumerateLocalPath(bool asRoot, std::string path);
+	//void EnumerateLocalPath(bool asRoot, std::string path);
+	void EnumerateUnpackedFolder(std::string path);
 	void RegisterReader(IAssetReader *reader); // Pointer will be owned by the AssetManager instance
 	void AddAsset(IAsset *asset); // Pointer will be owned by the AssetManager instance
 
