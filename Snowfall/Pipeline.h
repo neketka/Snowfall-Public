@@ -6,6 +6,7 @@
 #include "VertexArray.h"
 #include "Framebuffer.h"
 #include "Quad.h"
+#include "Sampler.h"
 
 class DrawArraysIndirectCommand
 {
@@ -24,12 +25,6 @@ public:
 	GLuint FirstIndex;
 	GLuint BaseVertex;
 	GLuint BaseInstance;
-};
-
-enum class ComparisonFunc
-{
-	Never = GL_NEVER, Less = GL_LESS, Greater = GL_GREATER, Equal = GL_EQUAL,
-	Always = GL_ALWAYS, LessEqual = GL_LEQUAL, GreaterEqual = GL_GEQUAL, NotEqual = GL_NOTEQUAL
 };
 
 enum class StencilOperation

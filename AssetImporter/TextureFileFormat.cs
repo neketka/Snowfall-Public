@@ -18,12 +18,13 @@ namespace AssetImporter
 
     public enum TextureType : int
     {
-        Texture1D=0, Texture2D=1, Texture2DArray=2, TextureCubemap=3, TextureCubemapArray=4, Texture3D=5
+        Texture1D=0, Texture1DArray=1, Texture2D=2, Texture2DArray=3, TextureCubemap=4, TextureCubemapArray=5, Texture3D=6
     }
 
     public enum TexturePixelFormat : int
     {
-        R8I=0, R32F=1, RG8I=2, RG32F=3, RGB8I=4, BGR8I=5, RGB32F=6, BGRA8I=7, ARGB8I=8, RGBA8I=9, RGBA32F=10
+        R = 0x1903, RG = 0x8227, RGB = 0x1907, BGR = 0x80E0, RGBA = 0x1908,
+        BGRA = 0x80E1, Depth = 0x1902, Stencil = 0x1901
     }
 
     public class TextureFileFormat
@@ -32,6 +33,7 @@ namespace AssetImporter
 
         public TextureType Type;
         public TexturePixelFormat Format;
+        public bool IsFloatFormat;
         public int BaseWidth;
         public int BaseHeight;
         public int BaseDepth;
@@ -47,7 +49,7 @@ namespace AssetImporter
             FrameCount = 1;
             FramesPerSecond = 0;
             Type = TextureType.Texture2D;
-            Format = TexturePixelFormat.ARGB8I;
+            Format = TexturePixelFormat.BGRA;
         }
 
         public void Export(string internalPath, string folder)
@@ -64,6 +66,7 @@ namespace AssetImporter
 
             writer.Write((int)Type);
             writer.Write((int)Format);
+            writer.Write(IsFloatFormat ? 1 : 0);
             writer.Write(BaseWidth);
             writer.Write(BaseHeight);
             writer.Write(BaseDepth);

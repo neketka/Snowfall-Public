@@ -14,7 +14,7 @@ MeshAsset::MeshAsset(IAssetStreamSource *stream) : m_inMemory(false), m_loaded(f
 {
 	stream->OpenStream();
 	unsigned int size = 0;
-	stream->ReadStream(reinterpret_cast<char *>(&size), sizeof(unsigned int));
+	stream->ReadStream(&size, sizeof(unsigned int));
 	char *buffer = new char[size + 1];
 	buffer[size] = '\0';
 	stream->ReadStream(buffer, size);
@@ -43,13 +43,13 @@ void MeshAsset::Load()
 		m_stream->SeekStream(sizeof(unsigned int) + m_path.length());
 		int vlen = 0;
 		int ilen = 0;
-		m_stream->ReadStream(reinterpret_cast<char *>(&vlen), sizeof(int));
-		m_stream->ReadStream(reinterpret_cast<char *>(&ilen), sizeof(int));
+		m_stream->ReadStream(&vlen, sizeof(int));
+		m_stream->ReadStream(&ilen, sizeof(int));
 		
 		m_mesh = new Mesh(std::vector<RenderVertex>(vlen), std::vector<int>(ilen));
 
-		m_stream->ReadStream(reinterpret_cast<char *>(m_mesh->Vertices.data()), sizeof(RenderVertex) * vlen);
-		m_stream->ReadStream(reinterpret_cast<char *>(m_mesh->Indices.data()), sizeof(int) * ilen);
+		m_stream->ReadStream(m_mesh->Vertices.data(), sizeof(RenderVertex) * vlen);
+		m_stream->ReadStream(m_mesh->Indices.data(), sizeof(int) * ilen);
 
 		m_stream->CloseStream();
 		m_loaded = true;

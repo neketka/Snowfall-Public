@@ -11,7 +11,7 @@ ShaderAsset::ShaderAsset(IAssetStreamSource *stream) : m_stream(stream), m_isStr
 {
 	stream->OpenStream();
 	unsigned int size = 0;
-	stream->ReadStream(reinterpret_cast<char *>(&size), sizeof(unsigned int));
+	stream->ReadStream(&size, sizeof(unsigned int));
 	char *buffer = new char[size + 1];
 	buffer[size] = '\0';
 	stream->ReadStream(buffer, size);
@@ -51,7 +51,7 @@ void ShaderAsset::Load()
 		m_stream->OpenStream();
 		m_stream->SeekStream(sizeof(unsigned int) + m_path.length());
 		unsigned int slen = 0;
-		m_stream->ReadStream(reinterpret_cast<char *>(&slen), sizeof(unsigned int));
+		m_stream->ReadStream(&slen, sizeof(unsigned int));
 		char *buffer = new char[slen + 1];
 		buffer[slen] = '\0';
 		m_stream->ReadStream(buffer, slen);

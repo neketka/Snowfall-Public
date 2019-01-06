@@ -27,6 +27,13 @@ namespace AssetImporter
                         Console.Write("Converting " + Path.GetFileName(path) + " to shader asset...");
                         GLSLImporter.Convert(internalPath, path, output);
                         break;
+                    case ".jpg":
+                    case ".jpeg":
+                    case ".png":
+                    case ".gif":
+                        Console.Write("Converting " + Path.GetFileName(path) + " to texture asset...");
+                        PictureImporter.Convert(internalPath, path, output);
+                        break;
                     default:
                         return;
                 }

@@ -167,7 +167,6 @@
     <ClCompile Include="CollisionShape.cpp" />
     <ClCompile Include="CommandBuffer.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="FormatFinder.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="LinearAllocator.cpp" />
@@ -190,6 +189,7 @@
     <ClCompile Include="SubmitBuffer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="PixelTransferrer.cpp" />
+    <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +227,7 @@
     <ClInclude Include="SubmitBuffer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="PixelTransferrer.h" />
+    <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="Transformable.h" />
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>

@@ -113,6 +113,7 @@ PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 {
 	std::vector<Directive> directives = FindAndRemoveDirectives(src, std::vector<std::string>({ "include" }));
 	std::vector<std::string> variants;
+	int includeAdjust = 0;
 	for (Directive dir : directives)
 	{
 		if (dir.DirectiveName == "include")
@@ -121,7 +122,10 @@ PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 			asset.Load();
 
 			if (asset.IsValid())
-				src = src.insert(dir.Position, asset.GetSource());
+			{
+				src = src.insert(dir.Position + includeAdjust, asset.GetSource());
+				includeAdjust += asset.GetSource().length();
+			}
 			else
 				src = src.insert(dir.Position, "#error Cannot open file \"" + dir.Arguments + "\"");
 		}

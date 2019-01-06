@@ -33,21 +33,29 @@ Sampler::Sampler()
 	glCreateSamplers(1, &m_id);
 }
 
-void Sampler::SetWrapMode(GLint mode)
+void Sampler::SetWrapMode(TextureChannel channel, WrapMode mode)
 {
-	glSamplerParameteri(m_id, GL_TEXTURE_WRAP_S, mode);
-	glSamplerParameteri(m_id, GL_TEXTURE_WRAP_T, mode);
-	glSamplerParameteri(m_id, GL_TEXTURE_WRAP_R, mode);
+	glSamplerParameteri(m_id, static_cast<GLenum>(channel), static_cast<GLenum>(mode));
 }
 
-void Sampler::SetMinificationFilter(GLint filter)
+void Sampler::SetMinificationFilter(MinificationFilter filter)
 {
-	glSamplerParameteri(m_id, GL_TEXTURE_MIN_FILTER, filter);
+	glSamplerParameteri(m_id, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filter));
 }
 
-void Sampler::SetMagnificationFilter(GLint filter)
+void Sampler::SetMagnificationFilter(MagnificationFilter filter)
 {
-	glSamplerParameteri(m_id, GL_TEXTURE_MAG_FILTER, filter);
+	glSamplerParameteri(m_id, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filter));
+}
+
+void Sampler::SetCompareMode(bool enabled)
+{
+	glSamplerParameteri(m_id, GL_TEXTURE_COMPARE_MODE, enabled ? GL_COMPARE_REF_TO_TEXTURE : GL_NONE);
+}
+
+void Sampler::SetComparison(ComparisonFunc func)
+{
+	glSamplerParameteri(m_id, GL_TEXTURE_COMPARE_FUNC, static_cast<GLint>(func));
 }
 
 int Sampler::BindToTextureUnit()

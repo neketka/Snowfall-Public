@@ -48,9 +48,6 @@
     <ClCompile Include="Sampler.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="FormatFinder.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderDescriptor.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
@@ -121,6 +118,9 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="MeshAsset.cpp">
+      <Filter>Engine\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureAsset.cpp">
       <Filter>Engine\Assets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -232,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureAsset.h">
+      <Filter>Engine\Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

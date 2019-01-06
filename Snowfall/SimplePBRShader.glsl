@@ -4,6 +4,7 @@
 #ifdef FRAGMENT
 
 layout(location = 0) out vec4 fragment;
+layout(location = 2) uniform sampler2D tex;
 
 void main()
 {
@@ -16,7 +17,7 @@ void main()
 	vec4 params = Snowfall_GetObjectParameter(0);
 
 	vec3 radiance = vec3(50.0, 50.0, 50.0) * att;
-	vec3 Kd = vec3(1.0, 1.0, 1.0);
+	vec3 Kd = texture(tex, Snowfall_GetTexcoord() * 2.0).rgb;
 
 	vec3 L = normalize(fragPos - lightPos);
 	vec3 V = normalize(fragPos - camPos);

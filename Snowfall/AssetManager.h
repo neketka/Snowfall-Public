@@ -23,6 +23,7 @@ public:
 	virtual void OpenStream() = 0;
 	virtual void CloseStream() = 0;
 	virtual void ReadStream(char *buffer, int length) = 0;
+	void ReadStream(void *buffer, int length) { ReadStream(reinterpret_cast<char *>(buffer), length); }
 	virtual void SeekStream(int position) = 0;
 	virtual int GetStreamPosition() = 0;
 	virtual int GetStreamLength() = 0;

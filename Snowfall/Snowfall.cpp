@@ -1,5 +1,6 @@
 #include "Snowfall.h"
 #include "MeshAsset.h"
+#include "TextureAsset.h"
 #include <GL\glew.h>
 #include <time.h>
 
@@ -18,8 +19,13 @@ Snowfall::Snowfall() : m_preprocessor(m_assetManager)
 	glfwMakeContextCurrent(m_window);
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	TextureUnitManager::Initialize(84);
+	ImageUnitManager::Initialize(32);
+
 	m_assetManager.RegisterReader(new ShaderAssetReader);
 	m_assetManager.RegisterReader(new MeshAssetReader);
+	m_assetManager.RegisterReader(new TextureAssetReader);
 	m_assetManager.EnumerateUnpackedFolder(".\\Assets");
 }
 
