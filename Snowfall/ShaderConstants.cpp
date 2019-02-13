@@ -61,16 +61,6 @@ void ShaderConstants::AddConstant(int location, glm::mat4 m4)
 	FindDuplicateAndReplace(m_uniform4fvMat, location, m4);
 }
 
-void ShaderConstants::AddConstantRange(int location, std::vector<glm::vec4> data)
-{
-	FindDuplicateAndReplace(m_uniform4fv, location, data);
-}
-
-void ShaderConstants::AddConstantRange(int location, std::vector<float> data)
-{
-	FindDuplicateAndReplace(m_uniform1fv, location, data);
-}
-
 void ShaderConstants::BindConstants()
 {
 	for (std::pair<int, std::pair<Texture, Sampler>> lts : m_uniformT)
@@ -91,8 +81,4 @@ void ShaderConstants::BindConstants()
 		glUniformMatrix3fv(lts.first, 1, false, &lts.second[0][0]);
 	for (std::pair<int, glm::mat4> lts : m_uniform4fvMat)
 		glUniformMatrix4fv(lts.first, 1, false, &lts.second[0][0]);
-	for (std::pair<int, std::vector<glm::vec4>> lts : m_uniform4fv)
-		glUniform4fv(lts.first, lts.second.size(), reinterpret_cast<float*>(lts.second.data()));
-	for (std::pair<int, std::vector<float>> lts : m_uniform1fv)
-		glUniform1fv(lts.first, lts.second.size(), lts.second.data());
 }

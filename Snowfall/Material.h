@@ -9,6 +9,7 @@ public:
 	ShaderAsset *MaterialShader;
 	ShaderConstants Constants;
 	int PerObjectParameterCount;
+
 	bool operator==(const Material& other) const
 	{
 		return MaterialShader == other.MaterialShader;

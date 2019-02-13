@@ -1,124 +1,127 @@
-#include "Entity.h"
-#include "Scene.h"
-#include "Snowfall.h"
+#include "ECS.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-
-glm::mat4 Transformable::GetTransform()
-{ 
-	// Calculate model space transform in the order: Scale, Z X Y rotation, and translation
-	glm::mat4 transform = glm::translate(Position) * glm::rotate(Rotation.y, glm::vec3(0, 1, 0)) *
-		glm::rotate(Rotation.x, glm::vec3(1, 0, 0)) * glm::rotate(Rotation.z, glm::vec3(0, 0, 1)) * glm::scale(Scale);
-
-	if (m_parent)
-		return m_parent->GetTransform() * transform;
-
-	return transform;
-}
-
-void Transformable::SetParent(Transformable& transformable)
+const std::string CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+std::string generateUUID() 
 {
-	m_parent = &transformable;
-	transformable.m_children.push_back(this);
-}
+	std::string uuid = std::string(36, ' ');
+	int rnd = 0;
+	int r = 0;
 
-void Transformable::Orphan()
-{
-	m_parent = nullptr;
-}
+	uuid[8] = '-';
+	uuid[13] = '-';
+	uuid[18] = '-';
+	uuid[23] = '-';
 
-std::vector<Transformable*> Transformable::GetChildren()
-{
-	return std::vector<Transformable*>();
-}
+	uuid[14] = '4';
 
-Transformable *Transformable::GetParent()
-{
-	return m_parent;
-}
-
-Entity::Entity(std::string name, EntityOptions options) : m_name(name), m_options(options)
-{
-	m_uuid = rand();
-}
-
-void Entity::Update(float deltaTime)
-{
-	OnUpdate(deltaTime);
-}
-
-void Entity::CustomRender(ICamera& camera, CommandBuffer& buffer)
-{
-	OnRenderPass(camera, buffer);
-}
-
-void Entity::PostPhysicsUpdate()
-{
-	if (m_renderHandle)
-		m_renderHandle->SetTransform(GetTransform());
-}
-
-void Entity::RenderUI(ICamera& camera)
-{
-	OnUIRender(camera);
-}
-
-void Entity::AddToScene(Scene& scene)
-{
-	m_scene = &scene;
-	OnSceneAddition();
-}
-
-void Entity::Destroy()
-{
-	if (m_renderHandle)
-	{
-		m_renderHandle->Delete();
-		m_renderHandle = nullptr;
+	for (int i = 0; i < 36; i++) {
+		if (i != 8 && i != 13 && i != 18 && i != 14 && i != 23) {
+			if (rnd <= 0x02) {
+				rnd = 0x2000000 + (std::rand() * 0x1000000) | 0;
+			}
+			rnd >>= 4;
+			uuid[i] = CHARS[(i == 19) ? ((rnd & 0xf) & 0x3) | 0x8 : rnd & 0xf];
+		}
 	}
-	if (m_scene)
+	return uuid;
+}
+
+Entity EntityManager::CreateEntity(std::vector<std::string> components)
+{
+	EntityId id = generateUUID();
+	m_entities.insert({ id, std::vector<Component *>() });
+	std::vector<Component *>& comps = m_entities[id];
+	Entity e = Entity(id, this);
+	for (std::string name : components)
 	{
-		Scene& scene = *m_scene;
-		m_scene = nullptr;
-		scene.RemoveEntity(m_uuid);
+		Component *comp = m_cManager->CreateComponent(name);
+		comp->Owner = e;
+		comps.push_back(comp);
+	}
+	return e;
+}
+
+Component *EntityManager::GetComponent(EntityId id, std::string component)
+{
+	for (auto comp : m_entities[id])
+	{
+		if (comp->InternalName == component)
+			return comp;
+	}
+	return nullptr;
+}
+
+std::vector<Component*>& EntityManager::GetComponents(EntityId id)
+{
+	return m_entities[id];
+}
+
+void EntityManager::KillEntity(EntityId id)
+{
+	for (Component *c : m_entities[id])
+		m_cManager->DeleteComponent(c);
+	m_entities.erase(id);
+}
+
+void EntityManager::AddComponent(EntityId id, std::string component)
+{
+	Component *comp = m_cManager->CreateComponent(component);
+	comp->Owner = Entity(id, this);
+	comp->InternalName = std::string(component);
+	m_entities[id].push_back(comp);
+}
+
+void EntityManager::RemoveComponent(EntityId id, std::string component)
+{
+	int i = 0;
+	for (Component *c : m_entities[id])
+	{
+		if (c->InternalName == component)
+			break;
+		++i;
+	}
+	std::vector<Component *>& comps = m_entities[id];
+	comps.erase(comps.begin() + i);
+}
+
+void EntityManager::SerializeEntity(EntityId id, IAssetStreamIO& stream)
+{
+	stream.WriteString(id);
+	std::vector<Component *>& comps = m_entities[id];
+	stream.WriteStream(reinterpret_cast<int *>(comps.size()), 1);
+	for (Component *c : comps)
+	{
+		m_cManager->SerializeComponent(c, stream);
 	}
 }
 
-void Entity::RegisterRenderer(EntityRenderHandle *handle)
+std::vector<Entity> EntityManager::LoadEntities(int count, IAssetStreamIO& stream)
 {
-	m_renderHandle = handle;
+	std::vector<Entity> loaded;
+	for (int i = 0; i < count; ++i)
+	{
+		EntityId id = stream.ReadString();
+		m_entities.insert_or_assign( id, std::vector<Component *>() );
+		std::vector<Component *>& comps = m_entities[id];
+
+		Entity e = Entity(id, this);
+
+		int cCount = 0;
+		stream.ReadStream(&cCount, 1);
+
+		for (int j = 0; j < cCount; ++j)
+		{
+			Component *c = m_cManager->DeserializeComponent(stream);
+			c->Owner = e;
+			comps.push_back(c);
+		}
+
+		loaded.push_back(e);
+	}
+	return loaded;
 }
 
-void Entity::SetScene(Scene& scene)
+int EntityManager::GetEntityCount()
 {
-	m_scene = &scene;
-}
-
-void Entity::SetMesh(Mesh& mesh)
-{
-	m_renderHandle->SetMesh(mesh);
-}
-
-void Entity::SetMaterial(Material& material)
-{
-	m_renderHandle->SetMaterial(material);
-}
-
-void Entity::SetCollisionShape(CollisionShape& shape)
-{
-}
-
-void Entity::SetInstances(int instances)
-{
-}
-
-void Entity::SetMaterialParameter(int index, glm::vec4 param)
-{
-	m_renderHandle->SetMaterialParameter(index, param);
-}
-
-void Entity::SetLayerMask(LayerMask mask)
-{
-	m_renderHandle->SetLayerMask(mask);
+	return m_entities.size();
 }

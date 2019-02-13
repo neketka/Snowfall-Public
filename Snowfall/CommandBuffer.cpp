@@ -134,17 +134,17 @@ void CommandBuffer::DrawCommand(PrimitiveType type, int first, int count, int in
 	});
 }
 
-void CommandBuffer::DrawIndexedIndirectCommand(PrimitiveType type, int cmdCount, int stride)
+void CommandBuffer::DrawIndexedIndirectCommand(PrimitiveType type, int offset, int cmdCount, int stride)
 {
-	m_commands.push_back([type, cmdCount, stride]() {
-		glMultiDrawElementsIndirect(static_cast<GLenum>(type), GL_UNSIGNED_INT, nullptr, cmdCount, stride);
+	m_commands.push_back([type, cmdCount, stride, offset]() {
+		glMultiDrawElementsIndirect(static_cast<GLenum>(type), GL_UNSIGNED_INT, reinterpret_cast<const void *>(offset), cmdCount, stride);
 	});
 }
 
-void CommandBuffer::DrawIndirectCommand(PrimitiveType type, int cmdCount, int stride)
+void CommandBuffer::DrawIndirectCommand(PrimitiveType type, int offset, int cmdCount, int stride)
 {
-	m_commands.push_back([type, cmdCount, stride]() {
-		glMultiDrawArraysIndirect(static_cast<GLenum>(type), nullptr, cmdCount, stride);
+	m_commands.push_back([type, cmdCount, stride, offset]() {
+		glMultiDrawArraysIndirect(static_cast<GLenum>(type), reinterpret_cast<const void *>(offset), cmdCount, stride);
 	});
 }
 
@@ -153,6 +153,10 @@ void CommandBuffer::DispatchCommand(int x, int y, int z)
 	m_commands.push_back([x, y, z]() {
 		glDispatchCompute(x, y, z);
 	});
+}
+void CommandBuffer::MemoryBarrier(MemoryBarrierType type)
+{
+	glMemoryBarrier(static_cast<GLbitfield>(type));
 }
 /*
 void CommandBuffer::ExecuteCommandBufferCommand(CommandBuffer buffer)

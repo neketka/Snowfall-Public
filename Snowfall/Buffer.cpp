@@ -28,12 +28,14 @@ void TBuffer::FlushBuffer(int offset, int length)
 
 void TBuffer::Destroy()
 {
+	if (m_length == 0)
+		return;
 	glDeleteBuffers(1, &m_id);
 }
 
 void TBuffer::MapBuffer(int offset, int length, MappingOptions options)
 {
-	m_mappingPtr = glMapNamedBufferRange(m_id, offset * m_tsize, length * m_tsize, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+	m_mappingPtr = glMapNamedBufferRange(m_id, offset * m_tsize, length * m_tsize, options.GetEnum());
 }
 
 void TBuffer::UnmapBuffer()

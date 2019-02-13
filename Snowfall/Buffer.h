@@ -65,6 +65,7 @@ public:
 			qualifiers |= GL_MAP_INVALIDATE_BUFFER_BIT;
 		if (Unsynchronized)
 			qualifiers |= GL_MAP_UNSYNCHRONIZED_BIT;
+		return qualifiers;
 	}
 
 	MappingOptions(bool mapRead, bool mapWrite, bool mapPersistent, bool mapCoherent, bool flush, bool invalidateRange,
@@ -140,5 +141,5 @@ public:
 
 	inline int GetLength() { return GetSize(); }
 
-	inline T *GetMappedPointer() { return static_cast<T *>(m_mappingPtr); }
+	inline T *GetMappedPointer() { return static_cast<T *>(TBuffer::GetMappedPointer()); }
 };

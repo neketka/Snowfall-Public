@@ -89,8 +89,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\glm\include;D:\glew-2.0.0-win32\glew-2.0.0\include;D:\glfw-3.2.1.bin.WIN64\include;C:\Users\neket\Documents\C++ Libraries\glew-2.0.0-win32\glew-2.0.0\include;C:\Users\neket\Documents\C++ Libraries\glfw-3.2.1.bin.WIN64\include;C:\Users\neket\Documents\C++ Libraries\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;D:\glfw-3.2.1.bin.WIN64\lib-vc2015;C:\Users\neket\Documents\C++ Libraries\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;C:\Users\neket\Documents\C++ Libraries\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SolutionDir)\Dependencies\stb\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,6 +151,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,72 +166,84 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CollisionShape.cpp" />
     <ClCompile Include="CommandBuffer.cpp" />
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="LinearAllocator.cpp" />
-    <ClCompile Include="LocalAssetStreamSource.cpp" />
+    <ClCompile Include="LocalAssetStream.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaterialAsset.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshAsset.cpp" />
-    <ClCompile Include="MeshRenderer.cpp" />
+    <ClCompile Include="MeshComponent.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="OcclusionQuery.cpp" />
     <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="Prototype.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneConfiguration.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderAsset.cpp" />
     <ClCompile Include="ShaderConstants.cpp" />
     <ClCompile Include="ShaderDescriptor.cpp" />
     <ClCompile Include="ShaderPreprocessor.cpp" />
+    <ClCompile Include="SnowChunk.cpp" />
     <ClCompile Include="Snowfall.cpp" />
     <ClCompile Include="SubmitBuffer.cpp" />
+    <ClCompile Include="System.cpp" />
+    <ClCompile Include="TestComponent.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="PixelTransferrer.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
+    <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
-    <ClInclude Include="BasicCamera.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CollisionShape.h" />
     <ClInclude Include="CommandBuffer.h" />
-    <ClInclude Include="Entity.h" />
+    <ClInclude Include="ECS.h" />
     <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GLResource.h" />
+    <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="MeshAsset.h" />
+    <ClInclude Include="MeshComponent.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="SimplePBRShader.glsl" />
     <ClInclude Include="JobManager.h" />
     <ClInclude Include="LinearAllocator.h" />
-    <ClInclude Include="LocalAssetStreamSource.h" />
+    <ClInclude Include="LocalAssetStream.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="NullStreamSource.h" />
     <ClInclude Include="OcclusionQuery.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneConfiguration.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderAsset.h" />
     <ClInclude Include="ShaderConstants.h" />
     <ClInclude Include="ShaderDescriptor.h" />
     <ClInclude Include="ShaderPreprocessor.h" />
+    <ClInclude Include="SnowChunk.h" />
     <ClInclude Include="Snowfall.h" />
     <ClInclude Include="SubmitBuffer.h" />
+    <ClInclude Include="TestComponent.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="PixelTransferrer.h" />
     <ClInclude Include="TextureAsset.h" />
-    <ClInclude Include="Transformable.h" />
+    <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>

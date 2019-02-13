@@ -24,7 +24,7 @@ public:
 class TextureAsset : public IAsset
 {
 public:
-	TextureAsset(IAssetStreamSource *stream);
+	TextureAsset(IAssetStreamIO *stream);
 	~TextureAsset();
 
 	virtual std::string GetPath() const override;
@@ -46,7 +46,7 @@ private:
 	bool m_loadedAnyMipmap;
 	bool m_loadingBackground;
 
-	IAssetStreamSource *m_stream;
+	IAssetStreamIO *m_stream;
 	int m_firstPos;
 	int m_topPos;
 
@@ -69,5 +69,5 @@ private:
 class TextureAssetReader : public IAssetReader
 {
 	virtual std::vector<std::string> GetExtensions() override;
-	virtual void LoadAssets(std::string ext, IAssetStreamSource *streamSource, AssetManager& assetManager) override;
+	virtual void LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager) override;
 };

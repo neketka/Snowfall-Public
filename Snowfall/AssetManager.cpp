@@ -1,5 +1,6 @@
 #include "AssetManager.h"
-#include "LocalAssetStreamSource.h"
+#include "LocalAssetStream.h"
+#include "Snowfall.h"
 #include <filesystem>
 
 namespace filesystem = std::filesystem;
@@ -47,7 +48,7 @@ void AssetManager::EnumerateUnpackedFolder(std::string path)
 			std::string relPath = filesystem::path(entry).lexically_relative(path).string();
 			if (reader_iter != m_readers.end())
 			{
-				LocalAssetStreamSource *src = new LocalAssetStreamSource(entry.path().string());
+				LocalAssetStream *src = new LocalAssetStream(entry.path().string());
 				reader_iter->second->LoadAssets(ext, src, *this);
 			}
 		}
@@ -67,8 +68,18 @@ void AssetManager::AddAsset(IAsset *asset)
 	m_assets.insert_or_assign(asset->GetPath(), asset);
 }
 
+void AssetManager::DeleteAsset(IAsset& asset)
+{
+	m_assets.erase(asset.GetPath());
+}
+
 IAsset *AssetManager::LocateAsset(std::string path)
 {
 	auto asset = m_assets.find(path);
 	return asset == m_assets.end() ? nullptr : asset->second;
+}
+
+IAsset *AssetManager::LocateAssetGlobal(std::string path)
+{
+	return Snowfall::GetGameInstance().GetAssetManager().LocateAsset(path);
 }

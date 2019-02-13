@@ -28,6 +28,12 @@
     <Filter Include="Game">
       <UniqueIdentifier>{98c00163-abba-4a64-aa1e-f24ea76ccd2f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\ECS">
+      <UniqueIdentifier>{b0ef4983-5d0c-492e-9476-484c728b62ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Components">
+      <UniqueIdentifier>{3d0bc628-5358-4711-ba03-0e7e72b77d16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -69,28 +75,16 @@
     <ClCompile Include="ShaderPreprocessor.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="BoundingBox.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="AssetManager.cpp">
       <Filter>Engine\Assets</Filter>
     </ClCompile>
     <ClCompile Include="ShaderAsset.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="LocalAssetStreamSource.cpp">
       <Filter>Engine\Assets</Filter>
     </ClCompile>
     <ClCompile Include="JobManager.cpp">
@@ -108,19 +102,58 @@
     <ClCompile Include="CollisionShape.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneConfiguration.cpp">
-      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="MeshAsset.cpp">
       <Filter>Engine\Assets</Filter>
     </ClCompile>
     <ClCompile Include="TextureAsset.cpp">
+      <Filter>Engine\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowChunk.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Prototype.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformComponent.cpp">
+      <Filter>Engine\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshComponent.cpp">
+      <Filter>Engine\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Engine\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshManager.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="TestComponent.cpp">
+      <Filter>Engine\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialAsset.cpp">
+      <Filter>Engine\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalAssetStream.cpp">
       <Filter>Engine\Assets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,12 +200,6 @@
     <ClInclude Include="ShaderPreprocessor.h">
       <Filter>Tools</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="BoundingBox.h">
       <Filter>Geometry</Filter>
     </ClInclude>
@@ -182,22 +209,13 @@
     <ClInclude Include="Mesh.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Quad.h">
       <Filter>Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Transformable.h">
-      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
     <ClInclude Include="ShaderAsset.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="LocalAssetStreamSource.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
     <ClInclude Include="JobManager.h">
@@ -218,23 +236,47 @@
     <ClInclude Include="NullStreamSource.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="BasicCamera.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneConfiguration.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="SimplePBRShader.glsl">
       <Filter>Shaders</Filter>
     </ClInclude>
     <ClInclude Include="MeshAsset.h">
       <Filter>Engine\Assets</Filter>
     </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="TextureAsset.h">
       <Filter>Engine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="SnowChunk.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>Engine\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformComponent.h">
+      <Filter>Engine\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>Engine\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Engine\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Engine\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="TestComponent.h">
+      <Filter>Engine\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialAsset.h">
+      <Filter>Engine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalAssetStream.h">
+      <Filter>Engine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshManager.h">
+      <Filter>Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

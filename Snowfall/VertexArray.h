@@ -41,6 +41,8 @@ public:
 	inline GLuint GetID() { return m_id; }
 	virtual void Destroy() override;
 	void SetBuffer(int structure, TBuffer buffer, int offset = 0);
+	void SetAttributeEnabled(int index, bool enabled);
+	void SetStructureEnabled(int structure, bool enabled);
 private:
 	std::vector<BufferStructure> m_structures;
 	int m_length;

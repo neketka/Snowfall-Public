@@ -58,6 +58,14 @@ void Sampler::SetComparison(ComparisonFunc func)
 	glSamplerParameteri(m_id, GL_TEXTURE_COMPARE_FUNC, static_cast<GLint>(func));
 }
 
+void Sampler::SetAnisotropicFiltering(bool enabled)
+{
+	float aniso = 1.0f;
+	if (enabled)
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &aniso);
+	glSamplerParameterf(m_id, GL_TEXTURE_MAX_ANISOTROPY, aniso);
+}
+
 int Sampler::BindToTextureUnit()
 {
 	int unit = TextureUnitManager::RefreshUnit(m_id);

@@ -16,12 +16,12 @@ private:
 
 enum class WrapMode
 {
-	Repeat, MirroredRepeat
+	Repeat = GL_REPEAT, MirroredRepeat = GL_MIRRORED_REPEAT, ClampToEdge = GL_CLAMP_TO_EDGE
 };
 
 enum class TextureChannel
 {
-	S, T, R
+	S = GL_S, T = GL_T, R = GL_R
 };
 
 enum class MinificationFilter
@@ -51,6 +51,7 @@ public:
 	void SetMagnificationFilter(MagnificationFilter filter);
 	void SetCompareMode(bool enabled);
 	void SetComparison(ComparisonFunc func);
+	void SetAnisotropicFiltering(bool enabled);
 
 	int BindToTextureUnit(); 
 

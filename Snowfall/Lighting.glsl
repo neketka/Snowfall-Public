@@ -100,4 +100,18 @@ vec3 CookOrenBRDF(vec3 N, vec3 V, vec3 L, vec3 H, vec3 radiance,
 	vec3 specular = num / max(denom, 0.001);
 	return (kD * diffuse / PI + specular) * radiance * orenNayarDiffuse(LdotV, NdotL, NdotV, roughness, 0.7);
 }
+
+float Attenutation(vec3 L, float lightRadius, float cutoff)
+{
+	float r = lightRadius;
+	float distance = length(L);
+	float d = max(distance - r, 0);
+
+	float denom = d / r + 1;
+	float attenuation = 1 / (denom*denom);
+
+	attenuation = (attenuation - cutoff) / (1 - cutoff);
+	attenuation = max(attenuation, 0);
+	return attenuation;
+}
 #endif

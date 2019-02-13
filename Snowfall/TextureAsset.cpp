@@ -1,20 +1,13 @@
 #include "TextureAsset.h"
 
-TextureAsset::TextureAsset(IAssetStreamSource *stream) : m_stream(stream)
+TextureAsset::TextureAsset(IAssetStreamIO *stream) : m_stream(stream)
 {
-	stream->OpenStream();
+	stream->OpenStreamRead();
 
-	unsigned int size = 0;
-	stream->ReadStream(reinterpret_cast<char *>(&size), sizeof(unsigned int));
-	char *buffer = new char[size + 1];
-	buffer[size] = '\0';
-	stream->ReadStream(buffer, size);
-
-	m_path = std::string(buffer);
-	delete[] buffer;
+	m_path = m_stream->ReadString();
 
 	TextureHeader header;
-	stream->ReadStream(reinterpret_cast<char *>(&header), sizeof(TextureHeader));
+	stream->ReadStream(&header, 1);
 
 	m_type = header.TextureType;
 	m_pixelFormat = header.PixelFormat;
@@ -35,20 +28,26 @@ TextureAsset::TextureAsset(IAssetStreamSource *stream) : m_stream(stream)
 	switch (m_pixelFormat)
 	{
 	case TexturePixelFormat::R:
+		m_internalFormat = TextureInternalFormat::R8;
 		break;
 	case TexturePixelFormat::RG:
+		m_internalFormat = TextureInternalFormat::RG8;
 		break;
 	case TexturePixelFormat::RGB:
+		m_internalFormat = TextureInternalFormat::RGB8;
 	case TexturePixelFormat::BGR:
 		m_internalFormat = TextureInternalFormat::RGB8;
 		break;
 	case TexturePixelFormat::BGRA:
+		m_internalFormat = TextureInternalFormat::RGBA8;
 	case TexturePixelFormat::RGBA:
 		m_internalFormat = TextureInternalFormat::RGBA8;
 		break;
 	case TexturePixelFormat::Depth:
+		m_internalFormat = TextureInternalFormat::Depth32F;
 		break;
 	case TexturePixelFormat::Stencil:
+		m_internalFormat = TextureInternalFormat::Stencil8UI;
 		break;
 	}
 }
@@ -68,15 +67,15 @@ void TextureAsset::Load()
 		initializeTexture();
 	if (m_minMipmapLoaded > m_minMipmapSetting)
 	{
-		m_stream->OpenStream();
+		m_stream->OpenStreamRead();
 		m_stream->SeekStream(m_topPos);
 
 		for (; m_minMipmapLoaded > m_minMipmapSetting; --m_minMipmapLoaded)
 		{
 			int level = 0;
 			int dataLength = 0;
-			m_stream->ReadStream(&level, sizeof(int));
-			m_stream->ReadStream(&dataLength, sizeof(int));
+			m_stream->ReadStream(&level, 1);
+			m_stream->ReadStream(&dataLength, 1);
 
 			char *data = new char[dataLength];
 			m_stream->ReadStream(data, dataLength);
@@ -175,7 +174,7 @@ std::vector<std::string> TextureAssetReader::GetExtensions()
 	return { ".tasset" };
 }
 
-void TextureAssetReader::LoadAssets(std::string ext, IAssetStreamSource *streamSource, AssetManager& assetManager)
+void TextureAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new TextureAsset(streamSource));
+	assetManager.AddAsset(new TextureAsset(stream));
 }

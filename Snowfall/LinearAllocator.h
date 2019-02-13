@@ -36,6 +36,7 @@ class LinearAllocator
 {
 public:
 	LinearAllocator(int totalBytes);
+	~LinearAllocator();
 	MemoryAllocation Allocate(int length);
 	void Deallocate(MemoryAllocation region);
 	void Defragment();
@@ -44,6 +45,6 @@ private:
 	int m_maxCapacity;
 	int m_curCapacity;
 	int m_maxFreeCapacity;
-	std::vector<MemoryRegion> m_allocated;
-	std::set<MemoryRegion> m_free;
+	std::vector<MemoryRegion *> m_allocated;
+	std::set<MemoryRegion *> m_free;
 };

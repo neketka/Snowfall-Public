@@ -15,9 +15,6 @@ public:
 	void AddConstant(int location, glm::vec4 v4);
 	void AddConstant(int location, glm::mat3 m3);
 	void AddConstant(int location, glm::mat4 m4);
-	void AddConstantRange(int location, std::vector<float> data);
-	void AddConstantRange(int location, std::vector<glm::vec4> data);
-
 	void BindConstants();
 private:
 	std::vector<std::pair<int, std::pair<Texture, Sampler>>> m_uniformT;
@@ -29,7 +26,5 @@ private:
 	std::vector<std::pair<int, glm::vec4>> m_uniform4f;
 	std::vector<std::pair<int, glm::mat3>> m_uniform3fvMat;
 	std::vector<std::pair<int, glm::mat4>> m_uniform4fvMat;
-	std::vector<std::pair<int, std::vector<float>>> m_uniform1fv;
-	std::vector<std::pair<int, std::vector<glm::vec4>>> m_uniform4fv;
 };
 

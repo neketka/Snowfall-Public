@@ -7,18 +7,11 @@ ShaderAsset::ShaderAsset(std::string path, std::string src) : m_path(path), m_st
 {
 }
 
-ShaderAsset::ShaderAsset(IAssetStreamSource *stream) : m_stream(stream), m_isStreamedSource(true), m_compileSuccess(true)
+ShaderAsset::ShaderAsset(IAssetStreamIO *stream) : m_stream(stream), m_isStreamedSource(true), m_compileSuccess(true)
 {
-	stream->OpenStream();
-	unsigned int size = 0;
-	stream->ReadStream(&size, sizeof(unsigned int));
-	char *buffer = new char[size + 1];
-	buffer[size] = '\0';
-	stream->ReadStream(buffer, size);
+	stream->OpenStreamRead();
+	m_path = m_stream->ReadString();
 	stream->CloseStream();
-
-	m_path = std::string(buffer);
-	delete buffer;
 }
 
 ShaderAsset::~ShaderAsset()
@@ -48,18 +41,9 @@ void ShaderAsset::Load()
 {
 	if (m_isStreamedSource)
 	{
-		m_stream->OpenStream();
+		m_stream->OpenStreamRead();
 		m_stream->SeekStream(sizeof(unsigned int) + m_path.length());
-		unsigned int slen = 0;
-		m_stream->ReadStream(&slen, sizeof(unsigned int));
-		char *buffer = new char[slen + 1];
-		buffer[slen] = '\0';
-		m_stream->ReadStream(buffer, slen);
-		int len = m_stream->GetStreamLength();
-		m_stream->CloseStream();
-
-		m_rawSource = std::string(buffer);
-		delete buffer;
+		m_rawSource = m_stream->ReadString();
 	}
 	auto spreprocess = Snowfall::GetGameInstance().GetShaderPreprocessor();
 	auto preshader = spreprocess.PreprocessShader(m_rawSource);
@@ -96,7 +80,7 @@ std::vector<std::string> ShaderAssetReader::GetExtensions()
 	return std::vector<std::string>({ ".sasset" });
 }
 
-void ShaderAssetReader::LoadAssets(std::string ext, IAssetStreamSource *streamSource, AssetManager& assetManager)
+void ShaderAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new ShaderAsset(streamSource));
+	assetManager.AddAsset(new ShaderAsset(stream));
 }

@@ -1,32 +1,21 @@
 #include "Snowfall.h"
 #include "MeshAsset.h"
 #include "TextureAsset.h"
+#include "MaterialAsset.h"
 #include <GL\glew.h>
 #include <time.h>
 
+#include "MeshComponent.h"
+#include "TransformComponent.h"
+#include "CameraComponent.h"
+#include "TestComponent.h"
+
 Snowfall *Snowfall::m_gameInstance;
 
-Snowfall::Snowfall() : m_preprocessor(m_assetManager)
+Snowfall::Snowfall(EngineSettings settings)
 {
-	glfwInit();
-	// Initialize window properties
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, true);
-	// Create window and OpenGL context
-	m_window = glfwCreateWindow(800, 600, "Snowfall", nullptr, nullptr);  
-	glfwMakeContextCurrent(m_window);
-	glewExperimental = GL_TRUE;
-	glewInit();
-
-	TextureUnitManager::Initialize(84);
-	ImageUnitManager::Initialize(32);
-
-	m_assetManager.RegisterReader(new ShaderAssetReader);
-	m_assetManager.RegisterReader(new MeshAssetReader);
-	m_assetManager.RegisterReader(new TextureAssetReader);
-	m_assetManager.EnumerateUnpackedFolder(".\\Assets");
+	m_settings = settings;
+	Init();
 }
 
 Snowfall::~Snowfall()
@@ -49,8 +38,8 @@ void Snowfall::StartGame()
 
 		glfwPollEvents(); // Check for user events
 
-		m_scene->PerformUpdate(clockDiff);
-		m_scene->RenderCameras(clockDiff);
+		m_meshManager->ClearData();
+		m_scene->Update(clockDiff);
 
 		glfwSwapBuffers(m_window);
 
@@ -70,9 +59,9 @@ void Snowfall::StartGame()
 }
 
 
-void Snowfall::InitGlobalInstance()
+void Snowfall::InitGlobalInstance(EngineSettings settings)
 {
-	m_gameInstance = new Snowfall;
+	m_gameInstance = new Snowfall(settings);
 }
 
 glm::ivec2 Snowfall::GetViewportSize()
@@ -84,4 +73,44 @@ glm::ivec2 Snowfall::GetViewportSize()
 
 void Snowfall::Log(LogType type, std::string message)
 {
+}
+
+void Snowfall::Init()
+{
+	glfwInit();
+	// Initialize window properties
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, true);
+	// Create window and OpenGL context
+	m_window = glfwCreateWindow(800, 600, "Snowfall", nullptr, nullptr);
+	glfwMakeContextCurrent(m_window);
+	glewExperimental = GL_TRUE;
+	glewInit();
+
+	m_assetManager = new AssetManager;
+	m_prototypeManager = new PrototypeManager;
+	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes / (sizeof(RenderVertex) * 2.1f));
+	m_preprocessor = new ShaderPreprocessor(*m_assetManager);
+
+	TextureUnitManager::Initialize(m_settings.TextureUnits);
+	ImageUnitManager::Initialize(m_settings.ImageUnits);
+
+	m_assetManager->RegisterReader(new ShaderAssetReader);
+	m_assetManager->RegisterReader(new MeshAssetReader);
+	m_assetManager->RegisterReader(new TextureAssetReader);
+	m_assetManager->RegisterReader(new MaterialAssetReader);
+
+	m_assetManager->EnumerateUnpackedFolder(".\\Assets");
+
+	SetupDefaultPrototypes();
+}
+
+void Snowfall::SetupDefaultPrototypes()
+{
+	m_prototypeManager->AddComponentDescription<TransformComponent>();
+	m_prototypeManager->AddComponentDescription<MeshRenderComponent>();
+	m_prototypeManager->AddComponentDescription<CameraComponent>();
+	m_prototypeManager->AddComponentDescription<TestComponent>();
 }

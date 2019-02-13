@@ -27,7 +27,7 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 			GLuint shader = glCreateShader(stages[i].first);
 			shaders.push_back(shader);
 
-			std::string define = "#version 450\n#define " + stages[i].second;
+			std::string define = "#version 460\n#define " + stages[i].second;
 			std::vector<const char *> lines = { define.data(), defineString.c_str(), "\n#line 0\n", src.data() };
 
 			glShaderSource(shader, 4, lines.data(), nullptr);

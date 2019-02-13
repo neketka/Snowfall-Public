@@ -6,7 +6,7 @@ class MeshAsset : public IAsset
 {
 public:
 	MeshAsset(std::string path, Mesh mesh);
-	MeshAsset(IAssetStreamSource *stream);
+	MeshAsset(IAssetStreamIO *stream);
 	~MeshAsset();
 
 	virtual std::string GetPath() const override;
@@ -21,12 +21,12 @@ private:
 	bool m_inMemory;
 	bool m_loaded;
 	bool m_loadSuccess;
-	IAssetStreamSource *m_stream;
+	IAssetStreamIO *m_stream;
 	std::string m_path;
 };
 
 class MeshAssetReader : public IAssetReader
 {
 	virtual std::vector<std::string> GetExtensions() override;
-	virtual void LoadAssets(std::string ext, IAssetStreamSource * streamSource, AssetManager& assetManager) override;
+	virtual void LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager) override;
 };

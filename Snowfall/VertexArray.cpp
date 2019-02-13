@@ -41,3 +41,22 @@ void VertexArray::SetBuffer(int structure, TBuffer buffer, int offset)
 		glVertexArrayVertexBuffer(m_id, attrib.Index, buffer.GetID(), offset, len);
 	}
 }
+
+void VertexArray::SetAttributeEnabled(int index, bool enabled)
+{
+	if (enabled)
+		glEnableVertexArrayAttrib(m_id, index);
+	else
+		glDisableVertexArrayAttrib(m_id, index);
+}
+
+void VertexArray::SetStructureEnabled(int structure, bool enabled)
+{
+	for (Attribute attr : m_structures[structure].GetAttributes())
+	{
+		if (enabled)
+			glEnableVertexArrayAttrib(m_id, attr.Index);
+		else
+			glDisableVertexArrayAttrib(m_id, attr.Index);
+	}
+}

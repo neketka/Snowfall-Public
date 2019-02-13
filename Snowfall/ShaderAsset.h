@@ -8,7 +8,7 @@ class ShaderAsset : public IAsset
 {
 public:
 	ShaderAsset(std::string path, std::string src);
-	ShaderAsset(IAssetStreamSource *stream);
+	ShaderAsset(IAssetStreamIO *stream);
 	~ShaderAsset();
 
 	inline std::string GetSource() 
@@ -34,7 +34,7 @@ private:
 	bool m_compileSuccess;
 	bool m_isStreamedSource;
 
-	IAssetStreamSource *m_stream;
+	IAssetStreamIO *m_stream;
 	std::string m_path;
 	std::string m_rawSource;
 	std::string m_processedSource;
@@ -47,5 +47,5 @@ public:
 	ShaderAssetReader();
 
 	virtual std::vector<std::string> GetExtensions() override;
-	virtual void LoadAssets(std::string ext, IAssetStreamSource *streamSource, AssetManager& assetManager) override;
+	virtual void LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager) override;
 };
