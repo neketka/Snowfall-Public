@@ -1,5 +1,4 @@
 #pragma once
-#include "Snowfall.h"
 
 class SnowChunk
 {

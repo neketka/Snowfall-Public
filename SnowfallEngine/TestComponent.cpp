@@ -1,8 +1,5 @@
 #include "TestComponent.h"
-
-#include <Scene.h>
-#include <TransformComponent.h>
-#include <MeshComponent.h>
+#include "TransformComponent.h"
 
 std::vector<SerializationField> ComponentDescriptor<TestComponent>::GetSerializationFields()
 {
@@ -10,33 +7,23 @@ std::vector<SerializationField> ComponentDescriptor<TestComponent>::GetSerializa
 	};
 }
 
-void TestSystem::InitializeSystem(Scene& scene)
+void TestSystem::InitializeSystem(EntityManager *eManager, ComponentManager *cManager, EventManager *evManager, PrototypeManager *pManager)
 {
-	m_scene = &scene;
+	m_cManager = cManager;
 }
 
 float t = 0;
 void TestSystem::Update(float deltaTime)
 {
 	bool doDelete = t > 1.0;
-	for (TestComponent *comp : m_scene->GetComponentManager().GetComponents<TestComponent>())
+	for (TestComponent *comp : m_cManager->GetComponents<TestComponent>())
 	{
 		TransformComponent *transform = comp->Owner.GetComponent<TransformComponent>();
 		transform->Rotation += glm::vec3(deltaTime, deltaTime * 0.5f, 0);
 		if (doDelete)
 		{
-			float rnd1 = std::rand() % 100000 / 10000.f - 2.5f;
-			float rnd2 = std::rand() % 100000 / 10000.f - 2.5f;
-			float rnd3 = std::rand() % 100000 / 10000.f - 7.0f;
-
 			doDelete = false;
-
-			Entity e = comp->Owner.Clone();
-
-			e.GetComponent<TransformComponent>()->Parent = comp->Owner;
-			e.GetComponent<TransformComponent>()->Position = glm::vec3(rnd1, rnd2, rnd3);
-			e.GetComponent<MeshRenderComponent>()->Batch = nullptr;
-
+			//comp->Owner.Kill();
 			t = 0;
 		}
 	}

@@ -1,293 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="OpenGL">
-      <UniqueIdentifier>{db18680e-3336-484f-9439-daa267e22591}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering">
-      <UniqueIdentifier>{b662b2fc-8ad2-46e8-a090-b56d4a98b35c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{ebb117fc-0266-4182-83ba-fe0437a09935}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Geometry">
-      <UniqueIdentifier>{92221097-135b-4c49-be63-a91240ed803a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{aafa8e90-34ea-42d4-bf0b-4fdfabb783b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{65748cf5-ac8e-4cc8-a5b6-475b7e06648e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{909781d0-d106-4195-b761-ca0b5106f2df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Assets">
-      <UniqueIdentifier>{367cb186-062a-4f32-ab1b-65fb45eb9e9c}</UniqueIdentifier>
-    </Filter>
+    <Xml Include="snapin.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Filter Include="Game">
-      <UniqueIdentifier>{98c00163-abba-4a64-aa1e-f24ea76ccd2f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\ECS">
-      <UniqueIdentifier>{b0ef4983-5d0c-492e-9476-484c728b62ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Components">
-      <UniqueIdentifier>{3d0bc628-5358-4711-ba03-0e7e72b77d16}</UniqueIdentifier>
+      <UniqueIdentifier>{121e1252-a9a2-4a51-b0cd-278b47b65065}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Shader.cpp">
-      <Filter>OpenGL</Filter>
+    <ClCompile Include="SnowChunk.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="VertexArray.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Buffer.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Framebuffer.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Sampler.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderDescriptor.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderConstants.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandBuffer.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="OcclusionQuery.cpp">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="Snowfall.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderPreprocessor.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="BoundingBox.cpp">
-      <Filter>Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="AssetManager.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderAsset.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="JobManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="PixelTransferrer.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="LinearAllocator.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="SubmitBuffer.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionShape.cpp">
-      <Filter>Physics</Filter>
+    <ClCompile Include="TestComponent.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="MeshAsset.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureAsset.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="SnowChunk.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="System.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Event.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Prototype.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformComponent.cpp">
-      <Filter>Engine\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshComponent.cpp">
-      <Filter>Engine\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraComponent.cpp">
-      <Filter>Engine\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshManager.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Frustum.cpp">
-      <Filter>Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="TestComponent.cpp">
-      <Filter>Engine\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialAsset.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="LocalAssetStream.cpp">
-      <Filter>Engine\Assets</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexArray.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Framebuffer.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Sampler.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="GLResource.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderDescriptor.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Pipeline.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderConstants.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandBuffer.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="OcclusionQuery.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="Snowfall.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderPreprocessor.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="BoundingBox.h">
-      <Filter>Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="AssetManager.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderAsset.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="JobManager.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelTransferrer.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="LinearAllocator.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="SubmitBuffer.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionShape.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="NullStreamSource.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="SimplePBRShader.glsl">
-      <Filter>Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshAsset.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureAsset.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
     <ClInclude Include="SnowChunk.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ECS.h">
-      <Filter>Engine\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformComponent.h">
-      <Filter>Engine\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshComponent.h">
-      <Filter>Engine\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Engine\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Engine\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Frustum.h">
-      <Filter>Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="TestComponent.h">
-      <Filter>Engine\Components</Filter>
+      <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialAsset.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="LocalAssetStream.h">
-      <Filter>Engine\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshManager.h">
-      <Filter>Shaders</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SnowfallShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Lighting.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="snapin.xml" />
   </ItemGroup>
 </Project>

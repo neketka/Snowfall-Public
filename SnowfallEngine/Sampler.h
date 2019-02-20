@@ -1,0 +1,66 @@
+#pragma once
+#include <GL\glew.h>
+#include "GLResource.h"
+#include <queue>
+#include <map>
+
+#include "export.h"
+
+class TextureUnitManager
+{
+public:
+	SNOWFALLENGINE_API static void Initialize(GLint availableUnits);
+	SNOWFALLENGINE_API static int RefreshUnit(GLint id);
+private:
+	static std::map<GLint, GLint> m_availableUnits;
+	static std::queue<GLint> m_ageSort;
+};
+
+enum class WrapMode
+{
+	Repeat = GL_REPEAT, MirroredRepeat = GL_MIRRORED_REPEAT, ClampToEdge = GL_CLAMP_TO_EDGE
+};
+
+enum class TextureChannel
+{
+	S = GL_S, T = GL_T, R = GL_R
+};
+
+enum class MinificationFilter
+{
+	Nearest = GL_NEAREST, Linear = GL_LINEAR, NearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST, LinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
+	NearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR, LinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR
+};
+
+enum class MagnificationFilter
+{
+	Nearest = GL_NEAREST, Linear = GL_LINEAR
+};
+
+enum class ComparisonFunc
+{
+	Never = GL_NEVER, Less = GL_LESS, Greater = GL_GREATER, Equal = GL_EQUAL,
+	Always = GL_ALWAYS, LessEqual = GL_LEQUAL, GreaterEqual = GL_GEQUAL, NotEqual = GL_NOTEQUAL
+};
+
+class SNOWFALLENGINE_API Sampler : public IGLResource
+{
+public:
+	Sampler();
+
+	void SetWrapMode(TextureChannel channel, WrapMode mode);
+	void SetMinificationFilter(MinificationFilter filter);
+	void SetMagnificationFilter(MagnificationFilter filter);
+	void SetCompareMode(bool enabled);
+	void SetComparison(ComparisonFunc func);
+	void SetAnisotropicFiltering(bool enabled);
+
+	int BindToTextureUnit(); 
+
+	void Destroy() override;
+
+	inline GLuint GetID() { return m_id; }
+private:
+	GLuint m_id;
+};
+

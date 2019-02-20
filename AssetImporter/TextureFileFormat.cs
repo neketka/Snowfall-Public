@@ -18,7 +18,7 @@ namespace AssetImporter
 
     public enum TextureType : int
     {
-        Texture1D=0, Texture1DArray=1, Texture2D=2, Texture2DArray=3, TextureCubemap=4, TextureCubemapArray=5, Texture3D=6
+        Texture2D=2, Texture2DArray=3, TextureCubemap=4, TextureCubemapArray=5, Texture3D=6
     }
 
     public enum TexturePixelFormat : int
