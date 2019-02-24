@@ -1,9 +1,37 @@
 #ifndef LIGHTING_INCLUDE
 #define LIGHTING_INCLUDE
 
+struct Light
+{
+	vec4 Position; //+ Inner Cutoff
+	vec4 Direction; //+ Outer Cutoff
+	vec4 Color; //+ Intensity
+	mat4 LightSpace;
+
+	float Range;
+	float RangeCutoff;
+
+	int Type; //0:dir 1:point 2:spot
+
+	int HighIndex;
+	int MiddleIndex;
+	int LowIndex;
+};
+
+struct Material
+{
+	vec3 Diffuse;
+	vec3 Emissive;
+	vec3 Subsurface;
+	vec3 Normal;
+	float Metalness;
+	float Roughness;
+	float AO;
+};
+
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+	return max(F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0), 0.0);
 }
 
 float DistributionGGX(float NdotH, float roughness)
@@ -38,13 +66,13 @@ float GeometrySmith(float NdotV, float NdotL, float roughness)
 	return ggx1 * ggx2;
 }
 
-float orenNayarDiffuse(float LdotV, float NdotL, float NdotV, float roughness, float albedo)
+vec3 orenNayarDiffuse(float LdotV, float NdotL, float NdotV, float roughness, vec3 albedo)
 {
 	float s = LdotV - NdotL * NdotV;
 	float t = mix(1.0, max(NdotL, NdotV), step(0.0, s));
 
 	float sigma2 = roughness * roughness;
-	float A = 1.0 + sigma2 * (albedo / (sigma2 + 0.13) + 0.5 / (sigma2 + 0.33));
+	vec3 A = 1.0 + sigma2 * (albedo / (sigma2 + 0.13) + 0.5 / (sigma2 + 0.33));
 	float B = 0.45 * sigma2 / (sigma2 + 0.09);
 
 	return albedo * max(0.0, NdotL) * (A + B * s / t) / PI;
@@ -71,7 +99,7 @@ vec3 WardOrenBRDF(vec3 N, vec3 V, vec3 L, vec3 H, vec3 T, vec3 B, vec3 radiance,
 
 	float exponent = -(a * a + b * b) / (c * c);
 
-	float spec = 1.0 / (4.0 * 3.14159265 * ax * ay * sqrt(dot(L, N) * dot(V, N)));
+	float spec = 1.0 / (4.0 * PI * ax * ay * sqrt(dot(L, N) * dot(V, N)));
 	spec *= exp(exponent);
 
 	return diffuse / PI + specular * spec;
@@ -98,7 +126,8 @@ vec3 CookOrenBRDF(vec3 N, vec3 V, vec3 L, vec3 H, vec3 radiance,
 	vec3 num = NDF * G * F;
 	float denom = 4.0 * NdotV * NdotL;
 	vec3 specular = num / max(denom, 0.001);
-	return (kD * diffuse / PI + specular) * radiance * orenNayarDiffuse(LdotV, NdotL, NdotV, roughness, 0.7);
+	vec3 albedo = orenNayarDiffuse(LdotV, NdotL, NdotV, roughness, kD);
+	return (kD * diffuse / PI + specular) * radiance * albedo;
 }
 
 float Attenutation(vec3 L, float lightRadius, float cutoff)
@@ -114,4 +143,44 @@ float Attenutation(vec3 L, float lightRadius, float cutoff)
 	attenuation = max(attenuation, 0);
 	return attenuation;
 }
+
+float CalculateSpotlight(vec3 L, vec3 lightDir, float innerCutoff, float outerCutoff)
+{
+	float theta = dot(lightDir, L);
+	float epsilon = innerCutoff - outerCutoff;
+	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+	return intensity;
+}
+
+vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material)
+{
+	vec3 radiance = light.Color.xyz * light.Color.w;
+
+	vec3 L = light.Type == 0 ? -light.Direction.xyz : normalize(light.Position.xyz - fragPos);
+	vec3 V = normalize(camPos - fragPos);
+	vec3 N = normalize(material.Normal);
+	vec3 H = normalize(L + V);
+
+	vec3 color = vec3(0.0, 0.0, 0.0);
+
+	switch (light.Type)
+	{
+	case 0:
+		color = CookOrenBRDF(N, V, L, H, radiance,
+			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
+		break;
+	case 1:
+		color = CookOrenBRDF(N, V, L, H, radiance * Attenutation(light.Position.xyz - fragPos, light.Range, light.RangeCutoff),
+			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
+		break;
+	case 2:
+		color = CookOrenBRDF(N, V, L, H, radiance * Attenutation(light.Position.xyz - fragPos, light.Range, light.RangeCutoff)
+			* CalculateSpotlight(L, -light.Direction.xyz, light.Position.w, light.Direction.w),
+			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
+		break;
+	}
+
+	return color + material.Emissive;
+}
+
 #endif

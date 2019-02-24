@@ -30,7 +30,9 @@ void TBuffer::Destroy()
 {
 	if (m_length == 0)
 		return;
-	glDeleteBuffers(1, &m_id);
+	if (m_id != 0)
+		glDeleteBuffers(1, &m_id);
+	m_id = 0;
 }
 
 void TBuffer::MapBuffer(int offset, int length, MappingOptions options)

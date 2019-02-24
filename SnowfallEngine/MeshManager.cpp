@@ -103,19 +103,21 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 	//*counter = passed;
 }
 
-void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, bool overrideShader)
+void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader)
 {
 	p.VertexStage.VertexArray = m_defaultArray;
 	for (RendererStateChange& change : m_stateChanges)
 	{
 		if (!(mask & change.LayerMask))
 			continue;
+		std::set spec = std::set(change.Specializations);
+		spec.insert(specializations.begin(), specializations.end());
 		if (!overrideShader)
-			p.Shader = change.Shader;
+			p.Shader = change.Shader->GetShaderVariant(spec);
 
 		buffer.BindPipelineCommand(p);
 
-		buffer.BindConstantsCommand(constants); //TODO: add combine function to support Vulkan in the future instead of replacing buffers
+		buffer.BindConstantsCommand(constants); //TODO: add combine function in the future instead of replacing buffers
 		buffer.BindConstantsCommand(change.Constants);
 
 		buffer.BindDescriptorCommand(descriptor);

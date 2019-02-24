@@ -7,15 +7,6 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{0c4fb68c-08d8-40df-81fc-689a0ad9f76a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Assets">
-      <UniqueIdentifier>{03dc5302-7384-4cf9-af98-46b302ff22e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\ECS">
-      <UniqueIdentifier>{dd65374c-fbd6-4333-85ff-fd9b6f7f649a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Components">
-      <UniqueIdentifier>{ed287b85-fe9a-4404-9c73-2295da66db06}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Geometry">
       <UniqueIdentifier>{06995b87-5214-4538-9657-9679c08d85db}</UniqueIdentifier>
     </Filter>
@@ -34,13 +25,25 @@
     <Filter Include="Tools">
       <UniqueIdentifier>{a74d0c81-9d58-480c-867f-7d659005b831}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{03dc5302-7384-4cf9-af98-46b302ff22e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{ed287b85-fe9a-4404-9c73-2295da66db06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS">
+      <UniqueIdentifier>{dd65374c-fbd6-4333-85ff-fd9b6f7f649a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{60e69575-e222-4cdf-8c86-82a210d68992}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Export</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="BoundingBox.cpp">
       <Filter>Geometry</Filter>
@@ -49,7 +52,7 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="CameraComponent.cpp">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="CollisionShape.cpp">
       <Filter>Physics</Filter>
@@ -58,13 +61,13 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="Entity.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="Event.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="Framebuffer.cpp">
       <Filter>OpenGL</Filter>
@@ -79,19 +82,19 @@
       <Filter>Tools</Filter>
     </ClCompile>
     <ClCompile Include="LocalAssetStream.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="MaterialAsset.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="MeshAsset.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="MeshComponent.cpp">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>Rendering</Filter>
@@ -106,19 +109,19 @@
       <Filter>Tools</Filter>
     </ClCompile>
     <ClCompile Include="Prototype.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="Sampler.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="ShaderAsset.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="ShaderConstants.cpp">
       <Filter>OpenGL</Filter>
@@ -136,10 +139,10 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="TransformComponent.cpp">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="TextureAsset.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="SubmitBuffer.cpp">
       <Filter>Tools</Filter>
@@ -148,10 +151,19 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="System.cpp">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="RenderTargetAsset.cpp">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="LightComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapRenderSystem.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,7 +171,7 @@
       <Filter>Export</Filter>
     </ClInclude>
     <ClInclude Include="AssetManager.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="BoundingBox.h">
       <Filter>Geometry</Filter>
@@ -168,7 +180,7 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="CameraComponent.h">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="CollisionShape.h">
       <Filter>Physics</Filter>
@@ -177,7 +189,7 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="ECS.h">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClInclude>
     <ClInclude Include="Framebuffer.h">
       <Filter>OpenGL</Filter>
@@ -195,28 +207,28 @@
       <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="LocalAssetStream.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MaterialAsset.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="MeshAsset.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="MeshComponent.h">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="NullStreamSource.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="OcclusionQuery.h">
       <Filter>OpenGL</Filter>
@@ -234,13 +246,13 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Engine\ECS</Filter>
+      <Filter>ECS</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="ShaderAsset.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="ShaderConstants.h">
       <Filter>OpenGL</Filter>
@@ -258,10 +270,10 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="TransformComponent.h">
-      <Filter>Engine\Components</Filter>
+      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="TextureAsset.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="SubmitBuffer.h">
       <Filter>Tools</Filter>
@@ -270,7 +282,19 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="RenderTargetAsset.h">
-      <Filter>Engine\Assets</Filter>
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="LightComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEnums.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapRenderSystem.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +305,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="SnowfallShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="DeferredLighting.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

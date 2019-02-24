@@ -77,7 +77,9 @@ void Texture::ReadPixels(int x, int y, int z, int w, int h, int d, int level, Te
 
 void Texture::Destroy()
 {
-	glDeleteTextures(1, &m_id);
+	if (m_id != 0)
+		glDeleteTextures(1, &m_id);
+	m_id = 0;
 }
 
 int Texture::m_imagesMade;

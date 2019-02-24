@@ -22,11 +22,12 @@ enum class SerializationType
 
 enum class InterpretValueAs
 {
-	NotApplicable, Int8, Int8Array, Int16, Int16Array, Int32, Int32Array, Int64, Int64Array,
+	NotApplicable, Bool, Int8, Int8Array, Int16, Int16Array, Int32, Int32Array, Int64, Int64Array,
 	UInt8, UInt8Array, UInt16, UInt16Array, UInt32, UInt32Array, UInt64, UInt64Array,
 	Float32, Float32Array, Float64, Float64Array, FVector2, FVector2Array, FVector3, 
 	FVector3Array, FVector4, FVector4Array, IVector2, IVector2Array, IVector3,
-	IVector3Array, IVector4, IVector4Array, AnyAsset, MaterialAsset, MeshAsset, ShaderAsset, TextureAsset
+	IVector3Array, IVector4, IVector4Array, FColor3, FColor4, 
+	AnyAsset, MaterialAsset, MeshAsset, ShaderAsset, TextureAsset, RenderTargetAsset
 };
 
 class SerializationField

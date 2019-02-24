@@ -168,11 +168,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SnowChunk.cpp" />
-    <ClCompile Include="TestComponent.cpp" />
+    <ClCompile Include="CameraFlyComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SnowChunk.h" />
-    <ClInclude Include="TestComponent.h" />
+    <ClInclude Include="CameraFlyComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SnowfallEngine\SnowfallEngine.vcxproj">

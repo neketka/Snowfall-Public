@@ -79,21 +79,19 @@ public:
 class SNOWFALLENGINE_API TBuffer : public IGLResource
 {
 public:
+	TBuffer() {}
+	TBuffer(void *data, int tsize, int length, BufferOptions options);
 	inline GLuint GetID() { return m_id; }
 	inline int GetSize() { return m_length; }
 	inline int GetTSize() { return m_tsize; }
 	virtual void Destroy() override;
 	void UnmapBuffer();
-	bool operator==(const TBuffer& other) const { return m_id == other.m_id; }
-protected:
-	TBuffer(void *data, int tsize, int length, BufferOptions options);
-	TBuffer() {}
 	void CopyData(void *data, int offset, int length);
 	void CopyBufferData(int offset, int size, TBuffer dest, int destOffset);
 	void FlushBuffer(int offset, int length);
 	void MapBuffer(int offset, int length, MappingOptions options);
-
 	inline void *GetMappedPointer() { return m_mappingPtr; }
+	bool operator==(const TBuffer& other) const { return m_id == other.m_id; }
 private:
 	GLuint m_id;
 	void *m_mappingPtr;

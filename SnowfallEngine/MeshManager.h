@@ -6,6 +6,7 @@
 #include "BoundingBox.h"
 #include "Frustum.h"
 #include "ECS.h"
+#include "ShaderAsset.h"
 
 #include <vector>
 #include <string>
@@ -29,7 +30,9 @@ public:
 	int IndirectLength;
 
 	PrimitiveType Type;
-	Shader Shader;
+	ShaderAsset *Shader;
+	std::set<std::string> Specializations;
+	
 	ShaderConstants Constants;
 	ShaderDescriptor Descriptor;
 	LayerMask LayerMask;
@@ -50,7 +53,7 @@ public:
 	SNOWFALLENGINE_API void ClearData();
 	SNOWFALLENGINE_API void WriteIndirectCommandsToCullingPass(std::vector<GeometryHandle>& geometry, std::vector<BoundingBox>& boundingBoxes, RendererStateChange& state);
 	SNOWFALLENGINE_API void RunCullingPass(std::vector<Frustum> frusta);
-	SNOWFALLENGINE_API void Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, bool overridePipeline);
+	SNOWFALLENGINE_API void Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader);
 
 	inline VertexArray GetVertexArray() { return m_defaultArray; }
 private:

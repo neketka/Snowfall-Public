@@ -8,6 +8,7 @@
 #include "MeshComponent.h"
 #include "TransformComponent.h"
 #include "CameraComponent.h"
+#include "LightComponent.h"
 
 Snowfall *Snowfall::m_gameInstance;
 
@@ -19,6 +20,11 @@ Snowfall::Snowfall(EngineSettings settings)
 
 Snowfall::~Snowfall()
 {
+	delete m_assetManager;
+	delete m_prototypeManager;
+	delete m_meshManager;
+	delete m_preprocessor;
+	delete m_inputManager;
 }
 
 void Snowfall::StartGame()
@@ -92,6 +98,7 @@ void Snowfall::Init()
 	m_prototypeManager = new PrototypeManager;
 	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes / (sizeof(RenderVertex) * 2.1f));
 	m_preprocessor = new ShaderPreprocessor(*m_assetManager);
+	m_inputManager = new InputManager(m_window);
 
 	TextureUnitManager::Initialize(m_settings.TextureUnits);
 	ImageUnitManager::Initialize(m_settings.ImageUnits);
@@ -111,4 +118,5 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<TransformComponent>();
 	m_prototypeManager->AddComponentDescription<MeshRenderComponent>();
 	m_prototypeManager->AddComponentDescription<CameraComponent>();
+	m_prototypeManager->AddComponentDescription<LightComponent>();
 }

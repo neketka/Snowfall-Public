@@ -9,7 +9,7 @@
 class TransformComponent : public Component
 {
 public:
-	TransformComponent() : Enabled(true), Scale(1, 1, 1) {}
+	TransformComponent() : Enabled(true), Scale(1, 1, 1), transformInstant(0) {}
 	Entity Parent;
 
 	glm::vec3 Position;
@@ -17,9 +17,14 @@ public:
 	glm::vec3 Scale;
 
 	bool Enabled;
-	long transformInstant;
+
+	glm::vec3 GlobalPosition;
+	glm::vec3 GlobalRotation;
+	glm::vec3 GlobalDirection;
 
 	glm::mat4 ModelMatrix;
+
+	long transformInstant;
 };
 
 class SNOWFALLENGINE_API TransformSystem : public ISystem

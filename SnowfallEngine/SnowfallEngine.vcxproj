@@ -165,7 +165,9 @@
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="JobManager.cpp" />
+    <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="LinearAllocator.cpp" />
     <ClCompile Include="LocalAssetStream.cpp" />
     <ClCompile Include="MaterialAsset.cpp" />
@@ -185,6 +187,7 @@
     <ClCompile Include="ShaderConstants.cpp" />
     <ClCompile Include="ShaderDescriptor.cpp" />
     <ClCompile Include="ShaderPreprocessor.cpp" />
+    <ClCompile Include="ShadowMapRenderSystem.cpp" />
     <ClCompile Include="Snowfall.cpp" />
     <ClCompile Include="SubmitBuffer.cpp" />
     <ClCompile Include="System.cpp" />
@@ -205,7 +208,10 @@
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GLResource.h" />
+    <ClInclude Include="InputEnums.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="JobManager.h" />
+    <ClInclude Include="LightComponent.h" />
     <ClInclude Include="LinearAllocator.h" />
     <ClInclude Include="LocalAssetStream.h" />
     <ClInclude Include="Material.h" />
@@ -227,6 +233,7 @@
     <ClInclude Include="ShaderConstants.h" />
     <ClInclude Include="ShaderDescriptor.h" />
     <ClInclude Include="ShaderPreprocessor.h" />
+    <ClInclude Include="ShadowMapRenderSystem.h" />
     <ClInclude Include="Snowfall.h" />
     <ClInclude Include="SubmitBuffer.h" />
     <ClInclude Include="Texture.h" />
@@ -238,6 +245,19 @@
     <None Include="Lighting.glsl" />
     <None Include="SimplePBRShader.glsl" />
     <None Include="SnowfallShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DeferredLighting.glsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,9 @@
 #include "TransformComponent.h"
 #include "CommandBuffer.h"
 #include "Snowfall.h"
+#include "LightComponent.h"
 #include "Scene.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
@@ -24,35 +26,56 @@ void CameraSystem::InitializeSystem(Scene& scene)
 
 void CameraSystem::Update(float deltaTime)
 {
-	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
-	{
-		camera->RenderTarget.ClearColor(0, glm::vec4(0, 0, 0, 1));
-		camera->RenderTarget.ClearDepth(1);
-
-		TransformComponent *transform = camera->Owner.GetComponent<TransformComponent>();
-		camera->ProjectionMatrix = glm::perspective(camera->FovY, static_cast<float>(camera->Region.Size.x) / static_cast<float>(camera->Region.Size.y), camera->ZNear, camera->ZFar);
-		camera->ViewMatrix = glm::rotate(transform->Rotation.y, glm::vec3(0, 1, 0)) *
-			glm::rotate(transform->Rotation.x, glm::vec3(1, 0, 0)) *
-			glm::rotate(transform->Rotation.z, glm::vec3(0, 0, 1)) *
-			glm::translate(transform->Position);
-	}
-
 	Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 
+	TBuffer lights = dynamic_cast<LightSystem *>(m_scene->GetSystemManager().GetSystem("LightSystem"))->GetLightBuffer();
 	CommandBuffer buffer;
 	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
 	{
+		TransformComponent *transform = camera->Owner.GetComponent<TransformComponent>();
+
+		if (camera->LockToTargetResolution)
+		{
+			if (camera->RenderTarget.GetID() == 0)
+				camera->Region = IQuad2D(glm::ivec2(0, 0), Snowfall::GetGameInstance().GetViewportSize());
+		}
+
+		camera->RenderTarget.ClearColor(0, glm::vec4(0, 0, 0, 1));
+		camera->RenderTarget.ClearDepth(1);
+
+		camera->ProjectionMatrix = glm::perspective(glm::radians(camera->FovY), static_cast<float>(camera->Region.Size.x) / static_cast<float>(camera->Region.Size.y), camera->ZNear, camera->ZFar);
+		camera->ViewMatrix = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
+
+		std::vector<int> indices;
+		int index = 0;
+		for (LightComponent *light : m_scene->GetComponentManager().GetComponents<LightComponent>())
+		{
+			if (index == 31)
+				break;
+			indices.push_back(index);
+			++index;
+		}
+
+		lights.CopyData(&index, 0, 4);
+		lights.CopyData(indices.data(), 4, 4 * index);
+
 		Pipeline pipeline;
 		pipeline.FragmentStage.DepthTest = true;
+		pipeline.FragmentStage.DepthMask = true;
 		pipeline.FragmentStage.Framebuffer = camera->RenderTarget;
 		pipeline.FragmentStage.Viewport = camera->Region;
 		pipeline.FragmentStage.DrawTargets = { 0 };
+		pipeline.VertexStage.BackFaceCulling = true;
 
 		ShaderConstants constants;
 		constants.AddConstant(0, camera->ProjectionMatrix);
 		constants.AddConstant(1, camera->ViewMatrix);
+		constants.AddConstant(4, transform->Position);
 
-		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, ShaderDescriptor(), camera->LayerMask, false);
+		ShaderDescriptor desc;
+		desc.AddShaderStorageBuffer(lights, 2);
+
+		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, camera->LayerMask, {}, false);
 	}
 	buffer.ExecuteCommands();
 }

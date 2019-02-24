@@ -275,7 +275,8 @@ void MeshRenderingSystem::UploadRenderingCommands(BatchState& state)
 	std::vector<GeometryHandle> ghandles;
 	std::vector<BoundingBox> boxes;
 	Material& material = state.Material->GetMaterial();
-	state.StateChange.Shader = material.MaterialShader->GetShaderVariant(state.ShaderSpecialization);
+	state.StateChange.Shader = material.MaterialShader;
+	state.StateChange.Specializations = state.ShaderSpecialization;
 	state.StateChange.Constants = material.Constants;
 	if (state.StateChange.InstanceCount > 1)
 	{

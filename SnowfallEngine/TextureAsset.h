@@ -27,7 +27,7 @@ class TextureAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API TextureAsset(IAssetStreamIO *stream);
-	SNOWFALLENGINE_API TextureAsset(TextureType type, TextureInternalFormat format, int width, int height, int depth, int levels);
+	SNOWFALLENGINE_API TextureAsset(std::string path, TextureType type, TextureInternalFormat format, int width, int height, int depth, int levels);
 	SNOWFALLENGINE_API ~TextureAsset();
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
@@ -38,6 +38,7 @@ public:
 
 	inline TextureInternalFormat GetFormat() { return m_internalFormat; }
 	inline TextureType GetType() { return m_type; }
+	void ResizeDepth(int newDepth);
 
 	SNOWFALLENGINE_API void SetLOD(float lod);
 

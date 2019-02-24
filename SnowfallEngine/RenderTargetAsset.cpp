@@ -106,7 +106,7 @@ void RenderTargetAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream
 		if (data[0] == 1)
 			asset = &assetManager.LocateAsset<TextureAsset>(assetName); // Better hope that TextureAsset loads first
 		else
-			asset = new TextureAsset(static_cast<TextureType>(data[1]), static_cast<TextureInternalFormat>(data[2]), data[3], data[4], data[5], 1);
+			asset = new TextureAsset(path, static_cast<TextureType>(data[1]), static_cast<TextureInternalFormat>(data[2]), data[3], data[4], data[5], 1);
 		if (data[0] == 2)
 			assetManager.AddAsset(asset);
 		assets[i] = asset;

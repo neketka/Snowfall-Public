@@ -123,8 +123,8 @@ PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 
 			if (asset.IsValid())
 			{
-				src = src.insert(dir.Position + includeAdjust, asset.GetSource());
-				includeAdjust += asset.GetSource().length();
+				src = src.insert(dir.Position + includeAdjust, asset.GetSource() + "\n#line 0\n");
+				includeAdjust += asset.GetSource().length() + 9;
 			}
 			else
 				src = src.insert(dir.Position, "#error Cannot open file \"" + dir.Arguments + "\"");

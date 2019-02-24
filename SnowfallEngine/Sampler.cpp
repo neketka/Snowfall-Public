@@ -75,5 +75,7 @@ int Sampler::BindToTextureUnit()
 
 void Sampler::Destroy()
 {
-	glDeleteSamplers(1, &m_id);
+	if (m_id != 0)
+		glDeleteSamplers(1, &m_id);
+	m_id = 0;
 }

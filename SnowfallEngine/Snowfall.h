@@ -2,6 +2,7 @@
 #include "ShaderPreprocessor.h"
 #include "AssetManager.h"
 #include "MeshManager.h"
+#include "InputManager.h"
 #include "Scene.h"
 
 #include <map>
@@ -23,6 +24,9 @@ public:
 	int ComponentPoolChunks;
 	int MaxTextureMemory;
 
+	int ShadowMapResolution;
+	int CloseShadowMapResolution;
+
 	int MaxMeshMemoryBytes;
 	int MaxMeshCommands;
 	int TextureUnits;
@@ -43,6 +47,7 @@ public:
 	inline PrototypeManager& GetPrototypeManager() { return *m_prototypeManager; }
 	inline MeshManager& GetMeshManager() { return *m_meshManager; }
 	inline ShaderPreprocessor& GetShaderPreprocessor() { return *m_preprocessor; }
+	inline InputManager& GetInputManager() { return *m_inputManager; }
 	inline EngineSettings& GetEngineSettings() { return m_settings; }
 
 	glm::ivec2 GetViewportSize();
@@ -63,6 +68,7 @@ private:
 	MeshManager *m_meshManager;
 	ShaderPreprocessor *m_preprocessor; // Global preprocessor
 	EngineSettings m_settings;
+	InputManager *m_inputManager;
 	GLFWwindow *m_window;
 	static Snowfall *m_gameInstance; // Global game instance
 };

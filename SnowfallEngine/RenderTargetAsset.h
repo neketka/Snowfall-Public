@@ -7,6 +7,8 @@
 class TextureLayerAttachment
 {
 public: 
+	TextureLayerAttachment() {}
+	TextureLayerAttachment(int tIndex, int level, int layer) : TextureIndex(tIndex), Level(level), Layer(layer) {}
 	int TextureIndex;
 	int Level;
 	int Layer;

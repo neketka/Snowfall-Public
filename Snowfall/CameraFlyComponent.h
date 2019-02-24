@@ -1,11 +1,11 @@
 #pragma once
 #include "ECS.h"
 
-class TestComponent : public Component
+class CameraFlyComponent : public Component
 {
 };
 
-class TestSystem : public ISystem
+class CameraFlySystem : public ISystem
 {
 public:
 	virtual void InitializeSystem(Scene& scene) override;

@@ -9,13 +9,15 @@
 class CameraComponent : public Component
 {
 public:
-	CameraComponent() : Region(0, 0, 800, 600), LayerMask(0xFFFFFFFFFFFFFFFF), ZNear(0.3f), ZFar(1000.0f), FovY(1.57079633f), RenderTarget(Framebuffer::GetDefault()) {}
+	CameraComponent() : Region(0, 0, 800, 600), LayerMask(0xFFFFFFFFFFFFFFFF), ZNear(0.3f), ZFar(1000.0f), FovY(70.0f), RenderTarget(Framebuffer::GetDefault()) {}
 	IQuad2D Region;
 	LayerMask LayerMask;
 
 	float ZNear;
 	float ZFar;
 	float FovY;
+
+	bool LockToTargetResolution;
 
 	Framebuffer RenderTarget;
 	glm::mat4 ProjectionMatrix;

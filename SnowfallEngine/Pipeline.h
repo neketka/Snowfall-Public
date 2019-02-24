@@ -35,6 +35,20 @@ enum class StencilOperation
 	Replace = GL_REPLACE, IncrementWrap = GL_INCR_WRAP, DecrementWrap = GL_DECR_WRAP
 };
 
+enum class BlendEquation
+{
+	Add=GL_FUNC_ADD, Subtract=GL_FUNC_SUBTRACT, ReverseSubtract=GL_FUNC_REVERSE_SUBTRACT
+};
+
+enum class BlendFunction
+{
+	Zero = GL_ZERO, One = GL_ONE, SourceColor = GL_SRC_COLOR, OneMinusSourceColor = GL_ONE_MINUS_SRC_COLOR,
+	DestinationColor = GL_DST_COLOR, OneMinusDestinationColor = GL_ONE_MINUS_DST_COLOR, SourceAlpha = GL_SRC_ALPHA,
+	OneMinusSourceAlpha = GL_ONE_MINUS_SRC_ALPHA, DestinationAlpha = GL_DST_ALPHA, OneMinusDestinationAlpha = GL_ONE_MINUS_DST_ALPHA,
+	ConstantColor = GL_CONSTANT_COLOR, OneMinusConstantColor = GL_ONE_MINUS_CONSTANT_COLOR, ConstantAlpha = GL_CONSTANT_ALPHA,
+	OneMinusConstantAlpha = GL_ONE_MINUS_CONSTANT_ALPHA
+};
+
 class ColorMask
 {
 public:
@@ -43,6 +57,20 @@ public:
 	bool Green;
 	bool Blue;
 	bool Alpha;
+};
+
+class BufferBlending
+{
+public:
+	int Buffer;
+
+	BlendFunction SourceColor;
+	BlendFunction DestinationColor;
+	BlendFunction SourceAlpha;
+	BlendFunction DestinationAlpha;
+
+	BlendEquation ColorEquation;
+	BlendEquation AlphaEquation;
 };
 
 class VertexStage
@@ -68,7 +96,7 @@ public:
 class FragmentStage
 {
 public:
-	FragmentStage() : Framebuffer(Framebuffer::GetDefault()) {
+	FragmentStage() : Framebuffer(Framebuffer::GetDefault()), FrontStencilFunc(ComparisonFunc::Less), BackStencilFunc(ComparisonFunc::Less) {
 	}
 	Framebuffer Framebuffer;
 	std::vector<int> DrawTargets;
@@ -87,6 +115,8 @@ public:
 
 	ComparisonFunc FrontStencilFunc;
 	ComparisonFunc BackStencilFunc;
+	GLint StencilCompareReference;
+	GLuint StencilCompareMask;
 
 	StencilOperation FrontStencilFail;
 	StencilOperation FrontDepthFail;
@@ -97,6 +127,7 @@ public:
 	StencilOperation BackDepthPass;
 
 	bool Blending;
+	std::vector<BufferBlending> BufferBlends;
 
 	bool _keepFBO;
 	bool _keepTargets;

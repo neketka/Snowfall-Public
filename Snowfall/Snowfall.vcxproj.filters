@@ -12,10 +12,10 @@
     <ClCompile Include="SnowChunk.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="TestComponent.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="CameraFlyComponent.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
@@ -23,7 +23,7 @@
     <ClInclude Include="SnowChunk.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="TestComponent.h">
+    <ClInclude Include="CameraFlyComponent.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

@@ -76,5 +76,7 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 
 void Shader::Destroy()
 {
-	glDeleteProgram(m_id);
+	if (m_id != 0)
+		glDeleteProgram(m_id);
+	m_id = 0;
 }

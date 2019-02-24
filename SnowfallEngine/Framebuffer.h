@@ -11,9 +11,6 @@ class SNOWFALLENGINE_API Framebuffer : public IGLResource
 {
 public:
 	Framebuffer();
-	Framebuffer(std::vector<WrappedTextureView> colorAttachments);
-	Framebuffer(WrappedTextureView depthStencil);
-	Framebuffer(WrappedTextureView depth, WrappedTextureView stencil, bool hasDepth, bool hasStencil);
 	Framebuffer(std::vector<WrappedTextureView> colorAttachments, WrappedTextureView depthStencil);
 	Framebuffer(std::vector<WrappedTextureView> colorAttachments, WrappedTextureView depth, WrappedTextureView stencil, bool hasDepth, bool hasStencil);
 	void ClearColor(int drawBuffer, glm::vec4 color);

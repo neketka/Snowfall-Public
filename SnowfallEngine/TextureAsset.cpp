@@ -52,7 +52,7 @@ TextureAsset::TextureAsset(IAssetStreamIO *stream) : m_stream(stream)
 	}
 }
 
-TextureAsset::TextureAsset(TextureType type, TextureInternalFormat format, int width, int height, int depth, int levels)
+TextureAsset::TextureAsset(std::string path, TextureType type, TextureInternalFormat format, int width, int height, int depth, int levels)
 {
 	m_type = type;
 	m_baseWidth = width;
@@ -61,6 +61,7 @@ TextureAsset::TextureAsset(TextureType type, TextureInternalFormat format, int w
 	m_mipmaps = levels;
 	m_internalFormat = format;
 	m_inMemory = true;
+	m_path = path;
 }
 
 TextureAsset::~TextureAsset()
@@ -140,6 +141,19 @@ bool TextureAsset::IsReady()
 bool TextureAsset::IsValid()
 {
 	return true;
+}
+
+void TextureAsset::ResizeDepth(int newDepth)
+{
+	Texture old = m_texture;
+	int oldDepth = m_baseDepth;
+
+	m_baseDepth = newDepth;
+	initializeTexture();
+
+	for (int i = 0; i < m_mipmaps; ++i)
+		old.CopyPixels(m_texture, 0, 0, 0, i, 0, 0, 0, i, m_baseWidth, m_baseHeight, std::min<int>({ oldDepth, m_baseDepth }));
+	old.Destroy();
 }
 
 void TextureAsset::SetLOD(float lod)

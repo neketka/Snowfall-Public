@@ -15,8 +15,8 @@ void TransformSystem::InitializeSystem(Scene& scene)
 
 glm::mat4 CreateTransform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 {
-	return glm::translate(pos) * glm::rotate(rot.y, glm::vec3(0, 1, 0)) *
-		glm::rotate(rot.x, glm::vec3(1, 0, 0)) * glm::rotate(rot.z, glm::vec3(0, 0, 1)) * glm::scale(scale);;
+	return glm::translate(pos) * glm::rotate(glm::radians(rot.z), glm::vec3(0, 0, 1)) *
+		glm::rotate(glm::radians(rot.x), glm::vec3(1, 0, 0)) * glm::rotate(glm::radians(rot.y), glm::vec3(0, 1, 0)) * glm::scale(scale);;
 }
 
 void TransformRecursively(TransformComponent *component, long instant)
@@ -25,13 +25,17 @@ void TransformRecursively(TransformComponent *component, long instant)
 		return;
 	component->ModelMatrix = CreateTransform(component->Position, component->Rotation, component->Scale);
 	component->transformInstant = instant;
+	component->GlobalRotation = component->Rotation;
 	if (!component->Parent.IsNull())
 	{
 		TransformComponent *t = component->Parent.GetComponent<TransformComponent>();
 		if (t->transformInstant < instant)
 			TransformRecursively(t, instant);
 		component->ModelMatrix = t->ModelMatrix * component->ModelMatrix;
+		component->GlobalRotation += t->Rotation;
 	}
+	component->GlobalPosition = component->ModelMatrix[3];
+	component->GlobalDirection = -glm::vec3(component->ModelMatrix[0][2], component->ModelMatrix[1][2], component->ModelMatrix[2][2]);
 }
 
 void TransformSystem::Update(float deltaTime)
