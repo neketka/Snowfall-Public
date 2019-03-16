@@ -1,22 +1,37 @@
-# Snowfall-New
-A procedurally-generated snow game based on a custom game engine. <br/>
+Snowfall
+=====================
+A procedurally-generated snow game based on a custom game engine. 
+
+Build
+-----
+Windows 10 and OpenGL 4.6 compatible GPU required. 
+
+![Screenshot](screenshot.png?raw=true "Current stage of development")
+
+Currently implemented features
+------------------------------
+    * Centralized ECS architecture throughout engine <br/>
+    * Lazy initialization for various resources <br/>
+    * All components are serializable <br/>
+    * PCF shadows <br/>
+    * Cook-Torrance and Oren-Nayar BRDF renderer  <br/>
+    * External asset importer <br/>
+    * Latest OpenGL 4.6 bindings <br/>
 <br/>
-Game Engine:<br/>
-    - Centralized ECS architecture throughout engine <br/>
-    - Lazy initialization for various resources <br/>
-    - All components are serializable <br/>
-    - CSM and PCF (TBA) shadows <br/>
-    - Cook-Torrance and Oren-Nayar BRDF renderer <br/>
-    - Deferred renderer (TBA) <br/>
-    - Easy-to-use post-processing (TBA) <br/>
-        - Bloom <br/>
-        - SSAO <br/>
-        - SSR <br/>
-        - Motion Blur <br/>
-        - DOF
-        - Filmic Tonemapping <br/>
-        - Eye Adaptation <br/>
-        - Color Grading <br/>
-    - External asset importer <br/>
-    - Latest OpenGL 4.6 bindings <br/>
-    - Intergration with Bullet Physics (TBA) <br/>
+Work-in-progress
+----------------
+    * Deferred rendering
+    * Post-processing <br/>
+        * Bloom <br/>
+        * SSAO <br/>
+        * SSR <br/>
+        * Motion Blur <br/>
+        * DOF <br/>
+        * Filmic Tonemapping <br/>
+        * Eye Adaptation <br/>
+        * Color Grading <br/>
+    * Intergration with Bullet Physics <br/>
+    * Cascaded shadow maps <br/>
+    * GUI/Text rendering <br/>
+    * Subsurface scattering approximation <br/>
+    * Actual game <br/>
