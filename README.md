@@ -19,8 +19,8 @@ Currently implemented features
     * Latest OpenGL 4.6 bindings <br/>
 <br/>
 Work-in-progress
-----------------
-    * Deferred rendering
+------------------------------
+    * Deferred rendering <br/>
     * Post-processing <br/>
         * Bloom <br/>
         * SSAO <br/>
