@@ -13,28 +13,28 @@ Build
 
 Currently implemented features
 ------------------------------
-    * Centralized ECS architecture throughout engine <br/>
-    * Lazy initialization for various resources <br/>
-    * All components are serializable <br/>
-    * PCF shadows <br/>
-    * Cook-Torrance and Oren-Nayar BRDF renderer  <br/>
-    * External asset importer <br/>
-    * Latest OpenGL 4.6 bindings <br/>
+    * Centralized ECS architecture throughout engine
+    * Lazy initialization for various resources
+    * All components are serializable 
+    * PCF shadows
+    * Cook-Torrance and Oren-Nayar BRDF renderer
+    * External asset importer
+    * Latest OpenGL 4.6 bindings
 
 Work-in-progress
 ------------------------------
-    * Deferred rendering <br/>
-    * Post-processing <br/>
-        * Bloom <br/>
-        * SSAO <br/>
-        * SSR <br/>
-        * Motion Blur <br/>
-        * DOF <br/>
-        * Filmic Tonemapping <br/>
-        * Eye Adaptation <br/>
-        * Color Grading <br/>
-    * Intergration with Bullet Physics <br/>
-    * Cascaded shadow maps <br/>
-    * GUI/Text rendering <br/>
-    * Subsurface scattering approximation <br/>
-    * Actual game <br/>
+    * Deferred rendering
+    * Post-processing
+        * Bloom
+        * SSAO
+        * SSR
+        * Motion Blur
+        * DOF
+        * Filmic Tonemapping
+        * Eye Adaptation
+        * Color Grading
+    * Intergration with Bullet Physics
+    * Cascaded shadow maps
+    * GUI/Text rendering
+    * Subsurface scattering approximation
+    * Actual game
