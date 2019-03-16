@@ -71,6 +71,15 @@ bool ShaderAsset::IsValid()
 	return m_compileSuccess;
 }
 
+IAsset *ShaderAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+{
+	return nullptr;
+}
+
+void ShaderAsset::Export()
+{
+}
+
 ShaderAssetReader::ShaderAssetReader()
 {
 }

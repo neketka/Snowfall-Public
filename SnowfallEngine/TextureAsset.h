@@ -38,7 +38,8 @@ public:
 
 	inline TextureInternalFormat GetFormat() { return m_internalFormat; }
 	inline TextureType GetType() { return m_type; }
-	void ResizeDepth(int newDepth);
+
+	SNOWFALLENGINE_API void ResizeDepth(int newDepth);
 
 	SNOWFALLENGINE_API void SetLOD(float lod);
 
@@ -46,6 +47,8 @@ public:
 
 	SNOWFALLENGINE_API Texture GetTextureObject();
 
+	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	virtual void Export() override;
 private:
 	Texture m_texture;
 

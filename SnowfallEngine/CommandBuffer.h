@@ -44,6 +44,7 @@ class CommandBuffer
 public:
 	SNOWFALLENGINE_API void ClearColorFramebufferCommand(int attachment, glm::vec4 color);
 	SNOWFALLENGINE_API void ClearDepthFramebufferCommand(float value);
+	SNOWFALLENGINE_API void ClearAllBuffers();
 
 	SNOWFALLENGINE_API void BeginOcclusionQuery(OcclusionQuery query);
 	SNOWFALLENGINE_API void EndOcclusionQuery(OcclusionQuery query);

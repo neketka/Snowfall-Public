@@ -17,10 +17,15 @@ public:
 	virtual std::vector<std::string> GetSystemsBefore() override;
 	virtual std::vector<std::string> GetSystemsAfter() override;
 	virtual bool IsMainThread() override;
+
+	inline TextureAsset *GetDirectionHighShadowTexture() { return m_directionalHighShadow; }
+	inline TextureAsset *GetCubeShadowTexture() { return m_cubeShadows; }
+	inline TextureAsset *GetFlatShadowTexture() { return m_flatShadows; }
 private:
 	void DoCloseDirectionalPass(glm::mat4 matrix, LayerMask mask, int size);
 	void DoPointPass(std::vector<glm::mat4> matrices, std::vector<LayerMask> masks, int size);
 	void DoSpotPass(std::vector<glm::mat4> matrices, std::vector<LayerMask> masks, int size);
+
 	TextureAsset *m_directionalHighShadow;
 	TextureAsset *m_cubeShadows;
 	TextureAsset *m_flatShadows;

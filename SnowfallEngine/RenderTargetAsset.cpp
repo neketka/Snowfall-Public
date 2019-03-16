@@ -1,6 +1,6 @@
 #include "RenderTargetAsset.h"
 
-RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureLayerAttachment> attachments)
+RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureLayerAttachment> attachments, bool deleteTex)
 	: m_textures(textures), m_attachments(attachments)
 {
 }
@@ -8,6 +8,7 @@ RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset 
 RenderTargetAsset::~RenderTargetAsset()
 {
 	Unload();
+	//Some TextureAssets will leak!
 }
 
 Framebuffer RenderTargetAsset::GetFramebuffer()
@@ -65,6 +66,7 @@ void RenderTargetAsset::Unload()
 		for (TextureAsset *asset : m_textures)
 			asset->Unload();
 		m_fbo.Destroy();
+		m_loaded = false;
 	}
 }
 
@@ -78,6 +80,15 @@ bool RenderTargetAsset::IsValid()
 	return true;
 }
 
+IAsset *RenderTargetAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+{
+	return nullptr;
+}
+
+void RenderTargetAsset::Export()
+{
+}
+
 std::vector<std::string> RenderTargetAssetReader::GetExtensions()
 {
 	return { ".rtasset" };
@@ -86,7 +97,6 @@ std::vector<std::string> RenderTargetAssetReader::GetExtensions()
 void RenderTargetAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
 	stream->OpenStreamRead();
-
 
 	std::string path = stream->ReadString();
 	int counts[2];

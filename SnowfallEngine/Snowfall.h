@@ -50,7 +50,9 @@ public:
 	inline InputManager& GetInputManager() { return *m_inputManager; }
 	inline EngineSettings& GetEngineSettings() { return m_settings; }
 
-	glm::ivec2 GetViewportSize();
+	void CreateViewport(int index);
+	void SetViewportCoefficients(int index, Quad2D scale, Quad2D offset);
+	IQuad2D GetViewport(int index);
 
 	inline float GetFPS() { return m_fps; }
 

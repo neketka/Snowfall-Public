@@ -185,7 +185,10 @@ void MeshRenderingSystem::BatchDynamic(BatchState& state, MeshRenderComponent& m
 {
 	GeometryHandle handle;
 	auto masset = mcomp.Mesh;
-	Mesh& mesh = masset->GetMesh();
+
+	if (instanced && state.Mesh)
+		++state.StateChange.InstanceCount;
+
 	if (!instanced || !state.Mesh)
 	{
 		state.StateChange.InstanceCount = 1;
@@ -201,12 +204,9 @@ void MeshRenderingSystem::BatchDynamic(BatchState& state, MeshRenderComponent& m
 	state.StateChange.LayerMask = state.LayerMask;
 	state.ShaderSpecialization = { instanced ? "INSTANCED" : "DYNAMIC" };
 	state.StateChange.Type = PrimitiveType::Triangles;
-	
-	if (instanced)
-		++state.StateChange.InstanceCount;
 
 	BatchMember& member = state.Handles.back();
-	member.Geometry = handle;
+	member.Geometry = masset->GetGeometry();
 	member.Transform = &tcomp;
 	member.Component = &mcomp;
 	mcomp.MemberIndex = state.Handles.size() - 1;

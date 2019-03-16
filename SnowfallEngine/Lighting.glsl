@@ -11,6 +11,8 @@ struct Light
 	float Range;
 	float RangeCutoff;
 
+	float Padding0[2]; // SIMD ALIGNMENT GO BURN IN HELL
+
 	int Type; //0:dir 1:point 2:spot
 
 	int HighIndex;
@@ -152,35 +154,22 @@ float CalculateSpotlight(vec3 L, vec3 lightDir, float innerCutoff, float outerCu
 	return intensity;
 }
 
-vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material)
+vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material, float shadow)
 {
 	vec3 radiance = light.Color.xyz * light.Color.w;
 
-	vec3 L = light.Type == 0 ? -light.Direction.xyz : normalize(light.Position.xyz - fragPos);
+	vec3 L2 = light.Position.xyz - fragPos;
+	vec3 L = light.Type == 0 ? -light.Direction.xyz : normalize(L2);
 	vec3 V = normalize(camPos - fragPos);
 	vec3 N = normalize(material.Normal);
 	vec3 H = normalize(L + V);
 
-	vec3 color = vec3(0.0, 0.0, 0.0);
+	float spot = mix(1.0, CalculateSpotlight(L, -light.Direction.xyz, light.Position.w, light.Direction.w), float(clamp(light.Type - 1, 0, 1)));
+	float atten = mix(1.0, Attenutation(L2, light.Range, light.RangeCutoff), float(clamp(light.Type, 0, 1)));
 
-	switch (light.Type)
-	{
-	case 0:
-		color = CookOrenBRDF(N, V, L, H, radiance,
-			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
-		break;
-	case 1:
-		color = CookOrenBRDF(N, V, L, H, radiance * Attenutation(light.Position.xyz - fragPos, light.Range, light.RangeCutoff),
-			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
-		break;
-	case 2:
-		color = CookOrenBRDF(N, V, L, H, radiance * Attenutation(light.Position.xyz - fragPos, light.Range, light.RangeCutoff)
-			* CalculateSpotlight(L, -light.Direction.xyz, light.Position.w, light.Direction.w),
-			material.Diffuse, material.Metalness, material.Roughness) * material.AO;
-		break;
-	}
+	vec3 color = CookOrenBRDF(N, V, L, H, radiance * atten * spot, material.Diffuse, material.Metalness, material.Roughness) * material.AO;
 
-	return color + material.Emissive;
+	return color * shadow + vec3(0.1) * material.Diffuse;
 }
 
 #endif

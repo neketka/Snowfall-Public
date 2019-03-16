@@ -165,6 +165,9 @@
     <ClCompile Include="ShadowMapRenderSystem.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -296,6 +299,9 @@
     <ClInclude Include="ShadowMapRenderSystem.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="SkyboxComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lighting.glsl">
@@ -308,6 +314,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="DeferredLighting.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SkyboxShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="CopyToSDR.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

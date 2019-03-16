@@ -31,6 +31,9 @@ public:
 	SNOWFALLENGINE_API virtual void Unload() override;
 	SNOWFALLENGINE_API virtual bool IsReady() override;
 	SNOWFALLENGINE_API virtual bool IsValid() override;
+
+	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	virtual void Export() override;
 private:
 	bool m_loaded;
 	bool m_compileSuccess;

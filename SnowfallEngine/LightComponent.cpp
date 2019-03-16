@@ -12,6 +12,8 @@ public:
 	float Range;
 	float RangeCutoff;
 
+	float Padding0[2];
+
 	int Type; //0:dir 1:point 2:spot
 
 	int HighIndex;
@@ -57,6 +59,8 @@ void LightSystem::Update(float deltaTime)
 	std::vector<LightStruct> lights;
 	for (LightComponent *comp : m_scene->GetComponentManager().GetComponents<LightComponent>())
 	{
+		if (!comp->Enabled)
+			continue;
 		TransformComponent *tcomp = comp->Owner.GetComponent<TransformComponent>();
 		LightStruct sct;
 		sct.Type = static_cast<int>(comp->Type);

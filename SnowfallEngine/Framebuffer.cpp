@@ -67,6 +67,7 @@ void Framebuffer::ClearColor(int drawBuffer, glm::vec4 color)
 
 void Framebuffer::ClearDepth(float value)
 {
+	glDepthMask(true);
 	glClearNamedFramebufferfv(m_id, GL_DEPTH, 0, &value);
 }
 

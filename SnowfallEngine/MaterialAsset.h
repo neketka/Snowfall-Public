@@ -32,6 +32,9 @@ public:
 
 	SNOWFALLENGINE_API Material& GetMaterial();
 	SNOWFALLENGINE_API Material& GetBaseProperties();
+
+	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	virtual void Export() override;
 private:
 	std::vector<Sampler> m_samplers;
 	std::vector<TextureAsset *> m_textures;

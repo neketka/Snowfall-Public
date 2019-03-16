@@ -151,7 +151,7 @@ void main()
 #ifdef CUBEPASS
 #define MAX_VERTICES 18
 #define LAYER (Layer * 6 + f)
-#define MATRIX_INDEX c
+#define MATRIX_INDEX f
 #else
 #define MAX_VERTICES 3
 #define LAYER (Layer)
@@ -189,7 +189,7 @@ layout(location = 11) uniform int Layer;
 void main()
 {
 #ifdef CUBEPASS
-	for (int f = 0; f < 6; ++i)
+	for (int f = 0; f < 6; ++f)
 	{
 #endif
 		for (int i = 0; i < 3; ++i)
@@ -246,6 +246,10 @@ layout(location = 5) flat in int ObjectId;
 layout(location = 6) flat in int ParamCount;
 layout(location = 4) uniform vec3 CamPos;
 
+layout(location = 12) uniform sampler2DShadow HighDirectionalShadow;
+layout(location = 13) uniform sampler2DArrayShadow FlatShadows;
+layout(location = 14) uniform samplerCubeArrayShadow CubeShadows;
+
 layout(std430, binding = 1) buffer ObjectParamsBuffer
 {
 	vec4 ObjectParameters[];
@@ -298,13 +302,57 @@ layout(location = 0) out vec4 fragment;
 void Snowfall_SetMaterialData(Material mat)
 {
 	vec3 color = vec3(0.0, 0.0, 0.0);
+
+	const int DIRECTIONAL_SHADOW_SAMPLES = 16;
+	const int SHADOW_SAMPLES = 9;
+
+	const float DIRECTIONAL_SHADOW_SPAN = sqrt(DIRECTIONAL_SHADOW_SAMPLES) / 2.0;
+	const float SHADOW_SPAN = sqrt(SHADOW_SAMPLES) / 2.0;
+
 	for (int i = 0; i < PassLightCount; ++i)
 	{
 		Light light = AllLights[PassLightIndices[i]];
-		color += CalculateLight(Snowfall_GetCameraPosition(), Snowfall_GetPosition(), light, mat);
+		float shadow = 1.0;
+
+		if (allInvocations(light.HighIndex == -1))
+		{
+			shadow = 1.0;
+		}
+		else
+		{
+			ivec2 offset = ivec2(2, 2);
+			vec4 points = vec4(1.0, 1.0, 1.0, 1.0);
+			vec4 shadowCoord = light.LightSpace * vec4(Snowfall_GetPosition(), 1);
+
+			vec2 flatTexels = 1.0 / textureSize(FlatShadows, 0).xy;
+			vec2 cubeTexels = 1.0 / textureSize(CubeShadows, 0).xy;
+			vec2 dirTexels = 1.0 / textureSize(HighDirectionalShadow, 0);
+
+			shadow = 0.0;
+
+			switch (light.Type)
+			{
+			case 0:
+				for (float y = -DIRECTIONAL_SHADOW_SPAN; y < DIRECTIONAL_SHADOW_SPAN; y += 1.0)
+					for (float x = -DIRECTIONAL_SHADOW_SPAN; x < DIRECTIONAL_SHADOW_SPAN; x += 1.0)
+						shadow += texture(HighDirectionalShadow, vec3(shadowCoord.xy + vec2(x, y) * dirTexels, shadowCoord.z));
+				shadow /= DIRECTIONAL_SHADOW_SAMPLES;
+				break;
+			case 1:
+				//shadow = texture(CubeShadows, );
+				break;
+			case 2:
+				shadowCoord /= shadowCoord.w;
+				for (float y = -SHADOW_SPAN; y < SHADOW_SPAN; y += 1.0)
+					for (float x = -SHADOW_SPAN; x < SHADOW_SPAN; x += 1.0)
+						shadow += texture(FlatShadows, vec4(shadowCoord.xy + vec2(x, y) * flatTexels * shadowCoord.w, light.HighIndex, shadowCoord.z));
+				shadow /= SHADOW_SAMPLES;
+				break;
+			}
+		}
+		color += CalculateLight(Snowfall_GetCameraPosition(), Snowfall_GetPosition(), light, mat, shadow);
 	}
-	
-	fragment = vec4(color + 0.03, 1.0);
+	fragment = vec4(color + mat.Emissive, 1.0);
 }
 
 #endif

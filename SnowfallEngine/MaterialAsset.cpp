@@ -158,6 +158,15 @@ Material& MaterialAsset::GetBaseProperties()
 	return m_baseProperties;
 }
 
+IAsset *MaterialAsset::CreateCopy(std::string newPath, IAssetStreamIO * output)
+{
+	return nullptr;
+}
+
+void MaterialAsset::Export()
+{
+}
+
 std::vector<std::string> MaterialAssetReader::GetExtensions()
 {
 	return { ".mtasset" };

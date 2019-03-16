@@ -96,6 +96,7 @@ void TextureAsset::Load()
 			m_stream->ReadStream(data, dataLength);
 
 			float power = 1 / std::pow(2, level);
+			int stride;
 
 			switch (m_type)
 			{
@@ -108,6 +109,12 @@ void TextureAsset::Load()
 			case TextureType::Texture3D:
 				break;
 			case TextureType::TextureCubemap:
+				stride = static_cast<int>(std::floor(m_baseWidth * power)) * static_cast<int>(std::floor(m_baseHeight * power)) * GetByteDepth(m_pixelFormat, m_pixelType);
+				for (int i = 0; i < 6; ++i)
+				{
+					m_texture.SetData(0, 0, i, static_cast<int>(std::floor(m_baseWidth * power)), static_cast<int>(std::floor(m_baseHeight * power)), 1,
+						level, m_pixelFormat, m_pixelType, data + (i * stride));
+				}
 				break;
 			case TextureType::TextureCubemapArray:
 				break;
@@ -192,6 +199,15 @@ Texture TextureAsset::GetTextureObject()
 	if (!m_validTextureObject)
 		Load();
 	return m_texture;
+}
+
+IAsset *TextureAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+{
+	return nullptr;
+}
+
+void TextureAsset::Export()
+{
 }
 
 std::vector<std::string> TextureAssetReader::GetExtensions()

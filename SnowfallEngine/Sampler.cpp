@@ -66,6 +66,11 @@ void Sampler::SetAnisotropicFiltering(bool enabled)
 	glSamplerParameterf(m_id, GL_TEXTURE_MAX_ANISOTROPY, aniso);
 }
 
+void Sampler::SetBorderColor(glm::vec4 color)
+{
+	glSamplerParameterfv(m_id, GL_TEXTURE_BORDER_COLOR, reinterpret_cast<float *>(&color));
+}
+
 int Sampler::BindToTextureUnit()
 {
 	int unit = TextureUnitManager::RefreshUnit(m_id);

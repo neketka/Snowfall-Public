@@ -7,7 +7,7 @@
 ShadowMapRenderSystem::ShadowMapRenderSystem() : m_cubeShadowsCount(16), m_flatShadowsCount(16)
 {
 	EngineSettings settings = Snowfall::GetGameInstance().GetEngineSettings();
-	m_directionalHighShadow = new TextureAsset("", TextureType::Texture2D, TextureInternalFormat::Depth24I, settings.ShadowMapResolution, settings.ShadowMapResolution, 1, 1);
+	m_directionalHighShadow = new TextureAsset("", TextureType::Texture2D, TextureInternalFormat::Depth24I, settings.CloseShadowMapResolution, settings.CloseShadowMapResolution, 1, 1);
 	m_flatShadows = new TextureAsset("", TextureType::Texture2DArray, TextureInternalFormat::Depth24I, settings.ShadowMapResolution, settings.ShadowMapResolution, m_flatShadowsCount, 1);
 	m_cubeShadows = new TextureAsset("", TextureType::TextureCubemapArray, TextureInternalFormat::Depth24I, settings.ShadowMapResolution, settings.ShadowMapResolution, m_cubeShadowsCount, 1);
 
@@ -46,6 +46,13 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 	int cubesUsed = 0;
 	bool directional = false;
 
+	glm::mat4 biasMatrix(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0
+	);
+
 	glm::mat4 directionalCloseMatrix;
 	LayerMask dirMask;
 
@@ -57,8 +64,13 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 
 	for (LightComponent *light : m_scene->GetComponentManager().GetComponents<LightComponent>())
 	{
-		if (!light->Shadowing)
+		if (!light->Enabled)
 			continue;
+		if (!light->Shadowing)
+		{
+			light->highIndex = -1;
+			continue;
+		}
 		TransformComponent *transform = light->Owner.GetComponent<TransformComponent>();
 		glm::mat4 view;
 		glm::mat4 projection;
@@ -66,7 +78,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 		{
 		case LightType::Directional:
 			view = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
-			projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.0f, 10.0f);
+			projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 10.0f);
 			directionalCloseMatrix = light->lightSpace = projection * view;
 			dirMask = light->LayerMask;
 			directional = true;
@@ -78,13 +90,14 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 			*/
 			break;
 		case LightType::Spot:
-			projection = glm::perspective(light->OuterCutoff / 2.f, 1.f, 0.3f, light->Range + 1);
+			view = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
+			projection = glm::perspective(glm::radians(light->OuterCutoff * 2), 1.f, 1.f, light->Range + 1);
 			spotMatrices.push_back(light->lightSpace = projection * view);
 			spotMasks.push_back(light->LayerMask);
-			light->highIndex = ++flatsUsed;
+			light->highIndex = flatsUsed++;
 			break;
 		case LightType::Point:
-			projection = glm::perspective(90.f, 1.f, 0.3f, light->Range + 1);
+			projection = glm::perspective(90.f, 1.f, 1.f, light->Range + 1);
 
 			view = glm::mat4(glm::mat3(makeRotationDir(glm::vec3(1, 0, 0)))) * glm::translate(-transform->GlobalPosition);
 			pointMatrices.push_back(light->lightSpace = projection * view);
@@ -105,9 +118,10 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 			pointMatrices.push_back(light->lightSpace = projection * view);
 
 			pointMasks.push_back(light->LayerMask);
-			light->highIndex = ++cubesUsed;
+			light->highIndex = cubesUsed++;
 			break;
 		}
+		light->lightSpace = biasMatrix * light->lightSpace;
 	}
 
 	if (flatsUsed > m_flatShadowsCount)
@@ -157,6 +171,7 @@ bool ShadowMapRenderSystem::IsMainThread()
 
 void ShadowMapRenderSystem::DoCloseDirectionalPass(glm::mat4 matrix, LayerMask mask, int size)
 {
+	Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 	IQuad2D region(0, 0, size, size);
 	Pipeline pipeline;
 	pipeline.FragmentStage.DepthTest = true;
@@ -164,7 +179,7 @@ void ShadowMapRenderSystem::DoCloseDirectionalPass(glm::mat4 matrix, LayerMask m
 	pipeline.FragmentStage.Framebuffer = m_highShadowTarget->GetFramebuffer();
 	pipeline.FragmentStage.Viewport = region;
 	pipeline.FragmentStage.DrawTargets = { };
-	pipeline.VertexStage.FrontFaceCulling = false;
+	pipeline.VertexStage.FrontFaceCulling = true;
 
 	ShaderConstants constants;
 	constants.AddConstant(5, matrix);
@@ -180,6 +195,7 @@ void ShadowMapRenderSystem::DoCloseDirectionalPass(glm::mat4 matrix, LayerMask m
 
 void ShadowMapRenderSystem::DoPointPass(std::vector<glm::mat4> matrices, std::vector<LayerMask> masks, int size)
 {
+	Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 	IQuad2D region(0, 0, size, size);
 	Pipeline pipeline;
 	pipeline.FragmentStage.DepthTest = true;
@@ -195,6 +211,7 @@ void ShadowMapRenderSystem::DoPointPass(std::vector<glm::mat4> matrices, std::ve
 	m_cubeShadowTarget->GetFramebuffer().ClearDepth(1);
 	for (int i = 0; i < masks.size(); ++i)
 	{
+		Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 		ShaderConstants constants;
 		constants.AddConstant(5, matrices[i * 6]);
 		constants.AddConstant(6, matrices[i * 6 + 1]);
@@ -212,6 +229,7 @@ void ShadowMapRenderSystem::DoPointPass(std::vector<glm::mat4> matrices, std::ve
 
 void ShadowMapRenderSystem::DoSpotPass(std::vector<glm::mat4> matrices, std::vector<LayerMask> masks, int size)
 {
+	Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 	IQuad2D region(0, 0, size, size);
 	Pipeline pipeline;
 	pipeline.FragmentStage.DepthTest = true;
@@ -225,9 +243,9 @@ void ShadowMapRenderSystem::DoSpotPass(std::vector<glm::mat4> matrices, std::vec
 
 	CommandBuffer buffer;
 	m_flatShadowTarget->GetFramebuffer().ClearDepth(1);
-	buffer.ClearDepthFramebufferCommand(-1);
 	for (int i = 0; i < masks.size(); ++i)
 	{
+		Snowfall::GetGameInstance().GetMeshManager().RunCullingPass({});
 		ShaderConstants constants;
 		constants.AddConstant(5, matrices[i]);
 		constants.AddConstant(11, i);

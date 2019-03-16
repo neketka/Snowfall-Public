@@ -2,7 +2,7 @@
 
 #ifdef FRAGMENT
 
-layout(location = 5) uniform sampler2D tex;
+layout(location = 15) uniform sampler2D tex;
 
 void main()
 {

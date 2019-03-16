@@ -9,6 +9,7 @@
 #include "TransformComponent.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
+#include "SkyboxComponent.h"
 
 Snowfall *Snowfall::m_gameInstance;
 
@@ -69,11 +70,28 @@ void Snowfall::InitGlobalInstance(EngineSettings settings)
 	m_gameInstance = new Snowfall(settings);
 }
 
-glm::ivec2 Snowfall::GetViewportSize()
+std::map<int, Quad2D> scales;
+std::map<int, Quad2D> offsets;
+
+void Snowfall::CreateViewport(int index)
 {
+	scales[index] = Quad2D(1, 1, 1, 1);
+	offsets[index] = Quad2D(0, 0, 0, 0);
+}
+
+void Snowfall::SetViewportCoefficients(int index, Quad2D scale, Quad2D offset)
+{
+	scales[index] = scale;
+	offsets[index] = offset;
+}
+
+IQuad2D Snowfall::GetViewport(int index)
+{
+	Quad2D scale = scales[index];
+	Quad2D offset = offsets[index];
 	int w = 0, h = 0;
 	glfwGetWindowSize(m_window, &w, &h);
-	return glm::ivec2(w, h);
+	return IQuad2D(glm::vec2(w, h) * scale.Position + offset.Position, glm::vec2(w, h) * scale.Size + offset.Size);
 }
 
 void Snowfall::Log(LogType type, std::string message)
@@ -88,11 +106,15 @@ void Snowfall::Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, true);
+	glfwSwapInterval(0);
 	// Create window and OpenGL context
+
 	m_window = glfwCreateWindow(800, 600, "Snowfall", nullptr, nullptr);
 	glfwMakeContextCurrent(m_window);
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	m_assetManager = new AssetManager;
 	m_prototypeManager = new PrototypeManager;
@@ -119,4 +141,5 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<MeshRenderComponent>();
 	m_prototypeManager->AddComponentDescription<CameraComponent>();
 	m_prototypeManager->AddComponentDescription<LightComponent>();
+	m_prototypeManager->AddComponentDescription<SkyboxComponent>();
 }

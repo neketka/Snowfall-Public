@@ -95,6 +95,22 @@ Mesh& MeshAsset::GetMesh()
 	return *m_mesh;
 }
 
+void MeshAsset::DrawMeshDirect(CommandBuffer& buffer, int instances)
+{
+	GeometryHandle handle = GetGeometry();
+	buffer.DrawIndexedCommand(PrimitiveType::Triangles, handle.IndexAlloc.GetLength(), instances,
+		handle.IndexAlloc.GetPosition() * 4, handle.VertexAlloc.GetPosition(), 0);
+}
+
+IAsset *MeshAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+{
+	return nullptr;
+}
+
+void MeshAsset::Export()
+{
+}
+
 std::vector<std::string> MeshAssetReader::GetExtensions()
 {
 	return { ".masset" };

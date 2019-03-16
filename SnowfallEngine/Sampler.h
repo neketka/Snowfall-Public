@@ -3,6 +3,7 @@
 #include "GLResource.h"
 #include <queue>
 #include <map>
+#include <glm/glm.hpp>
 
 #include "export.h"
 
@@ -18,7 +19,8 @@ private:
 
 enum class WrapMode
 {
-	Repeat = GL_REPEAT, MirroredRepeat = GL_MIRRORED_REPEAT, ClampToEdge = GL_CLAMP_TO_EDGE
+	Repeat = GL_REPEAT, MirroredRepeat = GL_MIRRORED_REPEAT, ClampToEdge = GL_CLAMP_TO_EDGE,
+	ClampToBorder = GL_CLAMP_TO_BORDER
 };
 
 enum class TextureChannel
@@ -54,6 +56,7 @@ public:
 	void SetCompareMode(bool enabled);
 	void SetComparison(ComparisonFunc func);
 	void SetAnisotropicFiltering(bool enabled);
+	void SetBorderColor(glm::vec4 color);
 
 	int BindToTextureUnit(); 
 

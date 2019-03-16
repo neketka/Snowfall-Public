@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "Mesh.h"
 #include "MeshManager.h"
+#include "CommandBuffer.h"
 
 #include "export.h"
 
@@ -20,6 +21,11 @@ public:
 
 	SNOWFALLENGINE_API GeometryHandle& GetGeometry();
 	SNOWFALLENGINE_API Mesh& GetMesh();
+
+	SNOWFALLENGINE_API void DrawMeshDirect(CommandBuffer& buffer, int instances=1);
+
+	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	virtual void Export() override;
 private:
 	Mesh *m_mesh;
 	GeometryHandle m_handle;

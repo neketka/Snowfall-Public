@@ -88,7 +88,7 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 				command.FirstIndex = handle.IndexAlloc.GetPosition();
 				command.InstanceCount = change.InstanceCount;
 				command.BaseInstance = 0;
-				command.BaseVertex = 0;
+				command.BaseVertex = handle.VertexAlloc.GetPosition();
 				command.Count = handle.IndexAlloc.GetLength();
 				commands.push_back(command);
 			}

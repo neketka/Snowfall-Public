@@ -69,8 +69,8 @@ public:
 	virtual bool IsReady() = 0;
 	virtual bool IsValid() = 0; 
 
-	//virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) = 0;
-	//virtual void Export() = 0;
+	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) = 0;
+	virtual void Export() = 0;
 
 	bool operator==(IAsset& asset) const
 	{
@@ -88,8 +88,22 @@ public:
 	SNOWFALLENGINE_API void AddAsset(IAsset *asset); // Pointer will be owned by the AssetManager instance
 	SNOWFALLENGINE_API void DeleteAsset(IAsset& asset);
 
-	SNOWFALLENGINE_API IAsset& CopyAssetShallow(std::string newPath, IAsset& asset);
-	SNOWFALLENGINE_API IAsset& CopyAssetAsNew(std::string newPath, IAssetStreamIO *output, IAsset& asset);
+	template<class T>
+	T *CopyAssetShallow(std::string newPath, IAsset& asset)
+	{
+		T *a = asset.CreateCopy(newPath, nullptr);
+		AddAsset(a);
+		return a;
+	}
+
+	template<class T>
+	T *CopyAssetAsNew(std::string newPath, IAssetStreamIO *output, IAsset& asset)
+	{
+		T *a = asset.CreateCopy(newPath, output);
+		AddAsset(a);
+		asset.Export();
+		return a;
+	}
 
 	template<class T> 
 	T& LocateAsset(std::string path)

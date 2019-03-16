@@ -48,7 +48,10 @@ Texture::Texture(int width, int height, int depth, int levels, TextureInternalFo
 Texture::Texture(int width, int height, int slices, bool isCubemapArray, int levels, TextureInternalFormat format) : m_format(format), m_w(width), m_h(height)
 {
 	if (isCubemapArray)
+	{
+		slices *= 6;
 		m_type = GL_TEXTURE_CUBE_MAP_ARRAY;
+	}
 	else
 		m_type = GL_TEXTURE_2D_ARRAY;
 	glCreateTextures(m_type, 1, &m_id);
@@ -115,4 +118,43 @@ int Texture::BindToSampler(Sampler sampler)
 	int unit = sampler.BindToTextureUnit();
 	glBindTextureUnit(unit, m_id);
 	return unit;
+}
+
+
+int GetByteDepth(TexturePixelFormat format, TextureDataType type) 
+{
+	int base = 1;
+	switch (type)
+	{
+	case TextureDataType::UnsignedByte:
+		base *= 1;
+		break;
+	case TextureDataType::UnsignedInt:
+		base *= 4;
+		break;
+	case TextureDataType::Int:
+		base *= 4;
+		break;
+	case TextureDataType::Float:
+		base *= 4;
+		break;
+	}
+
+	switch (format)
+	{
+	case TexturePixelFormat::R:
+		base *= 1;
+		break;
+	case TexturePixelFormat::RG:
+		base *= 2;
+		break;
+	case TexturePixelFormat::RGB:
+		base *= 3;
+		break;
+	case TexturePixelFormat::RGBA:
+	case TexturePixelFormat::BGRA:
+		base *= 4;
+		break;
+	}
+	return base;
 }

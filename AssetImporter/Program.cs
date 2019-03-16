@@ -40,9 +40,10 @@ namespace AssetImporter
                 Console.WriteLine("success");
                 ++successes;
             }
-            catch
+            catch (Exception e)
             {
                 Console.WriteLine("failure");
+                Console.WriteLine(e.Message);
                 ++failures;
             }
         }

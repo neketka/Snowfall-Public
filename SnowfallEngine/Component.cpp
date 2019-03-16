@@ -111,7 +111,10 @@ void ComponentManager::SerializeComponent(Component *component, IAssetStreamIO& 
 			case SerializationType::Asset:
 			{
 				IAsset *asset = reinterpret_cast<IAsset *>(data + position);
-				stream.WriteString(asset->GetPath());
+				if (asset)
+					stream.WriteString(asset->GetPath());
+				else
+					stream.WriteString("null");
 				position += sizeof(IAsset *);
 				break;
 			}
@@ -141,7 +144,12 @@ void ComponentManager::SerializeComponent(Component *component, IAssetStreamIO& 
 				int size = static_cast<int>(asts->size());
 				stream.WriteStream(&size, 1);
 				for (IAsset *asset : *asts)
-					stream.WriteString(asset->GetPath());
+				{
+					if (asset)
+						stream.WriteString(asset->GetPath());
+					else
+						stream.WriteString("null");
+				}
 				position += sizeof(std::vector<IAsset *>);
 			}
 				break;
@@ -220,7 +228,12 @@ Component *ComponentManager::DeserializeComponentRaw(IAssetStreamIO& stream)
 			}
 			case SerializationType::Asset:
 			{
-				*reinterpret_cast<IAsset **>(data + position) = &AssetManager::LocateAssetGlobal<IAsset>(stream.ReadString());
+				std::string path = stream.ReadString();
+				IAsset **asset = reinterpret_cast<IAsset **>(data + position);
+				if (path == "null")
+					*asset = nullptr;
+				else
+					*asset = &AssetManager::LocateAssetGlobal<IAsset>(path);
 				position += sizeof(IAsset *);
 				break;
 			}
@@ -250,7 +263,13 @@ Component *ComponentManager::DeserializeComponentRaw(IAssetStreamIO& stream)
 				int size = 0;
 				stream.ReadStream(&size, 1);
 				for (int i = 0; i < size; ++i)
-					assets->push_back(&AssetManager::LocateAssetGlobal<IAsset>(stream.ReadString()));
+				{
+					std::string path = stream.ReadString();
+					if (path == "null")
+						assets->push_back(nullptr);
+					else
+						assets->push_back(&AssetManager::LocateAssetGlobal<IAsset>(path));
+				}
 				position += sizeof(std::vector<IAsset *>);
 				break;
 			}

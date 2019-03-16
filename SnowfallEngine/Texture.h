@@ -46,6 +46,8 @@ enum class TextureDataType
 	UnsignedByte = GL_UNSIGNED_BYTE, UnsignedInt = GL_UNSIGNED_INT, Int = GL_INT, Float = GL_FLOAT
 };
 
+SNOWFALLENGINE_API int GetByteDepth(TexturePixelFormat format, TextureDataType type);
+
 class Image
 {
 public:
