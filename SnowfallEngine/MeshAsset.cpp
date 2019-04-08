@@ -5,7 +5,7 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 
-MeshAsset::MeshAsset(std::string path, Mesh mesh) : m_inMemory(true), m_loaded(true), m_path(path), m_loadSuccess(true)
+MeshAsset::MeshAsset(std::string path, Mesh mesh) : m_inMemory(true), m_loaded(false), m_path(path), m_loadSuccess(true)
 {
 	m_mesh = new Mesh;
 	m_mesh->Vertices = mesh.Vertices;
@@ -48,6 +48,7 @@ void MeshAsset::Load()
 		m_stream->ReadStream(m_mesh->Indices.data(), ilen);
 
 		m_stream->CloseStream();
+		m_loaded = true;
 	}
 }
 
@@ -59,8 +60,8 @@ void MeshAsset::Unload()
 		delete m_mesh;
 	if (m_handle.VertexAlloc.Allocated())
 	{
-		m_handle = GeometryHandle();
 		Snowfall::GetGameInstance().GetMeshManager().EraseGeometry(m_handle);
+		m_handle = GeometryHandle();
 	}
 	m_loaded = false;
 }
@@ -81,6 +82,7 @@ GeometryHandle& MeshAsset::GetGeometry()
 		Load();
 	if (!m_handle.VertexAlloc.Allocated())
 	{
+		m_loaded = true;
 		m_handle = Snowfall::GetGameInstance().GetMeshManager().CreateGeometry(m_mesh->Vertices.size(), m_mesh->Indices.size());
 		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryVertices(m_handle, m_mesh->Vertices.data(), 0, m_mesh->Vertices.size());
 		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryIndices(m_handle, m_mesh->Indices.data(), 0, m_mesh->Indices.size());

@@ -11,6 +11,10 @@
 #include "LightComponent.h"
 #include "SkyboxComponent.h"
 
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+
 Snowfall *Snowfall::m_gameInstance;
 
 Snowfall::Snowfall(EngineSettings settings)
@@ -54,9 +58,13 @@ void Snowfall::StartGame()
 		++fpsCounted;
 		fpsTime += endTime - beginTime;
 		if (fpsCounted >= maxFpsCounts)
-			m_fps = static_cast<float>(CLOCKS_PER_SEC / fpsTime) * fpsCounted;
+		{
+			m_fps = CLOCKS_PER_SEC / static_cast<float>(fpsTime) * fpsCounted;
+			//Log(LogType::Message, std::to_string(m_fps));
+		}
 
 		lastFrame = beginTime;
+		m_time += clockDiff;
 	}
 
 	glfwDestroyWindow(m_window);
@@ -75,7 +83,7 @@ std::map<int, Quad2D> offsets;
 
 void Snowfall::CreateViewport(int index)
 {
-	scales[index] = Quad2D(1, 1, 1, 1);
+	scales[index] = Quad2D(0, 0, 1, 1);
 	offsets[index] = Quad2D(0, 0, 0, 0);
 }
 
@@ -96,6 +104,9 @@ IQuad2D Snowfall::GetViewport(int index)
 
 void Snowfall::Log(LogType type, std::string message)
 {
+	message += "\n";
+	std::cout << message << std::endl;
+	OutputDebugStringA(message.c_str());
 }
 
 void Snowfall::Init()
@@ -129,6 +140,15 @@ void Snowfall::Init()
 	m_assetManager->RegisterReader(new MeshAssetReader);
 	m_assetManager->RegisterReader(new TextureAssetReader);
 	m_assetManager->RegisterReader(new MaterialAssetReader);
+
+	m_assetManager->AddAsset(new MeshAsset("FullScreenQuad", Mesh({
+		RenderVertex(glm::vec3(-1, -1, 1)),
+		RenderVertex(glm::vec3(1, -1, 1)),
+		RenderVertex(glm::vec3(1, 1, 1)),
+		RenderVertex(glm::vec3(-1, 1, 1)),
+	}, {
+		0, 1, 2, 2, 3, 0
+	})));
 
 	m_assetManager->EnumerateUnpackedFolder(".\\Assets");
 

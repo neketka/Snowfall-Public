@@ -23,6 +23,7 @@ layout(location = 3) out vec3 out_Tangent;
 layout(location = 4) out vec2 out_Texcoord;
 layout(location = 5) out int out_ObjectId;
 layout(location = 6) out int out_ParamCount;
+layout(location = 7) out float out_Time;
 
 #endif
 
@@ -30,7 +31,7 @@ layout(location = 0) uniform mat4 ProjectionMatrix;
 layout(location = 1) uniform mat4 ViewMatrix;
 layout(location = 2) uniform int ParamCount;
 layout(location = 3) uniform int ObjectIdOffset;
-
+layout(location = 15) uniform float Time;
 
 layout(std430, binding = 0) buffer DynamicTransformBuffer
 {
@@ -42,13 +43,23 @@ layout(std430, binding = 1) buffer ObjectParamsBuffer
 	vec4 ObjectParameters[];
 };
 
-vec4 Snowfall_GetObjectParameter(int index)
+int Snowfall_GetObjectID()
 {
 #ifdef INSTANCED
-	return ObjectParameters[(gl_InstanceID + ObjectIdOffset) * ParamCount];
+	return gl_InstanceID + ObjectIdOffset;
 #else
-	return ObjectParameters[(gl_DrawID + ObjectIdOffset) * ParamCount];
+	return gl_DrawID + ObjectIdOffset;
 #endif
+}
+
+float Snowfall_GetTime()
+{
+	return Time;
+}
+
+vec4 Snowfall_GetObjectParameter(int index)
+{
+	return ObjectParameters[Snowfall_GetObjectID() * ParamCount];
 }
 
 struct VertexOutputData
@@ -60,13 +71,14 @@ struct VertexOutputData
 	vec2 Texcoord;
 };
 
-int Snowfall_GetObjectID()
+mat4 Snowfall_GetWorldMatrix()
 {
-#ifdef INSTANCED
-	return gl_InstanceID;
-#else
-	return gl_DrawID + ObjectIdOffset;
-#endif
+	return TransformMatrices[Snowfall_GetObjectID() * 2];
+}
+
+mat4 Snowfall_GetNormalMatrix()
+{
+	return TransformMatrices[Snowfall_GetObjectID() * 2 + 1];
 }
 
 vec3 Snowfall_GetWorldSpacePosition()
@@ -74,7 +86,7 @@ vec3 Snowfall_GetWorldSpacePosition()
 #ifdef STATIC
 	return Position;
 #else
-	return vec3(TransformMatrices[Snowfall_GetObjectID() * 2] * vec4(Position, 1));
+	return vec3(Snowfall_GetWorldMatrix() * vec4(Position, 1));
 #endif
 }
 
@@ -88,7 +100,7 @@ vec3 Snowfall_GetWorldSpaceNormal()
 #ifdef STATIC
 	return Normal;
 #else
-	return mat3(TransformMatrices[Snowfall_GetObjectID() * 2 + 1]) * Normal;
+	return mat3(Snowfall_GetNormalMatrix()) * Normal;
 #endif
 }
 
@@ -97,7 +109,7 @@ vec3 Snowfall_GetTangent()
 #ifdef STATIC
 	return Tangent;
 #else
-	return mat3(TransformMatrices[Snowfall_GetObjectID() * 2 + 1]) * Tangent;
+	return mat3(Snowfall_GetWorldMatrix()) * Tangent;
 #endif
 }
 
@@ -122,6 +134,7 @@ void Snowfall_SetOutputData(VertexOutputData oData)
 	out_Texcoord = oData.Texcoord;
 	out_ObjectId = Snowfall_GetObjectID();
 	out_ParamCount = ParamCount;
+	out_Time = Snowfall_GetTime();
 #else
 	gl_Position = vec4(oData.Position, 1.0);
 #endif
@@ -169,6 +182,7 @@ layout(location = 3) in vec3 in_Tangent[];
 layout(location = 4) in vec2 in_Texcoord[];
 layout(location = 5) in int in_ObjectId[];
 layout(location = 6) in int in_ParamCount[];
+layout(location = 7) in float in_Time[];
 
 layout(location = 0) out vec3 out_Position;
 layout(location = 1) out vec4 out_Color;
@@ -177,6 +191,8 @@ layout(location = 3) out vec3 out_Tangent;
 layout(location = 4) out vec2 out_Texcoord;
 layout(location = 5) out int out_ObjectId;
 layout(location = 6) out int out_ParamCount;
+layout(location = 7) out float out_Time;
+
 #endif
 
 #ifdef SHADOWPASS
@@ -202,6 +218,7 @@ void main()
 			out_Texcoord = in_Texcoord[i];
 			out_ObjectId = in_ObjectId[i];
 			out_ParamCount = in_ParamCount[i];
+			out_Time = in_Time[i];
 #endif
 #ifdef SHADOWPASS
 			gl_Layer = LAYER;
@@ -244,8 +261,9 @@ layout(location = 3) in vec3 Tangent;
 layout(location = 4) in vec2 Texcoord;
 layout(location = 5) flat in int ObjectId;
 layout(location = 6) flat in int ParamCount;
-layout(location = 4) uniform vec3 CamPos;
+layout(location = 7) in float Time;
 
+layout(location = 4) uniform vec3 CamPos;
 layout(location = 12) uniform sampler2DShadow HighDirectionalShadow;
 layout(location = 13) uniform sampler2DArrayShadow FlatShadows;
 layout(location = 14) uniform samplerCubeArrayShadow CubeShadows;
@@ -258,6 +276,11 @@ layout(std430, binding = 1) buffer ObjectParamsBuffer
 vec4 Snowfall_GetObjectParameter(int index)
 {
 	return ObjectParameters[ObjectId * ParamCount];
+}
+
+float Snowfall_GetTime()
+{
+	return Time;
 }
 
 vec3 Snowfall_GetPosition()

@@ -33,13 +33,6 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 			glShaderSource(shader, 4, lines.data(), nullptr);
 			glCompileShader(shader);
 			//DO ERROR CHECKING
-			GLint status;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-			if (status != GL_TRUE)
-			{
-				m_compileSuccess = false;
-				Snowfall::GetGameInstance().Log(LogType::Error, stages[i].second + " COMPILATION FAILED!");
-			}
 
 			GLsizei len;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
@@ -48,6 +41,14 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 			glGetShaderInfoLog(shader, len, &len, str.data());
 			glAttachShader(m_id, shader);
 			m_shaderInfoLogs.push_back(stages[i].second + " INFO LOG: \n" + std::string(str.data()));
+
+			GLint status;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+			if (status != GL_TRUE)
+			{
+				m_compileSuccess = false;
+				Snowfall::GetGameInstance().Log(LogType::Error, stages[i].second + " COMPILATION FAILED!\n"); // + str.data()
+			}
 
 		}
 		else
@@ -58,13 +59,6 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 		glDeleteShader(shader);
 
 	//DO ERROR CHECKING
-	GLint status;
-	glGetProgramiv(m_id, GL_LINK_STATUS, &status);
-	if (status != GL_TRUE)
-	{
-		Snowfall::GetGameInstance().Log(LogType::Error, "PROGRAM LINK FAILED!");
-		m_compileSuccess = false;
-	}
 
 	GLsizei len;
 	glGetProgramiv(m_id, GL_INFO_LOG_LENGTH, &len);
@@ -72,6 +66,14 @@ Shader::Shader(std::string src, std::set<std::string> defines)
 	str[len] = '\0';
 	glGetProgramInfoLog(m_id, len, &len, str.data());
 	m_infoLog = std::string(str.data());
+
+	GLint status;
+	glGetProgramiv(m_id, GL_LINK_STATUS, &status);
+	if (status != GL_TRUE)
+	{
+		Snowfall::GetGameInstance().Log(LogType::Error, "PROGRAM LINK FAILED!\n" + m_infoLog);
+		m_compileSuccess = false;
+	}
 }
 
 void Shader::Destroy()

@@ -29,7 +29,16 @@ Shader& ShaderAsset::GetShaderVariant(std::set<std::string> qualifiers)
 	if (shader != m_compiledShaders.end())
 		return *shader->second;
 
-	Shader *s = new Shader(m_processedSource, qualifiers);
+	std::string variant;
+	int i = 0;
+	for (std::string q : qualifiers)
+	{
+		variant += q + ((i + 1) == qualifiers.size() ? "" : ", ");
+		++i;
+	}
+
+	Snowfall::GetGameInstance().Log(LogType::Message, "Compiling shader: " + m_path + "{ " + variant + " }");
+	Shader *s = new Shader(m_preprocessed.GetProcessedSource(), qualifiers);
 	m_compiledShaders.insert({ qualifiers, s });
 
 	if (!s->IsCompileSuccess())
@@ -39,6 +48,8 @@ Shader& ShaderAsset::GetShaderVariant(std::set<std::string> qualifiers)
 
 void ShaderAsset::Load()
 {
+	if (m_loaded)
+		return;
 	if (m_isStreamedSource)
 	{
 		m_stream->OpenStreamRead();
@@ -46,8 +57,8 @@ void ShaderAsset::Load()
 		m_rawSource = m_stream->ReadString();
 	}
 	auto spreprocess = Snowfall::GetGameInstance().GetShaderPreprocessor();
-	auto preshader = spreprocess.PreprocessShader(m_rawSource);
-	m_processedSource = preshader.GetProcessedSource();
+	m_preprocessed = spreprocess.PreprocessShader(m_rawSource);
+
 	m_loaded = true;
 }
 

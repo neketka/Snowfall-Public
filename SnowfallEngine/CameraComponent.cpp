@@ -23,14 +23,14 @@ std::vector<SerializationField> ComponentDescriptor<CameraComponent>::GetSeriali
 
 CameraSystem::CameraSystem()
 {
-	m_quad = new MeshAsset("", Mesh({
-		RenderVertex(glm::vec3(-1, -1, 1)),
-		RenderVertex(glm::vec3(1, -1, 1)),
-		RenderVertex(glm::vec3(1, 1, 1)),
-		RenderVertex(glm::vec3(-1, 1, 1)),
-	}, {
-		0, 1, 2, 2, 3, 0
-	}));
+	m_quad = &AssetManager::LocateAssetGlobal<MeshAsset>("FullScreenQuad");
+
+	m_sampler.SetWrapMode(TextureChannel::S, WrapMode::ClampToEdge);
+	m_sampler.SetWrapMode(TextureChannel::T, WrapMode::ClampToEdge);
+	m_sampler.SetWrapMode(TextureChannel::R, WrapMode::ClampToEdge);
+	m_sampler.SetMinificationFilter(MinificationFilter::LinearMipmapLinear);
+	m_sampler.SetMagnificationFilter(MagnificationFilter::Linear);
+
 	for (int i = 0; i < 3; ++i)
 	{
 		m_shadowSamplers[i].SetWrapMode(TextureChannel::S, WrapMode::ClampToBorder);
@@ -46,12 +46,9 @@ CameraSystem::CameraSystem()
 
 CameraSystem::~CameraSystem()
 {
-	m_quad->Unload();
-	m_cubeSampler.Destroy();
 	for (int i = 0; i < 3; ++i)
-	{
 		m_shadowSamplers[i].Destroy();
-	}
+	m_sampler.Destroy();
 }
 
 void CameraSystem::InitializeSystem(Scene& scene)
@@ -76,18 +73,51 @@ void CameraSystem::Update(float deltaTime)
 			{
 				camera->HdrBuffer->Unload();
 				delete camera->HdrBuffer;
+				for (RenderTargetAsset *rasset : camera->Downsampled)
+				{
+					rasset->Unload();
+					delete rasset;
+				}
 			}
 
 			camera->HdrBuffer = new RenderTargetAsset("", 
 			{
 					new TextureAsset("", TextureType::Texture2D,
-				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 1),
+				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 1), //Color
 					new TextureAsset("", TextureType::Texture2D, 
 				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 1),
+
 					new TextureAsset("", TextureType::Texture2D,
-				TextureInternalFormat::Depth24I, camera->Region.Size.x, camera->Region.Size.y, 1, 1)
+				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 5), //Auxillary
+					new TextureAsset("", TextureType::Texture2D,
+				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 5),
+
+					new TextureAsset("", TextureType::Texture2D,
+				TextureInternalFormat::Depth24I, camera->Region.Size.x, camera->Region.Size.y, 1, 1), //Depth
 			}, 
-			{ TextureLayerAttachment(0, 0, -1), TextureLayerAttachment(1, 0, -1), TextureLayerAttachment(2, 0, -1) });
+			{ 
+				TextureLayerAttachment(0, 0, -1), 
+				TextureLayerAttachment(1, 0, -1),
+				
+				TextureLayerAttachment(2, 0, -1),
+				TextureLayerAttachment(3, 0, -1),
+
+				TextureLayerAttachment(4, 0, -1)
+				
+			});
+
+			for (int i = 0; i < 4; ++i)
+			{
+				camera->Downsampled[i] = new RenderTargetAsset("",
+				{
+					camera->HdrBuffer->GetTexture(2),
+					camera->HdrBuffer->GetTexture(3)
+				},
+				{
+					TextureLayerAttachment(0, i + 1, -1),
+					TextureLayerAttachment(1, i + 1, -1)
+				}, false);
+			}
 
 			camera->oldRegion = camera->Region;
 		}
@@ -125,7 +155,7 @@ void CameraSystem::Update(float deltaTime)
 		pipeline.FragmentStage.DepthMask = true;
 		pipeline.FragmentStage.Framebuffer = camera->HdrBuffer->GetFramebuffer();
 		pipeline.FragmentStage.Viewport = camera->Region.NoOffset();
-		pipeline.FragmentStage.DrawTargets = { 0 };
+		pipeline.FragmentStage.DrawTargets = { camera->colorAttachment };
 		pipeline.VertexStage.BackFaceCulling = true;
 
 		ShaderConstants constants;
@@ -135,20 +165,26 @@ void CameraSystem::Update(float deltaTime)
 		constants.AddConstant(12, shadowRenderer->GetDirectionHighShadowTexture()->GetTextureObject(), m_shadowSamplers[0]);
 		constants.AddConstant(13, shadowRenderer->GetFlatShadowTexture()->GetTextureObject(), m_shadowSamplers[1]);
 		constants.AddConstant(14, shadowRenderer->GetCubeShadowTexture()->GetTextureObject(), m_shadowSamplers[2]);
+		constants.AddConstant(15, Snowfall::GetGameInstance().GetTime());
 
 		ShaderDescriptor desc;
 		desc.AddShaderStorageBuffer(lights, 2);
 
 		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, camera->LayerMask, {}, false);
-		if (!camera->KeepInternal)
-			CopyToSDR(buffer, camera);
+
 	}
+
 	for (CameraComponent *camera : m_scene->GetComponentManager().GetDeadComponents<CameraComponent>())
 	{
 		if (camera->HdrBuffer)
 		{
 			camera->HdrBuffer->Unload();
 			delete camera->HdrBuffer;
+			for (RenderTargetAsset *rasset : camera->Downsampled)
+			{
+				rasset->Unload();
+				delete rasset;
+			}
 		}
 	}
 	buffer.ExecuteCommands();
@@ -188,36 +224,10 @@ void CameraSystem::RenderSkybox(CommandBuffer& buffer, CameraComponent *camera, 
 	ShaderConstants consts;
 
 	consts.AddConstant(0, view);
-	consts.AddConstant(1, asset->GetTextureObject(), m_cubeSampler);
+	consts.AddConstant(1, asset->GetTextureObject(), m_sampler);
 
 	buffer.BindPipelineCommand(pipe);
 	buffer.BindConstantsCommand(consts);
 	m_quad->DrawMeshDirect(buffer);
 }
 
-void CameraSystem::CopyToSDR(CommandBuffer& buffer, CameraComponent *camera)
-{
-	Pipeline pipe;
-
-	pipe.Shader = AssetManager::LocateAssetGlobal<ShaderAsset>("CopyToSDR").GetShaderVariant({});
-
-	pipe.VertexStage.VertexArray = Snowfall::GetGameInstance().GetMeshManager().GetVertexArray();
-	pipe.VertexStage.FrontFaceCulling = false;
-	pipe.VertexStage.BackFaceCulling = false;
-
-	pipe.FragmentStage.DrawTargets = { 0 };
-	pipe.FragmentStage.DepthTest = false;
-	pipe.FragmentStage.DepthMask = false;
-
-	if (camera->RenderTarget)
-		pipe.FragmentStage.Framebuffer = camera->RenderTarget->GetFramebuffer();
-	pipe.FragmentStage.Viewport = camera->Region;
-
-	ShaderConstants consts;
-
-	consts.AddConstant(0, camera->HdrBuffer->GetTexture(camera->colorAttachment)->GetTextureObject(), m_cubeSampler);
-
-	buffer.BindPipelineCommand(pipe);
-	buffer.BindConstantsCommand(consts);
-	m_quad->DrawMeshDirect(buffer);
-}

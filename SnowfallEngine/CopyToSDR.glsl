@@ -20,7 +20,10 @@ layout(location = 0) uniform sampler2D HDR;
 
 void main()
 {
-	fragment = texture(HDR, Texcoord);
+	const float oneOverGamma = 1.0 / 2.2;
+
+	vec3 color = pow(texture(HDR, Texcoord).rgb, vec3(oneOverGamma));
+	fragment = vec4(color, 1.0);
 }
 
 #endif

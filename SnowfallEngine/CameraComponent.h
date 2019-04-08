@@ -7,6 +7,7 @@
 #include "RenderTargetAsset.h"
 #include "Quad.h"
 #include "MeshAsset.h"
+#include "MaterialAsset.h"
 #include <glm/glm.hpp>
 
 #include "export.h"
@@ -27,10 +28,16 @@ public:
 	bool KeepInternal;
 
 	RenderTargetAsset *RenderTarget;
+
+	std::vector<MaterialAsset *> PostProcessStack;
+
 	glm::mat4 ProjectionMatrix;
 	glm::mat4 ViewMatrix;
 
 	RenderTargetAsset *HdrBuffer;
+
+	RenderTargetAsset *Downsampled[4];
+
 	IQuad2D oldRegion;
 	int colorAttachment;
 };
@@ -48,9 +55,8 @@ public:
 	virtual bool IsMainThread() override { return false; }
 private:
 	void RenderSkybox(CommandBuffer& buffer, CameraComponent *camera, glm::mat4 view, TextureAsset *asset);
-	void CopyToSDR(CommandBuffer& buffer, CameraComponent *camera);
 	MeshAsset *m_quad;
-	Sampler m_cubeSampler;
+	Sampler m_sampler;
 	Sampler m_shadowSamplers[3];
 	Scene *m_scene;
 };

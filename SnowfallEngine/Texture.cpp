@@ -36,6 +36,8 @@ Texture::Texture(int w, int h, bool isCubemap, int levels, TextureInternalFormat
 		m_type = GL_TEXTURE_2D;
 	glCreateTextures(m_type, 1, &m_id);
 	glTextureStorage2D(m_id, levels, static_cast<GLenum>(format), w, h);
+	glTextureParameteri(m_id, GL_TEXTURE_BASE_LEVEL, 0);
+	glTextureParameteri(m_id, GL_TEXTURE_MAX_LEVEL, levels - 1);
 }
 
 Texture::Texture(int width, int height, int depth, int levels, TextureInternalFormat format) : m_format(format), m_w(width), m_h(height)
@@ -43,6 +45,8 @@ Texture::Texture(int width, int height, int depth, int levels, TextureInternalFo
 	m_type = GL_TEXTURE_3D;
 	glCreateTextures(GL_TEXTURE_3D, 1, &m_id);
 	glTextureStorage3D(m_id, levels, static_cast<GLenum>(format), width, height, depth);
+	glTextureParameteri(m_id, GL_TEXTURE_BASE_LEVEL, 0);
+	glTextureParameteri(m_id, GL_TEXTURE_MAX_LEVEL, levels - 1);
 }
 
 Texture::Texture(int width, int height, int slices, bool isCubemapArray, int levels, TextureInternalFormat format) : m_format(format), m_w(width), m_h(height)
@@ -56,6 +60,8 @@ Texture::Texture(int width, int height, int slices, bool isCubemapArray, int lev
 		m_type = GL_TEXTURE_2D_ARRAY;
 	glCreateTextures(m_type, 1, &m_id);
 	glTextureStorage3D(m_id, levels, static_cast<GLenum>(format), width, height, slices);
+	glTextureParameteri(m_id, GL_TEXTURE_BASE_LEVEL, 0);
+	glTextureParameteri(m_id, GL_TEXTURE_MAX_LEVEL, levels - 1);
 }
 
 void Texture::SetData(int x, int y, int w, int h, int level, TexturePixelFormat format, TextureDataType type, const void *pixels)

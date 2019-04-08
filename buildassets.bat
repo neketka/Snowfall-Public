@@ -1,0 +1,1 @@
+"AssetImporter\bin\Debug\AssetImporter.exe" -d "Snowfall\Assets" -o "Snowfall\Assets"

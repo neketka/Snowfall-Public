@@ -26,6 +26,7 @@ public:
 	glm::ivec2 Position;
 	glm::ivec2 Size;
 	inline IQuad2D NoOffset() { return IQuad2D(glm::ivec2(0, 0), Size); }
+	inline IQuad2D Mipmapped(int level) { return IQuad2D(Position, glm::vec2(Size) / std::powf(2, level)); }
 
 	bool operator==(const IQuad2D& other) { return Position == other.Position && Size == other.Size; }
 	bool operator!=(const IQuad2D& other) { return Position != other.Position || Size != other.Size; }

@@ -168,6 +168,15 @@
     <ClCompile Include="SkyboxComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessRenderSystem.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraViewportRenderSystem.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -302,6 +311,15 @@
     <ClInclude Include="SkyboxComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessRenderSystem.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraViewportRenderSystem.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="TextRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lighting.glsl">
@@ -320,6 +338,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="CopyToSDR.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="PostProcessShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="TonemappingPost.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="BloomPost.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ChromaticAbberationPost.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

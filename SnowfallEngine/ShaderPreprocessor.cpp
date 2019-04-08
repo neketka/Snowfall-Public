@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 
 class Directive
 {
@@ -55,7 +56,7 @@ std::vector<Directive> FindAndRemoveDirectives(std::string& src, std::vector<std
 					mode = ParseMode::None;
 				}
 			}
-			else if (ch == '\n')
+			else if (ch == '\n' || ch == '\r')
 			{
 				if (std::find(directives.begin(), directives.end(), working.DirectiveName) != directives.end())
 				{
@@ -73,6 +74,7 @@ std::vector<Directive> FindAndRemoveDirectives(std::string& src, std::vector<std
 				{
 					code += "#" + working.DirectiveName + ch;
 					working.DirectiveName = "";
+					working.Arguments = "";
 					mode = ParseMode::None;
 				}
 			}
@@ -80,7 +82,7 @@ std::vector<Directive> FindAndRemoveDirectives(std::string& src, std::vector<std
 				working.DirectiveName += ch;
 			break;
 		case ParseMode::ParsingArgument:
-			if (ch == '\n')
+			if (ch == '\n' || ch == '\r')
 			{
 				if (skipNewline)
 					break;
@@ -111,14 +113,19 @@ ShaderPreprocessor::ShaderPreprocessor(AssetManager& assetManager) : m_assetMana
 
 PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 {
-	std::vector<Directive> directives = FindAndRemoveDirectives(src, std::vector<std::string>({ "include" }));
+	std::vector<Directive> directives = FindAndRemoveDirectives(src, std::vector<std::string>({ "include", "passes", "downscale", "downsample" }));
+
 	std::vector<std::string> variants;
+	std::vector<std::string> passes;
+	std::vector<DownsamplePass> downsamplepasses;
+	std::vector<int> downscalepasses;
+
 	int includeAdjust = 0;
 	for (Directive dir : directives)
 	{
 		if (dir.DirectiveName == "include")
 		{
-			ShaderAsset& asset = m_assetManager.LocateAsset<ShaderAsset>(dir.Arguments.substr(1, dir.Arguments.length() - 3));
+			ShaderAsset& asset = m_assetManager.LocateAsset<ShaderAsset>(dir.Arguments.substr(1, dir.Arguments.length() - 2));
 			asset.Load();
 
 			if (asset.IsValid())
@@ -129,11 +136,38 @@ PreprocessedShader ShaderPreprocessor::PreprocessShader(std::string src)
 			else
 				src = src.insert(dir.Position, "#error Cannot open file \"" + dir.Arguments + "\"");
 		}
-		if (dir.DirectiveName == "variants")
+
+		else if (dir.DirectiveName == "variants")
 		{
 			std::istringstream iss(dir.Arguments);
 			variants.insert(variants.end(), std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>());
 		}
+
+		else if (dir.DirectiveName == "passes")
+		{
+			std::istringstream iss(dir.Arguments);
+			passes.insert(passes.end(), std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>());
+		}
+
+		else if (dir.DirectiveName == "downsample")
+		{
+			std::vector<std::string> tokens;
+			boost::split(tokens, dir.Arguments, boost::is_any_of(" "));
+			if (tokens.size() != 2)
+				src.insert(dir.Position, "#error downsample directive syntax error");
+			else
+			{
+				DownsamplePass pass;
+				pass.Pass = std::stoi(tokens[0]);
+				pass.Level = std::stoi(tokens[1]);
+				downsamplepasses.push_back(pass);
+			}
+		}
+
+		else if (dir.DirectiveName == "downscale")
+		{
+			downscalepasses.push_back(std::stoi(dir.Arguments));
+		}
 	}
-	return PreprocessedShader(src, variants);
+	return PreprocessedShader(src, variants, passes, downsamplepasses, downscalepasses);
 }

@@ -21,7 +21,7 @@ layout(location = 1) uniform samplerCube Skybox;
 
 void main()
 {
-	fragment = texture(Skybox, Direction);
+	fragment = texture(Skybox, Direction * vec3(1, -1, 1));
 }
 
 #endif

@@ -119,7 +119,7 @@ void TextureAsset::Load()
 			case TextureType::TextureCubemapArray:
 				break;
 			}
-			m_texture.SetMipmapRange(m_minMipmapLoaded, m_mipmaps);
+			m_texture.SetMipmapRange(m_minMipmapLoaded - 1, m_mipmaps - 1);
 		}
 
 		m_stream->CloseStream();

@@ -59,21 +59,21 @@ void MaterialAsset::Load()
 			s.SetAnisotropicFiltering(aniso);
 			m_samplers.push_back(s);
 		}
-		for (int i = 0; i < counts[1]; ++i)
+		for (unsigned i = 0; i < counts[1]; ++i)
 			m_textures.push_back(&AssetManager::LocateAssetGlobal<TextureAsset>(m_stream->ReadString()));
-		for (int i = 0; i < counts[2]; ++i)
+		for (unsigned i = 0; i < counts[2]; ++i)
 		{
 			int data[2];
 			m_stream->ReadStream(data, 2);
 			tsPairs.push_back({ data[0], data[1] });
 		}
-		for (int i = 0; i < counts[3]; ++i)
+		for (unsigned i = 0; i < counts[3]; ++i)
 		{
 			int data[2];
 			m_stream->ReadStream(data, 2);
 			m_baseProperties.Constants.AddConstant(data[0], data[1]);
 		}
-		for (int i = 0; i < counts[4]; ++i)
+		for (unsigned i = 0; i < counts[4]; ++i)
 		{
 			int loc;
 			float val;
@@ -81,7 +81,7 @@ void MaterialAsset::Load()
 			m_stream->ReadStream(&val, 1);
 			m_baseProperties.Constants.AddConstant(loc, val);
 		}
-		for (int i = 0; i < counts[5]; ++i)
+		for (unsigned i = 0; i < counts[5]; ++i)
 		{
 			int loc;
 			glm::vec2 val;
@@ -89,7 +89,7 @@ void MaterialAsset::Load()
 			m_stream->ReadStream(&val, 1);
 			m_baseProperties.Constants.AddConstant(loc, val);
 		}
-		for (int i = 0; i < counts[6]; ++i)
+		for (unsigned i = 0; i < counts[6]; ++i)
 		{
 			int loc;
 			glm::vec3 val;
@@ -97,7 +97,7 @@ void MaterialAsset::Load()
 			m_stream->ReadStream(&val, 1);
 			m_baseProperties.Constants.AddConstant(loc, val);
 		}
-		for (int i = 0; i < counts[7]; ++i)
+		for (unsigned i = 0; i < counts[7]; ++i)
 		{
 			int loc;
 			glm::vec4 val;
@@ -105,7 +105,7 @@ void MaterialAsset::Load()
 			m_stream->ReadStream(&val, 1);
 			m_baseProperties.Constants.AddConstant(loc, val);
 		}
-		for (int i = 0; i < counts[5]; ++i)
+		for (unsigned i = 0; i < counts[5]; ++i)
 		{
 			int data[2];
 			m_stream->ReadStream(data, 2);

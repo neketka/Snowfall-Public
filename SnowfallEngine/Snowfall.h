@@ -55,6 +55,7 @@ public:
 	IQuad2D GetViewport(int index);
 
 	inline float GetFPS() { return m_fps; }
+	inline float GetTime() { return m_time; }
 
 	void Log(LogType type, std::string message);
 
@@ -64,6 +65,7 @@ private:
 	void Init();
 	void SetupDefaultPrototypes();
 	float m_fps;
+	float m_time;
 	Scene *m_scene;
 	AssetManager *m_assetManager;
 	PrototypeManager *m_prototypeManager;

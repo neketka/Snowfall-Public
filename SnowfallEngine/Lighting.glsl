@@ -11,7 +11,7 @@ struct Light
 	float Range;
 	float RangeCutoff;
 
-	float Padding0[2]; // SIMD ALIGNMENT GO BURN IN HELL
+	float Padding0[2]; // SIMD ALIGNMENT SUCKS
 
 	int Type; //0:dir 1:point 2:spot
 
@@ -129,7 +129,7 @@ vec3 CookOrenBRDF(vec3 N, vec3 V, vec3 L, vec3 H, vec3 radiance,
 	float denom = 4.0 * NdotV * NdotL;
 	vec3 specular = num / max(denom, 0.001);
 	vec3 albedo = orenNayarDiffuse(LdotV, NdotL, NdotV, roughness, kD);
-	return (kD * diffuse / PI + specular) * radiance * albedo;
+	return (kD * diffuse / PI + specular) * radiance * NdotL;
 }
 
 float Attenutation(vec3 L, float lightRadius, float cutoff)
@@ -169,7 +169,7 @@ vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material, f
 
 	vec3 color = CookOrenBRDF(N, V, L, H, radiance * atten * spot, material.Diffuse, material.Metalness, material.Roughness) * material.AO;
 
-	return color * shadow + vec3(0.1) * material.Diffuse;
+	return color * shadow + vec3(0.2) * material.Diffuse;
 }
 
 #endif

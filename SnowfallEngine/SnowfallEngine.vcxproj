@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -162,6 +162,7 @@
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CameraViewportRenderSystem.cpp" />
     <ClCompile Include="CollisionShape.cpp" />
     <ClCompile Include="CommandBuffer.cpp" />
     <ClCompile Include="Component.cpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="OcclusionQuery.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PixelTransferrer.cpp" />
+    <ClCompile Include="PostProcessRenderSystem.cpp" />
     <ClCompile Include="Prototype.cpp" />
     <ClCompile Include="RenderTargetAsset.cpp" />
     <ClCompile Include="Sampler.cpp" />
@@ -197,6 +199,7 @@
     <ClCompile Include="Snowfall.cpp" />
     <ClCompile Include="SubmitBuffer.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
@@ -207,6 +210,7 @@
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CameraViewportRenderSystem.h" />
     <ClInclude Include="CollisionShape.h" />
     <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="ECS.h" />
@@ -230,6 +234,7 @@
     <ClInclude Include="OcclusionQuery.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PixelTransferrer.h" />
+    <ClInclude Include="PostProcessRenderSystem.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="RenderTargetAsset.h" />
     <ClInclude Include="Sampler.h" />
@@ -243,17 +248,22 @@
     <ClInclude Include="SkyboxComponent.h" />
     <ClInclude Include="Snowfall.h" />
     <ClInclude Include="SubmitBuffer.h" />
+    <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BloomPost.glsl" />
+    <None Include="ChromaticAbberationPost.glsl" />
     <None Include="CopyToSDR.glsl" />
     <None Include="Lighting.glsl" />
+    <None Include="PostProcessShader.glsl" />
     <None Include="SimplePBRShader.glsl" />
     <None Include="SkyboxShader.glsl" />
     <None Include="SnowfallShader.glsl" />
+    <None Include="TonemappingPost.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DeferredLighting.glsl">

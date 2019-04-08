@@ -94,10 +94,6 @@ void CommandBuffer::BindPipelineCommand(Pipeline pipeline)
 	int index = m_pipelines.size() - 1;
 	std::vector<Pipeline> *pipelines = &m_pipelines;
 
-	Pipeline *p = &m_pipelines[index];
-	if (m_pipelines.size() != 1)
-		p->Optimize(m_pipelines[m_pipelines.size() - 2]);
-
 	m_commands.push_back([index, pipelines]() {
 		(*pipelines)[index].BindPipeline();
 	});

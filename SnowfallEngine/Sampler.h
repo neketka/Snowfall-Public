@@ -25,7 +25,7 @@ enum class WrapMode
 
 enum class TextureChannel
 {
-	S = GL_S, T = GL_T, R = GL_R
+	S = GL_TEXTURE_WRAP_S, T = GL_TEXTURE_WRAP_T, R = GL_TEXTURE_WRAP_R
 };
 
 enum class MinificationFilter
