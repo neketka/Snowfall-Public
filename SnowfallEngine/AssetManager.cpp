@@ -1,9 +1,7 @@
 #include "AssetManager.h"
 #include "LocalAssetStream.h"
 #include "Snowfall.h"
-#include <filesystem>
-
-namespace filesystem = std::filesystem;
+#include "UserAsset.h"
 
 AssetManager::AssetManager()
 {
@@ -36,6 +34,25 @@ void AssetManager::EnumerateLocalPath(bool asRoot, std::string path)
 	}
 }
 */
+
+void AssetManager::SetUserDataFolder(std::string name)
+{
+	char *str;
+	size_t len;
+	if (_dupenv_s(&str, &len, "APPDATA")) return;
+	m_userFolder = filesystem::path(std::string(str) + "\\" + name);
+	if (!filesystem::exists(m_userFolder))
+		filesystem::create_directory(m_userFolder);
+	for (filesystem::directory_entry entry : filesystem::directory_iterator(m_userFolder))
+	{
+		if (!filesystem::is_directory(entry))
+		{
+			LocalAssetStream *src = new LocalAssetStream(entry.path().string());
+			UserAsset *asset = new UserAsset(src);
+			m_assets.insert({ asset->GetPath(), asset });
+		}
+	}
+}
 
 void AssetManager::EnumerateUnpackedFolder(std::string path)
 {

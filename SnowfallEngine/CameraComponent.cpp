@@ -132,6 +132,7 @@ void CameraSystem::Update(float deltaTime)
 
 		camera->ProjectionMatrix = glm::perspective(glm::radians(camera->FovY), static_cast<float>(camera->Region.Size.x) / static_cast<float>(camera->Region.Size.y), camera->ZNear, camera->ZFar);
 		camera->ViewMatrix = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
+		camera->UIProjectionMatrix = glm::ortho<float>(0, camera->Region.Size.x, 0, camera->Region.Size.y, 1, -1);
 
 		auto skyboxes = m_scene->GetComponentManager().GetComponents<SkyboxComponent>();
 		if (skyboxes.size() > 0)

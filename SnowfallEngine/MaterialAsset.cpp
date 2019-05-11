@@ -158,12 +158,24 @@ Material& MaterialAsset::GetBaseProperties()
 	return m_baseProperties;
 }
 
+SNOWFALLENGINE_API void MaterialAsset::CreateRenderPass(CommandBuffer& buffer, Pipeline& pipeline, std::set<std::string> variant)
+{
+	Material& mat = GetMaterial();
+	pipeline.Shader = mat.MaterialShader->GetShaderVariant(variant);
+	buffer.BindPipelineCommand(pipeline);
+	buffer.BindConstantsCommand(mat.Constants);
+}
+
 IAsset *MaterialAsset::CreateCopy(std::string newPath, IAssetStreamIO * output)
 {
 	return nullptr;
 }
 
 void MaterialAsset::Export()
+{
+}
+
+void MaterialAsset::SetStream(IAssetStreamIO *stream)
 {
 }
 

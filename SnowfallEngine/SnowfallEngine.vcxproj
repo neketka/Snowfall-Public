@@ -29,13 +29,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -169,6 +169,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Event.cpp" />
+    <ClCompile Include="FontAsset.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
+    <ClCompile Include="UserAsset.cpp" />
     <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +217,7 @@
     <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="export.h" />
+    <ClInclude Include="FontAsset.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GLResource.h" />
@@ -230,6 +233,7 @@
     <ClInclude Include="MeshAsset.h" />
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Module.h" />
     <ClInclude Include="NullStreamSource.h" />
     <ClInclude Include="OcclusionQuery.h" />
     <ClInclude Include="Pipeline.h" />
@@ -252,12 +256,15 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TransformComponent.h" />
+    <ClInclude Include="UserAsset.h" />
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BloomPost.glsl" />
     <None Include="ChromaticAbberationPost.glsl" />
     <None Include="CopyToSDR.glsl" />
+    <None Include="FontRenderShader.glsl" />
+    <None Include="FxaaPost.glsl" />
     <None Include="Lighting.glsl" />
     <None Include="PostProcessShader.glsl" />
     <None Include="SimplePBRShader.glsl" />

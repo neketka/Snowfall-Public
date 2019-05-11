@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "TextureAsset.h"
 #include "Framebuffer.h"
+#include "Pipeline.h"
 
 #include "export.h"
 class TextureLayerAttachment
@@ -23,6 +24,7 @@ public:
 	{
 		return m_path;
 	}
+	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 
 	inline TextureAsset *GetTexture(int index)
 	{
@@ -36,6 +38,8 @@ public:
 	SNOWFALLENGINE_API virtual bool IsReady() override;
 	SNOWFALLENGINE_API virtual bool IsValid() override;
 
+	SNOWFALLENGINE_API void BuildPipeline(Pipeline& pipeline);
+
 	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
 	virtual void Export() override;
 private:
@@ -47,6 +51,8 @@ private:
 
 	IAssetStreamIO *m_stream;
 	std::string m_path;
+
+	// Inherited via IAsset
 };
 
 class SNOWFALLENGINE_API RenderTargetAssetReader : public IAssetReader

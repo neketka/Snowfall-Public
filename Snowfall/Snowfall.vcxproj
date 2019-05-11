@@ -23,7 +23,7 @@
     <ProjectGuid>{EFD1FCE3-2903-49C4-A39D-A5C00E392431}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Snowfall</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>Snowfall</ProjectName>
     <SccProjectName>SAK</SccProjectName>
     <SccAuxPath>SAK</SccAuxPath>
@@ -34,13 +34,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -89,7 +89,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(SolutionDir)\SnowfallEngine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(SolutionDir)\SnowfallEngine;$(SolutionDir)\Dependencies\rapidjson\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>

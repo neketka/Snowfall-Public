@@ -23,7 +23,6 @@ public:
 	float ZNear;
 	float ZFar;
 	float FovY;
-
 	int ViewportIndex;
 	bool KeepInternal;
 
@@ -33,6 +32,7 @@ public:
 
 	glm::mat4 ProjectionMatrix;
 	glm::mat4 ViewMatrix;
+	glm::mat4 UIProjectionMatrix;
 
 	RenderTargetAsset *HdrBuffer;
 

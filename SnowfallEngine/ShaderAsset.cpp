@@ -91,6 +91,10 @@ void ShaderAsset::Export()
 {
 }
 
+void ShaderAsset::SetStream(IAssetStreamIO *stream)
+{
+}
+
 ShaderAssetReader::ShaderAssetReader()
 {
 }

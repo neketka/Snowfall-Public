@@ -177,6 +177,12 @@
     <ClCompile Include="TextRenderer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="FontAsset.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="UserAsset.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -320,6 +326,15 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="FontAsset.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="UserAsset.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Module.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lighting.glsl">
@@ -350,6 +365,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="ChromaticAbberationPost.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="FxaaPost.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="FontRenderShader.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

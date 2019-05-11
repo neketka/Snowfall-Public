@@ -13,7 +13,7 @@ void main()
 
 	vec2 coord = Snowfall_GetTexcoord();
 
-	float calc = float(coord.x <= 0.55 && coord.x >= 0.45) * mix(1.1, 3.3, sin(t * 2) * 0.5 + 0.5);
+	float calc = float(coord.x <= 0.55 && coord.x >= 0.45) * mix(0.9, 1.5, sin(t * 2) * 0.5 + 0.5);
 
 	mat.Diffuse = texture(tex, coord).rgb;
 	mat.Normal = Snowfall_GetNormal();

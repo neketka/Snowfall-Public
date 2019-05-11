@@ -80,12 +80,21 @@ bool RenderTargetAsset::IsValid()
 	return true;
 }
 
+SNOWFALLENGINE_API void RenderTargetAsset::BuildPipeline(Pipeline& pipeline)
+{
+	pipeline.FragmentStage.Framebuffer = GetFramebuffer();
+}
+
 IAsset *RenderTargetAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
 {
 	return nullptr;
 }
 
 void RenderTargetAsset::Export()
+{
+}
+
+void RenderTargetAsset::SetStream(IAssetStreamIO *stream)
 {
 }
 

@@ -27,7 +27,7 @@ enum class InterpretValueAs
 	Float32, Float32Array, Float64, Float64Array, FVector2, FVector2Array, FVector3, 
 	FVector3Array, FVector4, FVector4Array, IVector2, IVector2Array, IVector3,
 	IVector3Array, IVector4, IVector4Array, FColor3, FColor4, 
-	AnyAsset, MaterialAsset, MeshAsset, ShaderAsset, TextureAsset, RenderTargetAsset
+	AnyAsset, MaterialAsset, MeshAsset, ShaderAsset, TextureAsset, RenderTargetAsset, FontAsset
 };
 
 class SerializationField

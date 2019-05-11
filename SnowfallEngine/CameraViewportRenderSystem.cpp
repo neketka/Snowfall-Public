@@ -21,6 +21,12 @@ void CameraViewportRenderSystem::Update(float deltaTime)
 	CommandBuffer buffer;
 	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
 	{
+		TextRenderer& renderer = Snowfall::GetGameInstance().GetTextRenderer();
+		renderer.ClearTextBuffer();
+		renderer.SetFont(AssetManager::LocateAssetGlobal<FontAsset>("ArialBasic"));
+		renderer.RenderTextBuffer(glm::vec2(5.f, camera->Region.Size.y - 25.f), 25.f, "FPS: " + std::to_string(static_cast<int>(std::floor(Snowfall::GetGameInstance().GetFPS()))));
+		renderer.RenderText(buffer, camera->HdrBuffer->GetFramebuffer(), 0, camera->Region, camera->UIProjectionMatrix);
+
 		if (!camera->KeepInternal)
 			CopyToSDR(buffer, camera);
 	}

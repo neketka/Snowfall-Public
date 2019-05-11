@@ -1,1 +1,6 @@
-"AssetImporter\bin\Debug\AssetImporter.exe" -d "Snowfall\Assets" -o "Snowfall\Assets"
+@echo off
+
+"AssetImporter\bin\Debug\AssetImporter.exe" -d "Snowfall\AssetsInput" -o "Snowfall\Assets"
+
+echo.
+pause

@@ -194,6 +194,10 @@ void TextureAsset::initializeTexture()
 	m_validTextureObject = true;
 }
 
+void TextureAsset::SetStream(IAssetStreamIO *stream)
+{
+}
+
 Texture TextureAsset::GetTextureObject()
 {
 	if (!m_validTextureObject)

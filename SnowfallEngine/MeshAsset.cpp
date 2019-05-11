@@ -113,6 +113,10 @@ void MeshAsset::Export()
 {
 }
 
+void MeshAsset::SetStream(IAssetStreamIO *stream)
+{
+}
+
 std::vector<std::string> MeshAssetReader::GetExtensions()
 {
 	return { ".masset" };

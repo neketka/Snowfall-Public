@@ -34,6 +34,10 @@ namespace AssetImporter
                         Console.Write("Converting " + Path.GetFileName(path) + " to texture asset...");
                         PictureImporter.Convert(internalPath, path, output);
                         break;
+                    case ".fntjson":
+                        Console.Write("Converting " + Path.GetFileName(path) + " to font asset...");
+                        FontImporter.Convert(internalPath, path, output);
+                        break;
                     default:
                         return;
                 }
@@ -43,7 +47,7 @@ namespace AssetImporter
             catch (Exception e)
             {
                 Console.WriteLine("failure");
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.ToString());
                 ++failures;
             }
         }

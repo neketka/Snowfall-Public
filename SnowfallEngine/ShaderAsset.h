@@ -35,6 +35,8 @@ public:
 		return m_path;
 	}
 
+	virtual void SetStream(IAssetStreamIO *stream) override;
+
 	SNOWFALLENGINE_API virtual void Load() override;
 	SNOWFALLENGINE_API virtual void Unload() override;
 	SNOWFALLENGINE_API virtual bool IsReady() override;

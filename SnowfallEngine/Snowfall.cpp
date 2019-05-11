@@ -2,6 +2,8 @@
 #include "MeshAsset.h"
 #include "TextureAsset.h"
 #include "MaterialAsset.h"
+#include "FontAsset.h"
+
 #include <GL\glew.h>
 #include <time.h>
 
@@ -30,6 +32,7 @@ Snowfall::~Snowfall()
 	delete m_meshManager;
 	delete m_preprocessor;
 	delete m_inputManager;
+	delete m_textRenderer;
 }
 
 void Snowfall::StartGame()
@@ -61,6 +64,8 @@ void Snowfall::StartGame()
 		{
 			m_fps = CLOCKS_PER_SEC / static_cast<float>(fpsTime) * fpsCounted;
 			//Log(LogType::Message, std::to_string(m_fps));
+			fpsTime = 0;
+			fpsCounted = 0;
 		}
 
 		lastFrame = beginTime;
@@ -91,6 +96,10 @@ void Snowfall::SetViewportCoefficients(int index, Quad2D scale, Quad2D offset)
 {
 	scales[index] = scale;
 	offsets[index] = offset;
+}
+
+void Snowfall::LoadModule(std::string path)
+{
 }
 
 IQuad2D Snowfall::GetViewport(int index)
@@ -129,7 +138,8 @@ void Snowfall::Init()
 
 	m_assetManager = new AssetManager;
 	m_prototypeManager = new PrototypeManager;
-	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes / (sizeof(RenderVertex) * 2.1f));
+	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes / sizeof(RenderVertex));
+	m_textRenderer = new TextRenderer(8192);
 	m_preprocessor = new ShaderPreprocessor(*m_assetManager);
 	m_inputManager = new InputManager(m_window);
 
@@ -140,6 +150,8 @@ void Snowfall::Init()
 	m_assetManager->RegisterReader(new MeshAssetReader);
 	m_assetManager->RegisterReader(new TextureAssetReader);
 	m_assetManager->RegisterReader(new MaterialAssetReader);
+	m_assetManager->RegisterReader(new RenderTargetAssetReader);
+	m_assetManager->RegisterReader(new FontAssetReader);
 
 	m_assetManager->AddAsset(new MeshAsset("FullScreenQuad", Mesh({
 		RenderVertex(glm::vec3(-1, -1, 1)),

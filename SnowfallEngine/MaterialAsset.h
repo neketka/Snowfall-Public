@@ -2,6 +2,7 @@
 #include "AssetManager.h"
 #include "Material.h"
 #include "TextureAsset.h"
+#include "CommandBuffer.h"
 #include <vector>
 
 #include "export.h"
@@ -20,6 +21,7 @@ class MaterialAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API MaterialAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 	SNOWFALLENGINE_API MaterialAsset(std::string path, Material material);
 	SNOWFALLENGINE_API MaterialAsset(std::string path, std::vector<Sampler> sampler, std::vector<TextureAsset *> textures, std::vector<SamplerProperty> properties, Material baseProperties);
 	SNOWFALLENGINE_API ~MaterialAsset();
@@ -32,6 +34,8 @@ public:
 
 	SNOWFALLENGINE_API Material& GetMaterial();
 	SNOWFALLENGINE_API Material& GetBaseProperties();
+
+	SNOWFALLENGINE_API void CreateRenderPass(CommandBuffer& buffer, Pipeline& pipeline, std::set<std::string> variant);
 
 	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
 	virtual void Export() override;

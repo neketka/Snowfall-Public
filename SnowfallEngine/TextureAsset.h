@@ -31,6 +31,7 @@ public:
 	SNOWFALLENGINE_API ~TextureAsset();
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
+	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 	SNOWFALLENGINE_API virtual void Load() override;
 	SNOWFALLENGINE_API virtual void Unload() override;
 	SNOWFALLENGINE_API virtual bool IsReady() override;
@@ -43,13 +44,13 @@ public:
 
 	SNOWFALLENGINE_API void SetLOD(float lod);
 
-	SNOWFALLENGINE_API void initializeTexture();
-
 	SNOWFALLENGINE_API Texture GetTextureObject();
 
 	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
 	virtual void Export() override;
 private:
+	void initializeTexture();
+
 	Texture m_texture;
 
 	bool m_validTextureObject;

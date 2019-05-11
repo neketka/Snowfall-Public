@@ -4,7 +4,10 @@
 #include "MeshManager.h"
 #include "InputManager.h"
 #include "Scene.h"
+#include "TextRenderer.h"
+#include "Module.h"
 
+#include <Windows.h>
 #include <map>
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -33,6 +36,13 @@ public:
 	int ImageUnits;
 };
 
+class ModuleInstance 
+{
+public:
+	HMODULE WindowsHandle;
+	Module *ModulePointer;
+};
+
 class SNOWFALLENGINE_API Snowfall
 {
 public:
@@ -48,10 +58,12 @@ public:
 	inline MeshManager& GetMeshManager() { return *m_meshManager; }
 	inline ShaderPreprocessor& GetShaderPreprocessor() { return *m_preprocessor; }
 	inline InputManager& GetInputManager() { return *m_inputManager; }
+	inline TextRenderer& GetTextRenderer() { return *m_textRenderer; }
 	inline EngineSettings& GetEngineSettings() { return m_settings; }
 
 	void CreateViewport(int index);
 	void SetViewportCoefficients(int index, Quad2D scale, Quad2D offset);
+	void LoadModule(std::string path);
 	IQuad2D GetViewport(int index);
 
 	inline float GetFPS() { return m_fps; }
@@ -70,9 +82,11 @@ private:
 	AssetManager *m_assetManager;
 	PrototypeManager *m_prototypeManager;
 	MeshManager *m_meshManager;
+	TextRenderer *m_textRenderer;
 	ShaderPreprocessor *m_preprocessor; // Global preprocessor
 	EngineSettings m_settings;
 	InputManager *m_inputManager;
 	GLFWwindow *m_window;
+
 	static Snowfall *m_gameInstance; // Global game instance
 };

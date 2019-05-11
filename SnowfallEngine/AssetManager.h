@@ -4,10 +4,12 @@
 #include <map>
 #include <vector>
 #include <iterator>
+#include <filesystem>
 
 #include "export.h"
 
 class AssetManager;
+namespace filesystem = std::filesystem;
 
 class IAssetStreamIO
 {
@@ -64,6 +66,7 @@ class IAsset
 {
 public:
 	virtual std::string GetPath() const = 0;
+	virtual void SetStream(IAssetStreamIO *stream) = 0;
 	virtual void Load() = 0;
 	virtual void Unload() = 0;
 	virtual bool IsReady() = 0;
@@ -83,13 +86,15 @@ class AssetManager
 public:
 	SNOWFALLENGINE_API AssetManager();
 	SNOWFALLENGINE_API ~AssetManager();
+
+	SNOWFALLENGINE_API void SetUserDataFolder(std::string name);
 	SNOWFALLENGINE_API void EnumerateUnpackedFolder(std::string path);
 	SNOWFALLENGINE_API void RegisterReader(IAssetReader *reader); // Pointer will be owned by the AssetManager instance
 	SNOWFALLENGINE_API void AddAsset(IAsset *asset); // Pointer will be owned by the AssetManager instance
 	SNOWFALLENGINE_API void DeleteAsset(IAsset& asset);
 
 	template<class T>
-	T *CopyAssetShallow(std::string newPath, IAsset& asset)
+	T *CopyAssetSameSource(std::string newPath, IAsset& asset)
 	{
 		T *a = asset.CreateCopy(newPath, nullptr);
 		AddAsset(a);
@@ -97,11 +102,10 @@ public:
 	}
 
 	template<class T>
-	T *CopyAssetAsNew(std::string newPath, IAssetStreamIO *output, IAsset& asset)
+	T *CopyAssetNewSource(std::string newPath, IAssetStreamIO *output, IAsset& asset)
 	{
 		T *a = asset.CreateCopy(newPath, output);
 		AddAsset(a);
-		asset.Export();
 		return a;
 	}
 
@@ -141,6 +145,7 @@ public:
 private:
 	SNOWFALLENGINE_API IAsset *LocateAsset(std::string path);
 	SNOWFALLENGINE_API static IAsset *LocateAssetGlobal(std::string path);
+	filesystem::path m_userFolder;
 
 	std::map<std::string, IAsset *> m_assets;
 	std::map<std::string, IAssetReader *> m_readers;
