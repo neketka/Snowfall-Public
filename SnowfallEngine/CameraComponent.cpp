@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "CameraComponent.h"
 #include "TransformComponent.h"
 #include "CommandBuffer.h"
@@ -13,11 +15,16 @@
 std::vector<SerializationField> ComponentDescriptor<CameraComponent>::GetSerializationFields()
 {
 	return {
-		SerializationField("Region", SerializationType::ByValue, sizeof(IQuad2D), InterpretValueAs::IVector2Array),
-		SerializationField("LayerMask", SerializationType::ByValue, sizeof(LayerMask), InterpretValueAs::UInt64),
-		SerializationField("ZNear", SerializationType::ByValue, sizeof(float), InterpretValueAs::Float32),
-		SerializationField("ZFar", SerializationType::ByValue, sizeof(float), InterpretValueAs::Float32),
-		SerializationField("FovY", SerializationType::ByValue, sizeof(float), InterpretValueAs::Float32)
+		SerializationField("Enabled", SerializationType::ByValue, offsetof(CameraComponent, Enabled), sizeof(bool), InterpretValueAs::Bool),
+		SerializationField("Region", SerializationType::ByValue, offsetof(CameraComponent, Region), sizeof(IQuad2D), InterpretValueAs::IVector2Array),
+		SerializationField("LayerMask", SerializationType::ByValue, offsetof(CameraComponent, LayerMask), sizeof(LayerMask), InterpretValueAs::UInt64),
+		SerializationField("ZNear", SerializationType::ByValue, offsetof(CameraComponent, ZNear), sizeof(float), InterpretValueAs::Float32),
+		SerializationField("ZFar", SerializationType::ByValue, offsetof(CameraComponent, ZFar), sizeof(float), InterpretValueAs::Float32),
+		SerializationField("FovY", SerializationType::ByValue, offsetof(CameraComponent, FovY), sizeof(float), InterpretValueAs::Float32),
+		SerializationField("ViewportIndex", SerializationType::ByValue, offsetof(CameraComponent, ViewportIndex), sizeof(int), InterpretValueAs::Int32),
+		SerializationField("KeepInternal", SerializationType::ByValue, offsetof(CameraComponent, KeepInternal), sizeof(bool), InterpretValueAs::Bool),
+		SerializationField("RenderTarget", SerializationType::Asset, offsetof(CameraComponent, RenderTarget), 1, InterpretValueAs::RenderTargetAsset),
+		SerializationField("PostProcessStack", SerializationType::AssetVector, offsetof(CameraComponent, PostProcessStack), 1, InterpretValueAs::MaterialAsset),
 	};
 }
 
@@ -80,7 +87,7 @@ void CameraSystem::Update(float deltaTime)
 				}
 			}
 
-			camera->HdrBuffer = new RenderTargetAsset("", 
+			camera->HdrBuffer = new RenderTargetAsset("", {},
 			{
 					new TextureAsset("", TextureType::Texture2D,
 				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 1), //Color
@@ -112,7 +119,7 @@ void CameraSystem::Update(float deltaTime)
 				{
 					camera->HdrBuffer->GetTexture(2),
 					camera->HdrBuffer->GetTexture(3)
-				},
+				}, {},
 				{
 					TextureLayerAttachment(0, i + 1, -1),
 					TextureLayerAttachment(1, i + 1, -1)
@@ -132,7 +139,7 @@ void CameraSystem::Update(float deltaTime)
 
 		camera->ProjectionMatrix = glm::perspective(glm::radians(camera->FovY), static_cast<float>(camera->Region.Size.x) / static_cast<float>(camera->Region.Size.y), camera->ZNear, camera->ZFar);
 		camera->ViewMatrix = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
-		camera->UIProjectionMatrix = glm::ortho<float>(0, camera->Region.Size.x, 0, camera->Region.Size.y, 1, -1);
+		camera->UIProjectionMatrix = glm::ortho<float>(0, camera->Region.Size.x, 0, camera->Region.Size.y, -1, 1);
 
 		auto skyboxes = m_scene->GetComponentManager().GetComponents<SkyboxComponent>();
 		if (skyboxes.size() > 0)
@@ -171,7 +178,7 @@ void CameraSystem::Update(float deltaTime)
 		ShaderDescriptor desc;
 		desc.AddShaderStorageBuffer(lights, 2);
 
-		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, camera->LayerMask, {}, false);
+		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, camera->LayerMask, {}, false, false);
 
 	}
 

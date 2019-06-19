@@ -80,10 +80,10 @@ public:
 	
 	VertexArray VertexArray;
 	
-	bool FrontFaceCulling;
-	bool BackFaceCulling;
+	bool FrontFaceCulling = false;
+	bool BackFaceCulling = false;
 
-	bool _keepAttributes;
+	bool _keepAttributes = false;
 };
 
 class TessellationStage
@@ -103,12 +103,12 @@ public:
 	
 	IQuad2D Viewport;
 	IQuad2D ScissorRegion;
-	bool ScissorTest;
-	bool RasterizerDiscard;
-	bool DepthTest;
-	bool StencilTest;
+	bool ScissorTest = false;
+	bool RasterizerDiscard = false;
+	bool DepthTest = false;
+	bool StencilTest = false;
 
-	bool DepthMask;
+	bool DepthMask = false;
 	GLuint FrontStencilMask;
 	GLuint BackStencilMask;
 	std::vector<ColorMask> ColorMasks;
@@ -126,11 +126,11 @@ public:
 	StencilOperation BackDepthFail;
 	StencilOperation BackDepthPass;
 
-	bool Blending;
+	bool Blending = false;
 	std::vector<BufferBlending> BufferBlends;
 
-	bool _keepFBO;
-	bool _keepTargets;
+	bool _keepFBO = false;
+	bool _keepTargets = false;
 };
 
 class TransformFeedbackStage
@@ -139,7 +139,7 @@ public:
 	TransformFeedbackStage() {}
 	std::vector<std::pair<int, TBuffer>> BufferBindings;
 
-	bool _keepBindings;
+	bool _keepBindings = false;
 };
 
 class Pipeline

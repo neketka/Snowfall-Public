@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ECS.h"
 
 std::vector<IEvent *> EventManager::ListenEvents(std::string system)

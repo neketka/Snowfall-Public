@@ -47,8 +47,8 @@ public:
 	SNOWFALLENGINE_API void SetStructureEnabled(int structure, bool enabled);
 private:
 	std::vector<BufferStructure> m_structures;
-	int m_length;
-	bool m_hasIndex;
-	GLuint m_id;
+	int m_length = 0;
+	bool m_hasIndex = false;
+	GLuint m_id = 0;
 };
 

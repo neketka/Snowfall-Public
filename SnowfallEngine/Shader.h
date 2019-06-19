@@ -19,8 +19,8 @@ public:
 	inline bool IsCompileSuccess() { return m_compileSuccess; }
 	SNOWFALLENGINE_API virtual void Destroy() override;
 private:
-	bool m_compileSuccess;
+	bool m_compileSuccess = false;
 	std::string m_infoLog;
 	std::vector<std::string> m_shaderInfoLogs;
-	GLuint m_id;
+	GLuint m_id = 0;
 };

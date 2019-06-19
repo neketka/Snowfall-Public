@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Buffer.h"
 
 TBuffer::TBuffer(void *data, int tsize, int length, BufferOptions options)
@@ -12,7 +14,7 @@ TBuffer::TBuffer(void *data, int tsize, int length, BufferOptions options)
 
 void TBuffer::CopyData(void *data, int offset, int length) 
 {
-	size_t size = length * m_tsize;
+	int size = length * m_tsize;
 	glNamedBufferSubData(m_id, offset * m_tsize, size, data);
 }
 

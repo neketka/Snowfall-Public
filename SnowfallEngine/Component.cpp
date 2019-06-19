@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ECS.h"
 #include "Snowfall.h"
 #include "Scene.h"
@@ -11,6 +13,7 @@ ComponentManager::~ComponentManager()
 			char *original = reinterpret_cast<char *>(comp);
 			comp->~Component();
 			delete[] original;
+			//delete comp;
 		}
 	}
 }
@@ -85,62 +88,56 @@ void ComponentManager::DeleteComponentRaw(Component *component)
 	delete[] component;
 }
 
-void ComponentManager::SerializeComponent(Component *component, IAssetStreamIO& stream)
+void ComponentManager::SerializeComponent(Component *component, IAssetStreamIO& stream) // This whole function is a security risk
 {
 	char *data = reinterpret_cast<char *>(component);
 	stream.WriteString(component->InternalName);
 	stream.WriteString(component->Owner.GetId());
-	int position = 0;
 	for (SerializationField field : Snowfall::GetGameInstance().GetPrototypeManager().GetSerializationComponentFields(component->InternalName))
 	{
 		switch (field.Type)
 		{
 			case SerializationType::Entity:
 			{
-				Entity *e = reinterpret_cast<Entity *>(data + position);
+				Entity *e = reinterpret_cast<Entity *>(data + field.Offset);
 				stream.WriteString(e->GetId());
-				position += sizeof(Entity);
 				break;
 			}
 			case SerializationType::String:
 			{
-				stream.WriteString(data + position);
-				position += sizeof(std::string);
+				stream.WriteString(data + field.Offset);
 				break;
 			}
 			case SerializationType::Asset:
 			{
-				IAsset *asset = reinterpret_cast<IAsset *>(data + position);
+				IAsset **asset = reinterpret_cast<IAsset **>(data + field.Offset);
 				if (asset)
-					stream.WriteString(asset->GetPath());
+					stream.WriteString((*asset)->GetPath());
 				else
 					stream.WriteString("null");
-				position += sizeof(IAsset *);
 				break;
 			}
 			case SerializationType::EntityVector:
 			{
-				std::vector<Entity> *ents = reinterpret_cast<std::vector<Entity> *>(data + position);
+				std::vector<Entity> *ents = reinterpret_cast<std::vector<Entity> *>(data + field.Offset);
 				int size = static_cast<int>(ents->size());
 				stream.WriteStream(&size, 1);
 				for (Entity e : *ents)
 					stream.WriteString(e.GetId());
-				position += sizeof(std::vector<Entity>);
 				break;
 			}
 			case SerializationType::StringVector:
 			{
-				std::vector<std::string> *strs = reinterpret_cast<std::vector<std::string> *>(data + position);
+				std::vector<std::string> *strs = reinterpret_cast<std::vector<std::string> *>(data + field.Offset);
 				int size = static_cast<int>(strs->size());
 				stream.WriteStream(&size, 1);
 				for (std::string str : *strs)
 					stream.WriteString(str);
-				position += sizeof(std::vector<std::string>);
 				break;
 			}
 			case SerializationType::AssetVector:
 			{
-				std::vector<IAsset *> *asts = reinterpret_cast<std::vector<IAsset *> *>(data + position);
+				std::vector<IAsset *> *asts = reinterpret_cast<std::vector<IAsset *> *>(data + field.Offset);
 				int size = static_cast<int>(asts->size());
 				stream.WriteStream(&size, 1);
 				for (IAsset *asset : *asts)
@@ -150,25 +147,23 @@ void ComponentManager::SerializeComponent(Component *component, IAssetStreamIO& 
 					else
 						stream.WriteString("null");
 				}
-				position += sizeof(std::vector<IAsset *>);
 			}
 				break;
 			case SerializationType::ByValue:
 			{
-				stream.WriteStreamBytes(data + position, field.Size);
-				position += field.Size;
+				stream.WriteStreamBytes(data + field.Offset, field.Size);
 				break;
 			}
 			case SerializationType::ByValueVector:
 			{
-				std::vector<char> *vals = reinterpret_cast<std::vector<char> *>(data + position);
+				std::vector<char> *vals = reinterpret_cast<std::vector<char> *>(data + field.Offset);
+				int size = static_cast<int>(vals->size());
+				stream.WriteStream(&size, 1);
 				stream.WriteStreamBytes(vals->data(), vals->size());
-				position += sizeof(std::vector<char>);
 				break;
 			}
 			case SerializationType::NonSerializable:
 			{
-				position += field.Size;
 				break;
 			}
 		}
@@ -206,60 +201,56 @@ Component *ComponentManager::DeserializeComponent(IAssetStreamIO& stream)
 Component *ComponentManager::DeserializeComponentRaw(IAssetStreamIO& stream)
 {
 	std::string internalName = stream.ReadString();
+	int pos = stream.GetStreamPosition();
 	std::string owner = stream.ReadString();
+
 	Component *comp = CreateComponentRaw(internalName);
 	char *data = reinterpret_cast<char *>(comp);
-	int position = 0;
 	for (SerializationField field : Snowfall::GetGameInstance().GetPrototypeManager().GetSerializationComponentFields(internalName))
 	{
 		switch (field.Type)
 		{
 			case SerializationType::Entity:
 			{
-				*reinterpret_cast<Entity *>(data + position) = Entity(stream.ReadString(), &m_scene.GetEntityManager());
-				position += sizeof(Entity);
+				*reinterpret_cast<Entity *>(data + field.Offset) = Entity(stream.ReadString(), &m_scene.GetEntityManager());
 				break;
 			}
 			case SerializationType::String:
 			{
-				*reinterpret_cast<std::string *>(data + position) = stream.ReadString();
-				position += sizeof(std::string);
+				*reinterpret_cast<std::string *>(data + field.Offset) = stream.ReadString();
 				break;
 			}
 			case SerializationType::Asset:
 			{
 				std::string path = stream.ReadString();
-				IAsset **asset = reinterpret_cast<IAsset **>(data + position);
+				IAsset **asset = reinterpret_cast<IAsset **>(data + field.Offset);
 				if (path == "null")
 					*asset = nullptr;
 				else
 					*asset = &AssetManager::LocateAssetGlobal<IAsset>(path);
-				position += sizeof(IAsset *);
 				break;
 			}
 			case SerializationType::EntityVector:
 			{
-				std::vector<Entity> *ents = reinterpret_cast<std::vector<Entity> *>(data + position);
+				std::vector<Entity> *ents = reinterpret_cast<std::vector<Entity> *>(data + field.Offset);
 				int size = 0;
 				stream.ReadStream(&size, 1);
 				for (int i = 0; i < size; ++i)
 					ents->push_back(Entity(stream.ReadString(), &m_scene.GetEntityManager()));
-				position += sizeof(std::vector<Entity>);
 				break;
 			}
 			case SerializationType::StringVector:
 			{
-				std::vector<std::string> *strs = reinterpret_cast<std::vector<std::string> *>(data + position);
+				std::vector<std::string> *strs = reinterpret_cast<std::vector<std::string> *>(data + field.Offset);
 				int size = 0;
 				stream.ReadStream(&size, 1);
 				for (int i = 0; i < size; ++i)
 					strs->push_back(stream.ReadString());
-				position += sizeof(std::vector<std::string>);
 				break;
 			}
 			case SerializationType::AssetVector:
 			{
-				std::vector<IAsset *> *assets = reinterpret_cast<std::vector<IAsset *> *>(data + position);
+				std::vector<IAsset *> *assets = reinterpret_cast<std::vector<IAsset *> *>(data + field.Offset);
 				int size = 0;
 				stream.ReadStream(&size, 1);
 				for (int i = 0; i < size; ++i)
@@ -270,28 +261,24 @@ Component *ComponentManager::DeserializeComponentRaw(IAssetStreamIO& stream)
 					else
 						assets->push_back(&AssetManager::LocateAssetGlobal<IAsset>(path));
 				}
-				position += sizeof(std::vector<IAsset *>);
 				break;
 			}
 			case SerializationType::ByValue:
 			{
-				stream.ReadStreamBytes(data + position, field.Size);
-				position += field.Size;
+				stream.ReadStreamBytes(data + field.Offset, field.Size);
 				break;
 			}
 			case SerializationType::ByValueVector:
 			{
 				int size = 0;
 				stream.ReadStream(&size, 1);
-				std::vector<char> *dat = reinterpret_cast<std::vector<char> *>(data + position);
+				std::vector<char> *dat = reinterpret_cast<std::vector<char> *>(data + field.Offset);
 				dat->resize(size);
 				stream.ReadStreamBytes(dat->data(), size);
-				position += sizeof(std::vector<char>);
 				break;
 			}
 			case SerializationType::NonSerializable:
 			{
-				position += field.Size;
 				break;
 			}
 		}

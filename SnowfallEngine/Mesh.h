@@ -15,6 +15,9 @@ public:
 	RenderVertex(glm::vec3 pos, glm::vec4 color)
 		: Position(pos), Color(color) {}
 
+	RenderVertex(glm::vec3 pos, glm::vec2 texcoord)
+		: Position(pos), Texcoord(texcoord) {}
+
 	RenderVertex(glm::vec3 pos, glm::vec4 color, glm::vec2 texcoord)
 		: Position(pos), Color(color), Texcoord(texcoord) {}
 

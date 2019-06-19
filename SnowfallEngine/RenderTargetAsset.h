@@ -5,20 +5,22 @@
 #include "Pipeline.h"
 
 #include "export.h"
+
 class TextureLayerAttachment
 {
 public: 
 	TextureLayerAttachment() {}
 	TextureLayerAttachment(int tIndex, int level, int layer) : TextureIndex(tIndex), Level(level), Layer(layer) {}
-	int TextureIndex;
-	int Level;
-	int Layer;
+	int TextureIndex = 0;
+	int Level = 0;
+	int Layer = -1;
 };
 
 class RenderTargetAsset : public IAsset
 {
 public:
-	SNOWFALLENGINE_API RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureLayerAttachment> attachments, bool deleteTex=true);
+	SNOWFALLENGINE_API RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureAsset *> newTextures, std::vector<TextureLayerAttachment> attachments, bool deleteTex=true);
+	SNOWFALLENGINE_API RenderTargetAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API ~RenderTargetAsset();
 	virtual std::string GetPath() const override 
 	{
@@ -40,19 +42,18 @@ public:
 
 	SNOWFALLENGINE_API void BuildPipeline(Pipeline& pipeline);
 
-	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
-	virtual void Export() override;
+	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
+	SNOWFALLENGINE_API virtual void Export() override;
 private:
 	bool m_loaded;
 
 	Framebuffer m_fbo;
 	std::vector<TextureAsset *> m_textures;
+	std::vector<TextureAsset *> m_newTextures;
 	std::vector<TextureLayerAttachment> m_attachments;
 
 	IAssetStreamIO *m_stream;
 	std::string m_path;
-
-	// Inherited via IAsset
 };
 
 class SNOWFALLENGINE_API RenderTargetAssetReader : public IAssetReader

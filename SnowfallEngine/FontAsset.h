@@ -31,7 +31,7 @@ enum class FontImageType
 class FontAsset : public IAsset
 {
 public:
-	SNOWFALLENGINE_API FontAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API FontAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API ~FontAsset();
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
@@ -44,7 +44,7 @@ public:
 	SNOWFALLENGINE_API GlyphDescription GetGlyph(char character);
 	SNOWFALLENGINE_API FontImageType GetImageType();
 	SNOWFALLENGINE_API std::string GetName();
-	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
 	SNOWFALLENGINE_API virtual void Export() override;
 
 private:

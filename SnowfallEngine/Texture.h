@@ -81,10 +81,10 @@ public:
 	inline TextureInternalFormat GetFormat() { return m_format; }
 	inline GLuint GetID() { return m_id; }
 private:
-	int m_layer;
-	int m_level;
-	TextureInternalFormat m_format;
-	GLuint m_id;
+	int m_layer = 0;
+	int m_level = 0;
+	TextureInternalFormat m_format = TextureInternalFormat::R8;
+	GLuint m_id = 0;
 };
 
 class SNOWFALLENGINE_API Texture : public IGLResource
@@ -115,9 +115,9 @@ public:
 	inline int GetWidth() { return m_w; }
 	inline int GetHeight() { return m_h; }
 private:
-	int m_w, m_h;
+	int m_w = 0, m_h = 0;
 	static int m_imagesMade;
-	GLuint m_id;
-	GLenum m_type;
-	TextureInternalFormat m_format;
+	GLuint m_id = 0;
+	GLenum m_type = 0;
+	TextureInternalFormat m_format = TextureInternalFormat::R8;
 };

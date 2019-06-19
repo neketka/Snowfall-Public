@@ -5,17 +5,17 @@
 #include "MeshAsset.h"
 #include "export.h"
 
-class SNOWFALLENGINE_API CameraViewportRenderSystem : public ISystem
+class CameraViewportRenderSystem : public ISystem
 {
 public:
-	CameraViewportRenderSystem();
-	~CameraViewportRenderSystem();
-	virtual void InitializeSystem(Scene & scene) override;
-	virtual void Update(float deltaTime) override;
-	virtual std::string GetName() override;
-	virtual std::vector<std::string> GetSystemsBefore() override;
-	virtual std::vector<std::string> GetSystemsAfter() override;
-	virtual bool IsMainThread() override;
+	SNOWFALLENGINE_API CameraViewportRenderSystem();
+	SNOWFALLENGINE_API ~CameraViewportRenderSystem();
+	SNOWFALLENGINE_API virtual void InitializeSystem(Scene & scene) override;
+	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;
+	SNOWFALLENGINE_API virtual std::string GetName() override;
+	SNOWFALLENGINE_API virtual std::vector<std::string> GetSystemsBefore() override;
+	SNOWFALLENGINE_API virtual std::vector<std::string> GetSystemsAfter() override;
+	SNOWFALLENGINE_API virtual bool IsMainThread() override;
 private:
 	Scene *m_scene;
 	MeshAsset *m_quad;

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "InputManager.h"
 
 glm::vec2 InputManager::m_scrollPos;

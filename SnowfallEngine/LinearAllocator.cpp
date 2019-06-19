@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "LinearAllocator.h"
 
 LinearAllocator::LinearAllocator(int totalBytes)

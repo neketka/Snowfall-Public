@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "PostProcessRenderSystem.h"
 #include "Snowfall.h"
 

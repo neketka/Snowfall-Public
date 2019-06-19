@@ -38,6 +38,6 @@ public:
 	virtual std::vector<std::string> GetSystemsAfter() override;
 	virtual bool IsMainThread() override { return true; }
 private:
-	Scene *m_scene;
-	long m_transformInstant;
+	Scene *m_scene = nullptr;
+	long m_transformInstant = -1;
 };

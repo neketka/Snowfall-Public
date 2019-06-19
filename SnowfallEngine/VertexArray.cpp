@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "VertexArray.h"
 
 VertexArray::VertexArray(std::vector<BufferStructure> structures) :

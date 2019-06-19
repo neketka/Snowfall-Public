@@ -11,7 +11,7 @@ class ShaderAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API ShaderAsset(std::string path, std::string src);
-	SNOWFALLENGINE_API ShaderAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API ShaderAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API ~ShaderAsset();
 
 	inline std::string GetSource() 
@@ -35,15 +35,15 @@ public:
 		return m_path;
 	}
 
-	virtual void SetStream(IAssetStreamIO *stream) override;
+	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 
 	SNOWFALLENGINE_API virtual void Load() override;
 	SNOWFALLENGINE_API virtual void Unload() override;
 	SNOWFALLENGINE_API virtual bool IsReady() override;
 	SNOWFALLENGINE_API virtual bool IsValid() override;
 
-	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
-	virtual void Export() override;
+	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
+	SNOWFALLENGINE_API virtual void Export() override;
 private:
 	bool m_loaded;
 	bool m_compileSuccess;

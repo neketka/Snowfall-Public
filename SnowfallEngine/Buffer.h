@@ -93,10 +93,10 @@ public:
 	inline void *GetMappedPointer() { return m_mappingPtr; }
 	bool operator==(const TBuffer& other) const { return m_id == other.m_id; }
 private:
-	GLuint m_id;
-	void *m_mappingPtr;
-	int m_length;
-	int m_tsize;
+	GLuint m_id = 0;
+	void *m_mappingPtr = nullptr;
+	int m_length = 0;
+	int m_tsize = 0;
 };
 
 template<class T>

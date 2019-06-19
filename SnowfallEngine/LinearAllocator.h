@@ -27,7 +27,7 @@ public:
 	MemoryAllocation(MemoryRegion *region) : m_region(region) {}
 	inline int GetPosition() { return m_region->Position; }
 	inline int GetLength() { return m_region->Length; }
-	inline bool Allocated() { return !!m_region; }
+	inline bool Allocated() { return m_region != nullptr; }
 
 	friend class LinearAllocator;
 private:

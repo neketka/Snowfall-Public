@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "LightComponent.h"
 #include "TransformComponent.h"
 
@@ -24,15 +26,16 @@ public:
 std::vector<SerializationField> ComponentDescriptor<LightComponent>::GetSerializationFields()
 {
 	return {
-		SerializationField("Enabled", SerializationType::ByValue, 1, InterpretValueAs::Bool),
-		SerializationField("Shadowing", SerializationType::ByValue, 1, InterpretValueAs::Bool),
-		SerializationField("LayerMask", SerializationType::ByValue, 8, InterpretValueAs::UInt64),
-		SerializationField("InnerCutoff", SerializationType::ByValue, 4, InterpretValueAs::Float32),
-		SerializationField("OuterCutoff", SerializationType::ByValue, 4, InterpretValueAs::Float32),
-		SerializationField("Color", SerializationType::ByValue, 12, InterpretValueAs::FColor3),
-		SerializationField("Intensity", SerializationType::ByValue, 4, InterpretValueAs::Float32),
-		SerializationField("Range", SerializationType::ByValue, 4, InterpretValueAs::Float32),
-		SerializationField("RangeCutoff", SerializationType::ByValue, 4, InterpretValueAs::Float32)
+		SerializationField("Enabled", SerializationType::ByValue, offsetof(LightComponent, Enabled), 1, InterpretValueAs::Bool),
+		SerializationField("Shadowing", SerializationType::ByValue, offsetof(LightComponent, Shadowing), 1, InterpretValueAs::Bool),
+		SerializationField("ShadowLayerMask", SerializationType::ByValue, offsetof(LightComponent, ShadowLayerMask), 8, InterpretValueAs::UInt64),
+		SerializationField("LayerMask", SerializationType::ByValue, offsetof(LightComponent, LayerMask), 8, InterpretValueAs::UInt64),
+		SerializationField("InnerCutoff", SerializationType::ByValue, offsetof(LightComponent, InnerCutoff), 4, InterpretValueAs::Float32),
+		SerializationField("OuterCutoff", SerializationType::ByValue, offsetof(LightComponent, OuterCutoff), 4, InterpretValueAs::Float32),
+		SerializationField("Color", SerializationType::ByValue, offsetof(LightComponent, Color), 12, InterpretValueAs::FColor3),
+		SerializationField("Intensity", SerializationType::ByValue, offsetof(LightComponent, Intensity), 4, InterpretValueAs::Float32),
+		SerializationField("Range", SerializationType::ByValue, offsetof(LightComponent, Range), 4, InterpretValueAs::Float32),
+		SerializationField("RangeCutoff", SerializationType::ByValue, offsetof(LightComponent, RangeCutoff), 4, InterpretValueAs::Float32)
 	};
 }
 

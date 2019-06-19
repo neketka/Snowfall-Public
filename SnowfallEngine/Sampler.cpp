@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Sampler.h"
 
 std::map<GLint, GLint> TextureUnitManager::m_availableUnits;
@@ -36,26 +38,42 @@ Sampler::Sampler()
 void Sampler::SetWrapMode(TextureChannel channel, WrapMode mode)
 {
 	glSamplerParameteri(m_id, static_cast<GLenum>(channel), static_cast<GLenum>(mode));
+	switch (channel)
+	{
+	case TextureChannel::S:
+		m_sWrap = mode;
+		break;
+	case TextureChannel::T:
+		m_tWrap = mode;
+		break;
+	case TextureChannel::R:
+		m_rWrap = mode;
+		break;
+	}
 }
 
 void Sampler::SetMinificationFilter(MinificationFilter filter)
 {
 	glSamplerParameteri(m_id, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filter));
+	m_minFilter = filter;
 }
 
 void Sampler::SetMagnificationFilter(MagnificationFilter filter)
 {
 	glSamplerParameteri(m_id, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filter));
+	m_magFilter = filter;
 }
 
 void Sampler::SetCompareMode(bool enabled)
 {
 	glSamplerParameteri(m_id, GL_TEXTURE_COMPARE_MODE, enabled ? GL_COMPARE_REF_TO_TEXTURE : GL_NONE);
+	m_depthCompare = enabled;
 }
 
 void Sampler::SetComparison(ComparisonFunc func)
 {
 	glSamplerParameteri(m_id, GL_TEXTURE_COMPARE_FUNC, static_cast<GLint>(func));
+	m_compareFunc = func;
 }
 
 void Sampler::SetAnisotropicFiltering(bool enabled)
@@ -64,11 +82,13 @@ void Sampler::SetAnisotropicFiltering(bool enabled)
 	if (enabled)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &aniso);
 	glSamplerParameterf(m_id, GL_TEXTURE_MAX_ANISOTROPY, aniso);
+	m_anisotropicFiltering = enabled;
 }
 
 void Sampler::SetBorderColor(glm::vec4 color)
 {
 	glSamplerParameterfv(m_id, GL_TEXTURE_BORDER_COLOR, reinterpret_cast<float *>(&color));
+	m_borderColor = color;
 }
 
 int Sampler::BindToTextureUnit()

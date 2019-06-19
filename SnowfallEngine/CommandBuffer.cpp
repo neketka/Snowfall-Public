@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "CommandBuffer.h"
 
 void CommandBuffer::ClearColorFramebufferCommand(int attachment, glm::vec4 color)

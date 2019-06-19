@@ -19,6 +19,8 @@ public:
 	LightType Type;
 	bool Enabled;
 	bool Shadowing;
+
+	LayerMask ShadowLayerMask;
 	LayerMask LayerMask;
 
 	float InnerCutoff;

@@ -1,10 +1,12 @@
+#include "stdafx.h"
+
 #include "TextureAsset.h"
 
-TextureAsset::TextureAsset(IAssetStreamIO *stream) : m_stream(stream)
+TextureAsset::TextureAsset(std::string path, IAssetStreamIO *stream) : m_stream(stream), m_path(path)
 {
 	stream->OpenStreamRead();
 
-	m_path = m_stream->ReadString();
+	m_stream->ReadString();
 
 	TextureHeader header;
 	stream->ReadStream(&header, 1);
@@ -205,7 +207,7 @@ Texture TextureAsset::GetTextureObject()
 	return m_texture;
 }
 
-IAsset *TextureAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+IAsset *TextureAsset::CreateCopy(std::string newPath)
 {
 	return nullptr;
 }
@@ -221,5 +223,9 @@ std::vector<std::string> TextureAssetReader::GetExtensions()
 
 void TextureAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new TextureAsset(stream));
+	stream->OpenStreamRead();
+	std::string path = stream->ReadString();
+	stream->CloseStream();
+
+	assetManager.AddAsset(new TextureAsset(path, stream));
 }

@@ -1,10 +1,9 @@
+#include "stdafx.h"
+
 #include "FontAsset.h"
 
-FontAsset::FontAsset(IAssetStreamIO *stream) : m_stream(stream)
+FontAsset::FontAsset(std::string path, IAssetStreamIO *stream) : m_stream(stream), m_path(path)
 {
-	m_stream->OpenStreamRead();
-	m_path = m_stream->ReadString();
-	m_stream->CloseStream();
 }
 
 FontAsset::~FontAsset()
@@ -101,7 +100,7 @@ std::string FontAsset::GetName()
 	return m_name;
 }
 
-IAsset *FontAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+IAsset *FontAsset::CreateCopy(std::string newPath)
 {
 	return nullptr;
 }
@@ -121,5 +120,9 @@ std::vector<std::string> FontAssetReader::GetExtensions()
 
 void FontAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new FontAsset(stream));
+	stream->OpenStreamRead();
+	std::string path = stream->ReadString();
+	stream->CloseStream();
+
+	assetManager.AddAsset(new FontAsset(path, stream));
 }

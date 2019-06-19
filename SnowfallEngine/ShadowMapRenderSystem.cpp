@@ -1,8 +1,9 @@
+#include "stdafx.h"
+
 #include "ShadowMapRenderSystem.h"
 #include "LightComponent.h"
 #include "TransformComponent.h"
 #include <glm/gtx/transform.hpp>
-#include "Snowfall.h"
 
 ShadowMapRenderSystem::ShadowMapRenderSystem() : m_cubeShadowsCount(16), m_flatShadowsCount(16)
 {
@@ -11,9 +12,9 @@ ShadowMapRenderSystem::ShadowMapRenderSystem() : m_cubeShadowsCount(16), m_flatS
 	m_flatShadows = new TextureAsset("", TextureType::Texture2DArray, TextureInternalFormat::Depth24I, settings.ShadowMapResolution, settings.ShadowMapResolution, m_flatShadowsCount, 1);
 	m_cubeShadows = new TextureAsset("", TextureType::TextureCubemapArray, TextureInternalFormat::Depth24I, settings.ShadowMapResolution, settings.ShadowMapResolution, m_cubeShadowsCount, 1);
 
-	m_highShadowTarget = new RenderTargetAsset("", { m_directionalHighShadow }, { TextureLayerAttachment(0, 0, -1) });
-	m_cubeShadowTarget = new RenderTargetAsset("", { m_cubeShadows }, { TextureLayerAttachment(0, 0, -1) });
-	m_flatShadowTarget = new RenderTargetAsset("", { m_flatShadows }, { TextureLayerAttachment(0, 0, -1) });
+	m_highShadowTarget = new RenderTargetAsset("", { m_directionalHighShadow }, {}, { TextureLayerAttachment(0, 0, -1) });
+	m_cubeShadowTarget = new RenderTargetAsset("", { m_cubeShadows }, {}, { TextureLayerAttachment(0, 0, -1) });
+	m_flatShadowTarget = new RenderTargetAsset("", { m_flatShadows }, {}, { TextureLayerAttachment(0, 0, -1) });
 }
 
 ShadowMapRenderSystem::~ShadowMapRenderSystem()
@@ -80,7 +81,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 			view = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
 			projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 10.0f);
 			directionalCloseMatrix = light->lightSpace = projection * view;
-			dirMask = light->LayerMask;
+			dirMask = light->ShadowLayerMask;
 			directional = true;
 			/*
 			spotMatrices.push_back(directionalMatrix);
@@ -93,7 +94,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 			view = glm::mat4(glm::mat3(transform->ModelMatrix)) * glm::translate(-transform->GlobalPosition);
 			projection = glm::perspective(glm::radians(light->OuterCutoff * 2), 1.f, 1.f, light->Range + 1);
 			spotMatrices.push_back(light->lightSpace = projection * view);
-			spotMasks.push_back(light->LayerMask);
+			spotMasks.push_back(light->ShadowLayerMask);
 			light->highIndex = flatsUsed++;
 			break;
 		case LightType::Point:
@@ -117,7 +118,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 			view = glm::mat4(glm::mat3(makeRotationDir(glm::vec3(0, 0, -1)))) * glm::translate(-transform->GlobalPosition);
 			pointMatrices.push_back(light->lightSpace = projection * view);
 
-			pointMasks.push_back(light->LayerMask);
+			pointMasks.push_back(light->ShadowLayerMask);
 			light->highIndex = cubesUsed++;
 			break;
 		}
@@ -130,7 +131,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 		m_flatShadowTarget->Unload();
 		m_flatShadows->ResizeDepth(m_flatShadowsCount);
 		delete m_flatShadowTarget;
-		m_flatShadowTarget = new RenderTargetAsset("", { m_flatShadows }, { TextureLayerAttachment(0, 0, -1) });
+		m_flatShadowTarget = new RenderTargetAsset("", { m_flatShadows }, {}, { TextureLayerAttachment(0, 0, -1) });
 	}
 	if (cubesUsed > m_cubeShadowsCount)
 	{
@@ -138,7 +139,7 @@ void ShadowMapRenderSystem::Update(float deltaTime)
 		m_cubeShadowTarget->Unload();
 		m_cubeShadows->ResizeDepth(m_cubeShadowsCount);
 		delete m_cubeShadowTarget;
-		m_cubeShadowTarget = new RenderTargetAsset("", { m_cubeShadows }, { TextureLayerAttachment(0, 0, -1) });
+		m_cubeShadowTarget = new RenderTargetAsset("", { m_cubeShadows }, {}, { TextureLayerAttachment(0, 0, -1) });
 	}
 
 	if (directional)
@@ -189,7 +190,7 @@ void ShadowMapRenderSystem::DoCloseDirectionalPass(glm::mat4 matrix, LayerMask m
 
 	CommandBuffer buffer;
 	m_highShadowTarget->GetFramebuffer().ClearDepth(1);
-	Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, mask, { "SHADOWPASS" }, false);
+	Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, mask, { "SHADOWPASS" }, false, true);
 	buffer.ExecuteCommands();
 }
 
@@ -221,7 +222,7 @@ void ShadowMapRenderSystem::DoPointPass(std::vector<glm::mat4> matrices, std::ve
 		constants.AddConstant(10, matrices[i * 6 + 5]);
 		constants.AddConstant(11, i);
 
-		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, masks[i], { "SHADOWPASS", "CUBEPASS" }, false);
+		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, masks[i], { "SHADOWPASS", "CUBEPASS" }, false, true);
 	}
 
 	buffer.ExecuteCommands();
@@ -250,7 +251,7 @@ void ShadowMapRenderSystem::DoSpotPass(std::vector<glm::mat4> matrices, std::vec
 		constants.AddConstant(5, matrices[i]);
 		constants.AddConstant(11, i);
 
-		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, masks[i], { "SHADOWPASS" }, false);
+		Snowfall::GetGameInstance().GetMeshManager().Render(buffer, pipeline, constants, desc, masks[i], { "SHADOWPASS" }, false, true);
 	}
 
 	buffer.ExecuteCommands();

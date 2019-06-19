@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "MeshAsset.h"
 #include "Snowfall.h"
 
@@ -10,13 +12,11 @@ MeshAsset::MeshAsset(std::string path, Mesh mesh) : m_inMemory(true), m_loaded(f
 	m_mesh = new Mesh;
 	m_mesh->Vertices = mesh.Vertices;
 	m_mesh->Indices = mesh.Indices;
+	m_handle = GeometryHandle();
 }
 
-MeshAsset::MeshAsset(IAssetStreamIO *stream) : m_inMemory(false), m_loaded(false), m_loadSuccess(true), m_stream(stream)
+MeshAsset::MeshAsset(std::string path, IAssetStreamIO *stream) : m_inMemory(false), m_loaded(false), m_loadSuccess(true), m_stream(stream), m_path(path), m_mesh()
 {
-	stream->OpenStreamRead();
-	m_path = stream->ReadString();
-	stream->CloseStream();
 }
 
 MeshAsset::~MeshAsset()
@@ -104,9 +104,11 @@ void MeshAsset::DrawMeshDirect(CommandBuffer& buffer, int instances)
 		handle.IndexAlloc.GetPosition() * 4, handle.VertexAlloc.GetPosition(), 0);
 }
 
-IAsset *MeshAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+IAsset *MeshAsset::CreateCopy(std::string newPath)
 {
-	return nullptr;
+	if (m_inMemory)
+		return new MeshAsset(newPath, *m_mesh);
+	return new MeshAsset(newPath, m_stream);
 }
 
 void MeshAsset::Export()
@@ -124,5 +126,9 @@ std::vector<std::string> MeshAssetReader::GetExtensions()
 
 void MeshAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new MeshAsset(stream));
+	stream->OpenStreamRead();
+	std::string path = stream->ReadString();
+	stream->CloseStream();
+
+	assetManager.AddAsset(new MeshAsset(path, stream));
 }

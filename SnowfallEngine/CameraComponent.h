@@ -16,7 +16,7 @@ class CameraComponent : public Component
 {
 public:
 	CameraComponent() : Region(0, 0, 800, 600), LayerMask(0xFFFFFFFFFFFFFFFF), ViewportIndex(0), ZNear(0.3f), ZFar(1000.0f), FovY(70.0f) {}
-	bool Enabled;
+	bool Enabled = true;
 	IQuad2D Region;
 	LayerMask LayerMask;
 
@@ -42,17 +42,17 @@ public:
 	int colorAttachment;
 };
 
-class SNOWFALLENGINE_API CameraSystem : public ISystem
+class CameraSystem : public ISystem
 {
 public:
-	CameraSystem();
-	~CameraSystem();
-	virtual void InitializeSystem(Scene& scene) override;
-	virtual void Update(float deltaTime) override;
-	virtual std::string GetName() override;
-	virtual std::vector<std::string> GetSystemsBefore() override;
-	virtual std::vector<std::string> GetSystemsAfter() override;
-	virtual bool IsMainThread() override { return false; }
+	SNOWFALLENGINE_API CameraSystem();
+	SNOWFALLENGINE_API ~CameraSystem();
+	SNOWFALLENGINE_API virtual void InitializeSystem(Scene& scene) override;
+	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;
+	SNOWFALLENGINE_API virtual std::string GetName() override;
+	SNOWFALLENGINE_API virtual std::vector<std::string> GetSystemsBefore() override;
+	SNOWFALLENGINE_API virtual std::vector<std::string> GetSystemsAfter() override;
+	SNOWFALLENGINE_API virtual bool IsMainThread() override { return false; }
 private:
 	void RenderSkybox(CommandBuffer& buffer, CameraComponent *camera, glm::mat4 view, TextureAsset *asset);
 	MeshAsset *m_quad;

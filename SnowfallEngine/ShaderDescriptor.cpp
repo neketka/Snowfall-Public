@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ShaderDescriptor.h"
 
 void ShaderDescriptor::AddUniformBuffer(TBuffer buffer, int bindingPoint)

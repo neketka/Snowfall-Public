@@ -18,6 +18,17 @@ public:
 	SNOWFALLENGINE_API void AddConstant(int location, glm::mat3 m3);
 	SNOWFALLENGINE_API void AddConstant(int location, glm::mat4 m4);
 	SNOWFALLENGINE_API void BindConstants();
+
+	inline std::vector<std::pair<int, std::pair<Texture, Sampler>>> GetTextureBindings() { return m_uniformT; }
+	inline std::vector<std::pair<int, Image>> GetImageBindings() { return m_uniformI; }
+	inline std::vector<std::pair<int, int>> GetIntBindings() { return m_uniform1i; }
+	inline std::vector<std::pair<int, float>> GetFloatBindings() { return m_uniform1f; }
+	inline std::vector<std::pair<int, glm::vec2>> GetVec2Bindings() { return m_uniform2f; }
+	inline std::vector<std::pair<int, glm::vec3>> GetVec3Bindings() { return m_uniform3f; }
+	inline std::vector<std::pair<int, glm::vec4>> GetVec4Bindings() { return m_uniform4f; }
+	inline std::vector<std::pair<int, glm::mat3>> GetMat3Bindings() { return m_uniform3fvMat; }
+	inline std::vector<std::pair<int, glm::mat4>> GetMat4Bindings() { return m_uniform4fvMat; }
+
 private:
 	std::vector<std::pair<int, std::pair<Texture, Sampler>>> m_uniformT;
 	std::vector<std::pair<int, Image>> m_uniformI;

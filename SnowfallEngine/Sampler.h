@@ -45,25 +45,50 @@ enum class ComparisonFunc
 	Always = GL_ALWAYS, LessEqual = GL_LEQUAL, GreaterEqual = GL_GEQUAL, NotEqual = GL_NOTEQUAL
 };
 
-class SNOWFALLENGINE_API Sampler : public IGLResource
+class Sampler : public IGLResource
 {
 public:
-	Sampler();
+	SNOWFALLENGINE_API Sampler();
 
-	void SetWrapMode(TextureChannel channel, WrapMode mode);
-	void SetMinificationFilter(MinificationFilter filter);
-	void SetMagnificationFilter(MagnificationFilter filter);
-	void SetCompareMode(bool enabled);
-	void SetComparison(ComparisonFunc func);
-	void SetAnisotropicFiltering(bool enabled);
-	void SetBorderColor(glm::vec4 color);
+	SNOWFALLENGINE_API void SetWrapMode(TextureChannel channel, WrapMode mode);
+	SNOWFALLENGINE_API void SetMinificationFilter(MinificationFilter filter);
+	SNOWFALLENGINE_API void SetMagnificationFilter(MagnificationFilter filter);
+	SNOWFALLENGINE_API void SetCompareMode(bool enabled);
+	SNOWFALLENGINE_API void SetComparison(ComparisonFunc func);
+	SNOWFALLENGINE_API void SetAnisotropicFiltering(bool enabled);
+	SNOWFALLENGINE_API void SetBorderColor(glm::vec4 color);
 
-	int BindToTextureUnit(); 
+	inline WrapMode GetWrapMode(TextureChannel channel)
+	{
+		return channel == TextureChannel::S ? m_sWrap : channel == TextureChannel::T ? m_tWrap : m_rWrap;
+	}
 
-	void Destroy() override;
+	MinificationFilter GetMinificationFilter() { return m_minFilter; }
+	MagnificationFilter GetMagnificationFilter() { return m_magFilter; }
+	bool GetCompareMode() { return m_depthCompare; }
+	ComparisonFunc GetComparisonFunc() { return m_compareFunc; }
+	bool GetAnisotropicFiltering() { return m_anisotropicFiltering; }
+	glm::vec4 GetBorderColor() { return m_borderColor; }
+
+	SNOWFALLENGINE_API int BindToTextureUnit();
+
+	SNOWFALLENGINE_API void Destroy() override;
 
 	inline GLuint GetID() { return m_id; }
 private:
+	WrapMode m_sWrap;
+	WrapMode m_tWrap;
+	WrapMode m_rWrap;
+
+	MinificationFilter m_minFilter;
+	MagnificationFilter m_magFilter;
+
+	bool m_depthCompare;
+	ComparisonFunc m_compareFunc;
+	
+	bool m_anisotropicFiltering;
+	glm::vec4 m_borderColor;
+
 	GLuint m_id;
 };
 

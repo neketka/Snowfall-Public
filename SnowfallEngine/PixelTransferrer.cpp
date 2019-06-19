@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "PixelTransferrer.h"
 
 PixelTransferrer::PixelTransferrer(int uploadBytes, int downloadBytes)

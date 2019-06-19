@@ -1,4 +1,5 @@
-#include "ECS.h"
+#include "stdafx.h"
+
 
 std::vector<SerializationField>& PrototypeManager::GetSerializationComponentFields(std::string name)
 {
@@ -10,12 +11,12 @@ int PrototypeManager::GetComponentSize(std::string name)
 	return m_componentDescriptions[name].Size;
 }
 
-std::function<Component *(char*)> PrototypeManager::GetInitializer(std::string name)
+InitializeComponentFunc PrototypeManager::GetInitializer(std::string name)
 {
 	return m_componentDescriptions[name].InitializeComponent;
 }
 
-std::function<Component *(Component *, char *)> PrototypeManager::GetCopy(std::string name)
+CopyComponentFunc PrototypeManager::GetCopy(std::string name)
 {
 	return m_componentDescriptions[name].CopyComponent;
 }

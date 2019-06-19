@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "LocalAssetStream.h"
 
 LocalAssetStream::LocalAssetStream(std::string path) : m_path(path)

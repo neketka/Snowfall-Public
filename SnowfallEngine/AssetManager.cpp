@@ -1,7 +1,10 @@
+#include "stdafx.h"
+
 #include "AssetManager.h"
 #include "LocalAssetStream.h"
 #include "Snowfall.h"
 #include "UserAsset.h"
+#include "UUID.h"
 
 AssetManager::AssetManager()
 {
@@ -48,10 +51,24 @@ void AssetManager::SetUserDataFolder(std::string name)
 		if (!filesystem::is_directory(entry))
 		{
 			LocalAssetStream *src = new LocalAssetStream(entry.path().string());
-			UserAsset *asset = new UserAsset(src);
+
+			src->OpenStreamRead();
+
+			UserAsset *asset = new UserAsset(src->ReadString(), src);
 			m_assets.insert({ asset->GetPath(), asset });
+
+			src->CloseStream();
 		}
 	}
+}
+
+IAsset *AssetManager::CreateUserData(std::string path)
+{
+	LocalAssetStream *stream = new LocalAssetStream(m_userFolder.append(GenerateUUID() + ".udata").string());
+	UserAsset *uasset = new UserAsset(path, stream);
+	uasset->Export();
+
+	return uasset;
 }
 
 void AssetManager::EnumerateUnpackedFolder(std::string path)
@@ -85,9 +102,9 @@ void AssetManager::AddAsset(IAsset *asset)
 	m_assets.insert_or_assign(asset->GetPath(), asset);
 }
 
-void AssetManager::DeleteAsset(IAsset& asset)
+void AssetManager::DeleteAsset(IAsset *asset)
 {
-	m_assets.erase(asset.GetPath());
+	m_assets.erase(asset->GetPath());
 }
 
 IAsset *AssetManager::LocateAsset(std::string path)

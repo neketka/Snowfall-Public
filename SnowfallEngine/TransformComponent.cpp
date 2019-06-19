@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "TransformComponent.h"
 #include "Scene.h"
 #include <glm/gtx/transform.hpp>
@@ -5,6 +7,11 @@
 std::vector<SerializationField> ComponentDescriptor<TransformComponent>::GetSerializationFields()
 {
 	return {
+		SerializationField("Parent", SerializationType::Entity, offsetof(TransformComponent, Parent), 1, InterpretValueAs::Entity),
+		SerializationField("Position", SerializationType::ByValue, offsetof(TransformComponent, Position), sizeof(glm::vec3), InterpretValueAs::FVector3),
+		SerializationField("Rotation", SerializationType::ByValue, offsetof(TransformComponent, Rotation), sizeof(glm::vec3), InterpretValueAs::FVector3),
+		SerializationField("Scale", SerializationType::ByValue, offsetof(TransformComponent, Scale), sizeof(glm::vec3), InterpretValueAs::FVector3),
+		SerializationField("Enabled", SerializationType::ByValue, offsetof(TransformComponent, Enabled), sizeof(bool), InterpretValueAs::Bool),
 	};
 }
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ShaderConstants.h"
 
 template<class T>

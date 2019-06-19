@@ -11,7 +11,7 @@ public:
 
 	ShaderAsset *MaterialShader;
 	ShaderConstants Constants;
-	int PerObjectParameterCount;
+	int PerObjectParameterCount = 0;
 
 	bool operator==(const Material& other) const
 	{

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Mesh.h"
 
 void Mesh::CalculateNormals()

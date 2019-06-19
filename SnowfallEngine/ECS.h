@@ -22,7 +22,7 @@ enum class SerializationType
 
 enum class InterpretValueAs
 {
-	NotApplicable, Bool, Int8, Int8Array, Int16, Int16Array, Int32, Int32Array, Int64, Int64Array,
+	NotApplicable, Entity, String, Bool, Int8, Int8Array, Int16, Int16Array, Int32, Int32Array, Int64, Int64Array,
 	UInt8, UInt8Array, UInt16, UInt16Array, UInt32, UInt32Array, UInt64, UInt64Array,
 	Float32, Float32Array, Float64, Float64Array, FVector2, FVector2Array, FVector3, 
 	FVector3Array, FVector4, FVector4Array, IVector2, IVector2Array, IVector3,
@@ -33,10 +33,11 @@ enum class InterpretValueAs
 class SerializationField
 {
 public:
-	SerializationField(std::string name, SerializationType type, int size, InterpretValueAs valueType) 
-		: Name(name), Type(type), Size(size) { }
+	SerializationField(std::string name, SerializationType type, int offset, int size, InterpretValueAs valueType) 
+		: Name(name), Type(type), Offset(offset), Size(size), ValueType(valueType) { }
 	SerializationType Type;
 	InterpretValueAs ValueType;
+	int Offset;
 	int Size;
 	std::string Name;
 };
@@ -54,27 +55,50 @@ public:
 	static std::vector<SerializationField> GetSerializationFields();
 };
 
+typedef Component *(*InitializeComponentFunc)(char *);
+typedef Component *(*CopyComponentFunc)(Component *, char *);
+
 class ComponentDescription
 {
 public:
 	ComponentDescription() { }
-	ComponentDescription(std::string name, int size, std::vector<SerializationField> serializationFields, std::function<Component *(char *)> initComponent) : Name(name),
-		Size(size), SerializationFields(serializationFields), InitializeComponent(initComponent) { }
+	ComponentDescription(std::string name, int size, std::vector<SerializationField> serializationFields, InitializeComponentFunc initComponent, CopyComponentFunc copyComponent) : Name(name),
+		Size(size), SerializationFields(serializationFields), InitializeComponent(initComponent), CopyComponent(CopyComponent) { }
 	std::string Name;
-	int Size; 
-	std::function<Component *(char *)> InitializeComponent;
-	std::function<Component *(Component *, char *)> CopyComponent;
+	int Size = 0; 
+	InitializeComponentFunc InitializeComponent;
+	CopyComponentFunc CopyComponent;
 	std::vector<SerializationField> SerializationFields;
+};
+
+class ISystem;
+
+class ISystemFactory 
+{
+public:
+	virtual ISystem *CreateInstance() = 0;
+};
+
+template<class T>
+class SystemFactory : public ISystemFactory
+{
+public:
+	virtual ISystem *CreateInstance() override { return dynamic_cast<ISystem *>(new T); }
 };
 
 class PrototypeManager 
 {
 public:
 	SNOWFALLENGINE_API PrototypeManager() { }
+	SNOWFALLENGINE_API ~PrototypeManager() 
+	{ 
+		for (auto kp : m_systemPrototypes)
+			delete kp.second;
+	}
 	SNOWFALLENGINE_API std::vector<SerializationField>& GetSerializationComponentFields(std::string name);
 	SNOWFALLENGINE_API int GetComponentSize(std::string name);
-	SNOWFALLENGINE_API std::function<Component *(char *)> GetInitializer(std::string name);
-	SNOWFALLENGINE_API std::function<Component *(Component *, char *)> GetCopy(std::string name);
+	SNOWFALLENGINE_API InitializeComponentFunc GetInitializer(std::string name);
+	SNOWFALLENGINE_API CopyComponentFunc GetCopy(std::string name);
 	template<class T>
 	void AddComponentDescription()
 	{
@@ -86,12 +110,26 @@ public:
 		desc.SerializationFields = ComponentDescriptor<T>::GetSerializationFields();
 		m_componentDescriptions[desc.Name] = desc;
 	}
+
+	ISystem *CreateSystem(std::string name)
+	{
+		return m_systemPrototypes[name]->CreateInstance();
+	}
+
+	template<class T>
+	void AddSystemPrototype()
+	{
+		std::string name = std::string(typeid(T).name() + 6);
+		m_systemPrototypes.insert({ name, new SystemFactory<T> });
+	}
+
 	void AddComponentDescription(ComponentDescription desc)
 	{
 		m_componentDescriptions[desc.Name] = desc;
 	}
 private:
 	std::map<std::string, ComponentDescription> m_componentDescriptions;
+	std::map<std::string, ISystemFactory *> m_systemPrototypes;
 };
 
 class Entity;
@@ -129,8 +167,8 @@ public:
 	SNOWFALLENGINE_API Component *DeserializeComponent(IAssetStreamIO& stream);
 	SNOWFALLENGINE_API Component *DeserializeComponentRaw(IAssetStreamIO& stream);
 private:
-	long m_deadAddedLast;
-	long m_deadAddedNext;
+	long m_deadAddedLast = 0;
+	long m_deadAddedNext = 0;
 	std::map<std::string, std::vector<Component *>> m_components;
 	std::map<std::string, std::vector<Component *>> m_deadComponents;
 	std::queue<Component *> m_toKill;
@@ -189,6 +227,7 @@ public:
 class EventManager
 {
 public:
+	EventManager() { }
 	SNOWFALLENGINE_API std::vector<IEvent *> ListenEvents(std::string system);
 	SNOWFALLENGINE_API void SubscribeEvent(std::string system, std::string name);
 	SNOWFALLENGINE_API void PushEvent(std::string name, IEvent *event);
@@ -210,9 +249,9 @@ public:
 	inline void SetEnabled(bool enabled) { m_enabled = enabled; }
 	inline bool IsEnabled() { return m_enabled; }
 
-	int Group;
+	int Group = -1;
 private:
-	bool m_enabled;
+	bool m_enabled = false;
 };
 
 class SystemManager
@@ -221,6 +260,8 @@ public:
 	SNOWFALLENGINE_API SystemManager(Scene& scene) : m_scene(scene) { }
 	SNOWFALLENGINE_API ~SystemManager();
 	SNOWFALLENGINE_API void AddSystem(ISystem *system);
+	SNOWFALLENGINE_API void AddSystem(std::string name);
+	SNOWFALLENGINE_API void AddEnabledSystems(std::vector<std::string> names);
 	SNOWFALLENGINE_API ISystem *GetSystem(std::string name);
 	SNOWFALLENGINE_API void InitializeSystems();
 	SNOWFALLENGINE_API void UpdateSystems(float deltaTime, int group=-1);

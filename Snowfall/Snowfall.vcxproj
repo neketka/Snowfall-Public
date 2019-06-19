@@ -23,8 +23,8 @@
     <ProjectGuid>{EFD1FCE3-2903-49C4-A39D-A5C00E392431}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Snowfall</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
-    <ProjectName>Snowfall</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>SnowfallLoader</ProjectName>
     <SccProjectName>SAK</SccProjectName>
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
@@ -47,13 +47,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(SolutionDir)\SnowfallEngine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\SnowfallEngine;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\glfw-3.3.bin.WIN64\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -89,7 +89,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(SolutionDir)\SnowfallEngine;$(SolutionDir)\Dependencies\rapidjson\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(SolutionDir)\SnowfallEngine;$(SolutionDir)\Dependencies\rapidjson\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -166,20 +166,12 @@
     <Xml Include="snapin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="SnowChunk.cpp" />
-    <ClCompile Include="CameraFlyComponent.cpp" />
-    <ClCompile Include="TestComponent.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SnowChunk.h" />
-    <ClInclude Include="CameraFlyComponent.h" />
-    <ClInclude Include="TestComponent.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SnowfallEngine\SnowfallEngine.vcxproj">
       <Project>{dce9bb12-463d-46cb-9bd2-870f378a1634}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

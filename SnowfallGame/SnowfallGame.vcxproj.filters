@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="module.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowfallGame.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraFlyComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TestComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="module.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraFlyComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="TestComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Module">
+      <UniqueIdentifier>{bfbb6133-0147-4648-b8ca-1ea7deeeab00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{f5467235-fab1-41f3-873a-4d200ad41e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{690a9ba0-6e69-4db5-b779-fb2534c0c011}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

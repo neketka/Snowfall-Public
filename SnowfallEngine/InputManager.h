@@ -26,19 +26,19 @@ class InputAxis
 public:
 	std::string Name;
 
-	InputMethod PositiveMethod;
+	InputMethod PositiveMethod = InputMethod::Key;
 	InputSource PositiveSource;
 
-	InputMethod NegativeMethod;
+	InputMethod NegativeMethod = InputMethod::Key;
 	InputSource NegativeSource;
 
-	float Max;
-	float Min;
-	float LossPerSec;
-	bool Bounded;
+	float Max = 0;
+	float Min = 0;
+	float LossPerSec = 0;
+	bool Bounded = false;
 private:
 	friend InputManager;
-	float value;
+	float value = 0;
 };
 
 class InputProfile
@@ -50,22 +50,22 @@ private:
 	std::map<std::string, InputAxis> m_axes;
 };
 
-class SNOWFALLENGINE_API InputManager
+class InputManager
 {
 public:
-	InputManager(GLFWwindow *window);
+	SNOWFALLENGINE_API InputManager(GLFWwindow *window);
 
-	void Update(float deltaTime);
+	SNOWFALLENGINE_API void Update(float deltaTime);
 
-	bool IsKeyDown(Key key);
-	bool IsButtonDown(MouseButton button);
-	glm::vec2 GetScrollPosition();
-	glm::vec2 GetMousePosition();
-	void SetMousePosition(glm::vec2 position);
-	void SetMouseLocked(bool locked);
+	SNOWFALLENGINE_API bool IsKeyDown(Key key);
+	SNOWFALLENGINE_API bool IsButtonDown(MouseButton button);
+	SNOWFALLENGINE_API glm::vec2 GetScrollPosition();
+	SNOWFALLENGINE_API glm::vec2 GetMousePosition();
+	SNOWFALLENGINE_API void SetMousePosition(glm::vec2 position);
+	SNOWFALLENGINE_API void SetMouseLocked(bool locked);
 
-	float GetAxis(std::string axis);
-	void SetProfile(InputProfile profile);
+	SNOWFALLENGINE_API float GetAxis(std::string axis);
+	SNOWFALLENGINE_API void SetProfile(InputProfile profile);
 private:
 	static glm::vec2 m_scrollPos;
 	static void scrollMoved(GLFWwindow *window, double x, double y);

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "TextRenderer.h"
 
 TextRenderer::TextRenderer(int maxChars)
@@ -34,10 +36,22 @@ void TextRenderer::SetColor(glm::vec3 color)
 	m_color = color;
 }
 
+float TextRenderer::GetTextLength(std::string text)
+{
+	return 0.0f;
+}
+
 void TextRenderer::SetDistanceFieldLength(float width, float edge)
 {
 	m_width = width;
 	m_edge = edge;
+}
+
+void TextRenderer::SetDistanceFieldLengthAuto(float size, float ppm)
+{ // Pretty specific values, not always going to work: relationship between size and edge is strange but it works
+	float calcMix = size * ppm / 800.f;
+	m_width = glm::mix(0.45f, 0.39f, calcMix);
+	m_edge = glm::mix(0.20f, 0.11f, calcMix);
 }
 
 void TextRenderer::SetFont(FontAsset& asset)
@@ -71,7 +85,7 @@ void TextRenderer::RenderTextBuffer(glm::vec2 offset, float scale, std::string t
 	m_bufferPos += text.length() * 6;
 }
 
-void TextRenderer::RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp)
+void TextRenderer::RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp, IQuad2D scissorBox)
 {
 	if (!m_font)
 		return;
@@ -88,6 +102,7 @@ void TextRenderer::RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBu
 	blend.AlphaEquation = BlendEquation::Add;
 
 	Pipeline pipe;
+
 	pipe.Shader = shader.GetShaderVariant({});
 	pipe.VertexStage.VertexArray = m_vao;
 	pipe.FragmentStage.Framebuffer = fbo;
@@ -97,6 +112,8 @@ void TextRenderer::RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBu
 	pipe.FragmentStage.DepthTest = false;
 	pipe.FragmentStage.DepthMask = false;
 	pipe.FragmentStage.Viewport = viewport;
+	pipe.FragmentStage.ScissorRegion = scissorBox;
+	pipe.FragmentStage.ScissorTest = true;
 	
 	ShaderConstants consts;
 

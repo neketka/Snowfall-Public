@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "MeshManager.h"
 
 MeshManager::MeshManager(int indirectCommands, int meshBufferVertexCount)
@@ -103,7 +105,7 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 	//*counter = passed;
 }
 
-void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader)
+void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& constants, ShaderDescriptor& descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader, bool overrideConstants)
 {
 	p.VertexStage.VertexArray = m_defaultArray;
 	for (RendererStateChange& change : m_stateChanges)
@@ -118,7 +120,8 @@ void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants cons
 		buffer.BindPipelineCommand(p);
 
 		buffer.BindConstantsCommand(constants); //TODO: add combine function in the future instead of replacing buffers
-		buffer.BindConstantsCommand(change.Constants);
+		if (!overrideConstants)
+			buffer.BindConstantsCommand(change.Constants);
 
 		buffer.BindDescriptorCommand(descriptor);
 		buffer.BindDescriptorCommand(change.Descriptor);

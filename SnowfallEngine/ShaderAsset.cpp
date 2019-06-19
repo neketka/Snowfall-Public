@@ -1,17 +1,15 @@
+#include "stdafx.h"
+
 #include "ShaderAsset.h"
 #include "ShaderPreprocessor.h"
-#include "Snowfall.h"
 #include "NullStreamSource.h"
 
 ShaderAsset::ShaderAsset(std::string path, std::string src) : m_path(path), m_stream(new NullStreamSource()), m_rawSource(src), m_compileSuccess(true)
 {
 }
 
-ShaderAsset::ShaderAsset(IAssetStreamIO *stream) : m_stream(stream), m_isStreamedSource(true), m_compileSuccess(true)
+ShaderAsset::ShaderAsset(std::string path, IAssetStreamIO *stream) : m_stream(stream), m_isStreamedSource(true), m_compileSuccess(true), m_path(path)
 {
-	stream->OpenStreamRead();
-	m_path = m_stream->ReadString();
-	stream->CloseStream();
 }
 
 ShaderAsset::~ShaderAsset()
@@ -82,7 +80,7 @@ bool ShaderAsset::IsValid()
 	return m_compileSuccess;
 }
 
-IAsset *ShaderAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+IAsset *ShaderAsset::CreateCopy(std::string newPath)
 {
 	return nullptr;
 }
@@ -106,5 +104,8 @@ std::vector<std::string> ShaderAssetReader::GetExtensions()
 
 void ShaderAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager)
 {
-	assetManager.AddAsset(new ShaderAsset(stream));
+	stream->OpenStreamRead();
+	std::string path = stream->ReadString();
+	stream->CloseStream();
+	assetManager.AddAsset(new ShaderAsset(path, stream));
 }

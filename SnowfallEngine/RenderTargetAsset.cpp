@@ -1,8 +1,44 @@
+#include "stdafx.h"
+
 #include "RenderTargetAsset.h"
 
-RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureLayerAttachment> attachments, bool deleteTex)
-	: m_textures(textures), m_attachments(attachments)
+RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureAsset *> newTextures, std::vector<TextureLayerAttachment> attachments, bool deleteTex)
+	: m_textures(textures), m_newTextures(newTextures), m_attachments(attachments)
 {
+	m_textures.insert(m_textures.end(), m_newTextures.begin(), m_newTextures.end());
+}
+
+RenderTargetAsset::RenderTargetAsset(std::string path, IAssetStreamIO *stream)
+{
+	stream->OpenStreamRead();
+
+	stream->ReadString();
+	int counts[2];
+
+	std::vector<TextureAsset *> assets(counts[0]);
+	m_attachments.resize(counts[1]);
+
+	stream->ReadStream(counts, 2);
+	for (int i = 0; i < counts[0]; ++i)
+	{
+		int data[6];
+		std::string assetName = "";
+		stream->ReadStream(data, 6);
+		if (data[0] != 0)
+			assetName = stream->ReadString();
+		TextureAsset *asset;
+		if (data[0] == 1)
+			asset = &AssetManager::LocateAssetGlobal<TextureAsset>(assetName); // Better hope that TextureAsset loads first
+		else
+		{
+			asset = new TextureAsset(assetName, static_cast<TextureType>(data[1]), static_cast<TextureInternalFormat>(data[2]), data[3], data[4], data[5], 1);
+			m_newTextures.push_back(asset);
+		}
+		if (data[0] == 2)
+			Snowfall::GetGameInstance().GetAssetManager().AddAsset(asset);
+		m_textures.push_back(asset);
+	}
+	stream->ReadStream(m_attachments.data(), counts[1]);
 }
 
 RenderTargetAsset::~RenderTargetAsset()
@@ -80,12 +116,12 @@ bool RenderTargetAsset::IsValid()
 	return true;
 }
 
-SNOWFALLENGINE_API void RenderTargetAsset::BuildPipeline(Pipeline& pipeline)
+void RenderTargetAsset::BuildPipeline(Pipeline& pipeline)
 {
 	pipeline.FragmentStage.Framebuffer = GetFramebuffer();
 }
 
-IAsset *RenderTargetAsset::CreateCopy(std::string newPath, IAssetStreamIO *output)
+IAsset *RenderTargetAsset::CreateCopy(std::string newPath)
 {
 	return nullptr;
 }
@@ -96,6 +132,7 @@ void RenderTargetAsset::Export()
 
 void RenderTargetAsset::SetStream(IAssetStreamIO *stream)
 {
+	m_stream = stream;
 }
 
 std::vector<std::string> RenderTargetAssetReader::GetExtensions()
@@ -108,30 +145,9 @@ void RenderTargetAssetReader::LoadAssets(std::string ext, IAssetStreamIO *stream
 	stream->OpenStreamRead();
 
 	std::string path = stream->ReadString();
-	int counts[2];
-
-	std::vector<TextureAsset *> assets(counts[0]);
-	std::vector<TextureLayerAttachment> attachments(counts[1]);
-
-	stream->ReadStream(counts, 2);
-	for (int i = 0; i < counts[0]; ++i)
-	{
-		int data[6];
-		std::string assetName = "";
-		stream->ReadStream(data, 6);
-		if (data[0] != 0)
-			assetName = stream->ReadString();
-		TextureAsset *asset;
-		if (data[0] == 1)
-			asset = &assetManager.LocateAsset<TextureAsset>(assetName); // Better hope that TextureAsset loads first
-		else
-			asset = new TextureAsset(path, static_cast<TextureType>(data[1]), static_cast<TextureInternalFormat>(data[2]), data[3], data[4], data[5], 1);
-		if (data[0] == 2)
-			assetManager.AddAsset(asset);
-		assets[i] = asset;
-	}
-	stream->ReadStream(&attachments, counts[1]);
-	assetManager.AddAsset(new RenderTargetAsset(path, assets, attachments));
 
 	stream->CloseStream();
+
+	assetManager.AddAsset(new RenderTargetAsset(path, stream));
+
 }

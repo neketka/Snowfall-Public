@@ -1,5 +1,6 @@
+#include "stdafx.h"
+
 #include "Shader.h"
-#include "Snowfall.h"
 #include <vector>
 
 Shader::Shader(std::string src, std::set<std::string> defines)

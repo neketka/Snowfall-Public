@@ -12,15 +12,15 @@ class SamplerProperty
 public:
 	SamplerProperty(int sIndex, int tIndex, int uIndex) : SamplerIndex(sIndex), TextureIndex(tIndex), UniformIndex(uIndex) {}
 	SamplerProperty() {}
-	int SamplerIndex;
-	int TextureIndex;
-	int UniformIndex;
+	int SamplerIndex = 0;
+	int TextureIndex = 0;
+	int UniformIndex = 0;
 };
 
 class MaterialAsset : public IAsset
 {
 public:
-	SNOWFALLENGINE_API MaterialAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API MaterialAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 	SNOWFALLENGINE_API MaterialAsset(std::string path, Material material);
 	SNOWFALLENGINE_API MaterialAsset(std::string path, std::vector<Sampler> sampler, std::vector<TextureAsset *> textures, std::vector<SamplerProperty> properties, Material baseProperties);
@@ -37,8 +37,8 @@ public:
 
 	SNOWFALLENGINE_API void CreateRenderPass(CommandBuffer& buffer, Pipeline& pipeline, std::set<std::string> variant);
 
-	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
-	virtual void Export() override;
+	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
+	SNOWFALLENGINE_API virtual void Export() override;
 private:
 	std::vector<Sampler> m_samplers;
 	std::vector<TextureAsset *> m_textures;

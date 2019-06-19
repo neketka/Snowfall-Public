@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Texture.h"
 
 std::map<GLint, GLint> ImageUnitManager::m_availableUnits;

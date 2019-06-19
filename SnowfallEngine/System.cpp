@@ -1,4 +1,5 @@
-#include "ECS.h"
+#include "stdafx.h"
+
 #include <algorithm>
 
 SystemManager::~SystemManager()
@@ -17,6 +18,21 @@ void SystemManager::AddSystem(ISystem *system)
 	m_systems.insert({ system->GetName(), system });
 	system->Group = m_systemGroups.size();
 	m_systemGroups.push_back(std::vector<ISystem *> { system });
+}
+
+void SystemManager::AddSystem(std::string name)
+{
+	AddSystem(Snowfall::GetGameInstance().GetPrototypeManager().CreateSystem(name));
+}
+
+void SystemManager::AddEnabledSystems(std::vector<std::string> names)
+{
+	for (std::string name : names)
+	{
+		ISystem *sys = Snowfall::GetGameInstance().GetPrototypeManager().CreateSystem(name);
+		sys->SetEnabled(true);
+		AddSystem(sys);
+	}
 }
 
 ISystem *SystemManager::GetSystem(std::string name)

@@ -169,7 +169,7 @@ vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material, f
 
 	vec3 color = CookOrenBRDF(N, V, L, H, radiance * atten * spot, material.Diffuse, material.Metalness, material.Roughness) * material.AO;
 
-	return color * shadow + vec3(0.1) * material.Diffuse;
+	return color * shadow + vec3(0.1) * mix(material.Diffuse, vec3(1.0), material.Metalness);
 }
 
 #endif

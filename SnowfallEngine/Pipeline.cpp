@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Pipeline.h"
 
 void Pipeline::Optimize(Pipeline& previous)

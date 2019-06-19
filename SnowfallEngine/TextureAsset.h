@@ -26,7 +26,7 @@ public:
 class TextureAsset : public IAsset
 {
 public:
-	SNOWFALLENGINE_API TextureAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API TextureAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API TextureAsset(std::string path, TextureType type, TextureInternalFormat format, int width, int height, int depth, int levels);
 	SNOWFALLENGINE_API ~TextureAsset();
 
@@ -46,7 +46,7 @@ public:
 
 	SNOWFALLENGINE_API Texture GetTextureObject();
 
-	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
+	virtual IAsset *CreateCopy(std::string newPath) override;
 	virtual void Export() override;
 private:
 	void initializeTexture();

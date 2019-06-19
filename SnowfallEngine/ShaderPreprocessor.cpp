@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ShaderPreprocessor.h"
 #include "ShaderAsset.h"
 

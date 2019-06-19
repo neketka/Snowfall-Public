@@ -14,10 +14,12 @@ public:
 	~TextRenderer();
 	void ClearTextBuffer();
 	void SetColor(glm::vec3 color);
+	float GetTextLength(std::string text);
 	void SetDistanceFieldLength(float width, float edge);
+	void SetDistanceFieldLengthAuto(float size, float ppm);
 	void SetFont(FontAsset& asset);
 	void RenderTextBuffer(glm::vec2 offset, float scale, std::string text);
-	void RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp);
+	void RenderText(CommandBuffer& buffer, Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp, IQuad2D scissorBox);
 private:
 	float m_width, m_edge;
 	glm::vec3 m_color;

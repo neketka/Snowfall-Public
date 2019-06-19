@@ -53,7 +53,7 @@ public:
 	SNOWFALLENGINE_API void ClearData();
 	SNOWFALLENGINE_API void WriteIndirectCommandsToCullingPass(std::vector<GeometryHandle>& geometry, std::vector<BoundingBox>& boundingBoxes, RendererStateChange& state);
 	SNOWFALLENGINE_API void RunCullingPass(std::vector<Frustum> frusta);
-	SNOWFALLENGINE_API void Render(CommandBuffer& buffer, Pipeline p, ShaderConstants constants, ShaderDescriptor descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader);
+	SNOWFALLENGINE_API void Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& constants, ShaderDescriptor& descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader=false, bool overrideConstants=false);
 
 	inline VertexArray GetVertexArray() { return m_defaultArray; }
 private:

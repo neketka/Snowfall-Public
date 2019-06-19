@@ -1,35 +1,11 @@
-#include "ECS.h"
+#include "stdafx.h"
+
 #include "Scene.h"
-
-const std::string CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-std::string generateUUID() 
-{
-	std::string uuid = std::string(36, ' ');
-	int rnd = 0;
-	int r = 0;
-
-	uuid[8] = '-';
-	uuid[13] = '-';
-	uuid[18] = '-';
-	uuid[23] = '-';
-
-	uuid[14] = '4';
-
-	for (int i = 0; i < 36; i++) {
-		if (i != 8 && i != 13 && i != 18 && i != 14 && i != 23) {
-			if (rnd <= 0x02) {
-				rnd = 0x2000000 + (std::rand() * 0x1000000) | 0;
-			}
-			rnd >>= 4;
-			uuid[i] = CHARS[(i == 19) ? ((rnd & 0xf) & 0x3) | 0x8 : rnd & 0xf];
-		}
-	}
-	return uuid;
-}
+#include "UUID.h"
 
 Entity EntityManager::CreateEntity(std::vector<std::string> components)
 {
-	EntityId id = generateUUID();
+	EntityId id = GenerateUUID();
 	m_entities.insert({ id, std::vector<Component *>() });
 	std::vector<Component *>& comps = m_entities[id];
 	Entity e = Entity(id, this);
@@ -66,7 +42,7 @@ void EntityManager::KillEntity(EntityId id)
 
 Entity EntityManager::CloneEntity(EntityId id)
 {
-	EntityId newId = generateUUID();
+	EntityId newId = GenerateUUID();
 	m_entities.insert({ newId, std::vector<Component *>() });
 	std::vector<Component *>& oldComps = m_entities[id];
 	std::vector<Component *>& comps = m_entities[newId];
@@ -105,7 +81,8 @@ void EntityManager::SerializeEntity(EntityId id, IAssetStreamIO& stream)
 {
 	stream.WriteString(id);
 	std::vector<Component *>& comps = m_entities[id];
-	stream.WriteStream(reinterpret_cast<int *>(comps.size()), 1);
+	int size = comps.size();
+	stream.WriteStream(&size, 1);
 	for (Component *c : comps)
 	{
 		m_scene.GetComponentManager().SerializeComponent(c, stream);

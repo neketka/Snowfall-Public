@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "MeshComponent.h"
 #include "TransformComponent.h"
 #include "CameraComponent.h"
@@ -6,6 +8,12 @@
 std::vector<SerializationField> ComponentDescriptor<MeshRenderComponent>::GetSerializationFields()
 {
 	return {
+		SerializationField("Material", SerializationType::Asset, offsetof(MeshRenderComponent, Material), 1, InterpretValueAs::MaterialAsset),
+		SerializationField("Mesh", SerializationType::Asset, offsetof(MeshRenderComponent, Mesh), 1, InterpretValueAs::MeshAsset),
+		SerializationField("LayerMask", SerializationType::ByValue, offsetof(MeshRenderComponent, LayerMask), sizeof(LayerMask), InterpretValueAs::Int64),
+		SerializationField("ObjectParameters", SerializationType::ByValueVector, offsetof(MeshRenderComponent, ObjectParameters), 1, InterpretValueAs::FVector4),
+		SerializationField("BatchingType", SerializationType::ByValue, offsetof(MeshRenderComponent, BatchingType), sizeof(int), InterpretValueAs::Int32),
+		SerializationField("SoleBatch", SerializationType::ByValue, offsetof(MeshRenderComponent, SoleBatch), sizeof(bool), InterpretValueAs::Bool)
 	};
 }
 
@@ -223,7 +231,7 @@ bool MeshRenderingSystem::CheckForRemoval(BatchState& state)
 		{
 			if (state.StateChange.InstanceCount > 1)
 				--state.StateChange.InstanceCount;
-			toRemove.push_back(member.Component->MemberIndex); //Investigate Shadow Meshes
+			toRemove.push_back(member.Component->MemberIndex); //Shadow Meshes
 			continue;
 		}
 		member.Component->MemberIndex = index;

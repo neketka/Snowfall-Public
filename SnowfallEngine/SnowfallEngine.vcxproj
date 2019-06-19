@@ -23,7 +23,7 @@
     <ProjectGuid>{DCE9BB12-463D-46CB-9BD2-870F378A1634}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SnowfallEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\lib-vc2019;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)\Dependencies\stb\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -84,13 +84,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\lib-vc2019;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)\Dependencies\stb\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -139,7 +139,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -162,6 +162,7 @@
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CameraUIRenderSystem.cpp" />
     <ClCompile Include="CameraViewportRenderSystem.cpp" />
     <ClCompile Include="CollisionShape.cpp" />
     <ClCompile Include="CommandBuffer.cpp" />
@@ -198,13 +199,20 @@
     <ClCompile Include="ShadowMapRenderSystem.cpp" />
     <ClCompile Include="SkyboxComponent.cpp" />
     <ClCompile Include="Snowfall.cpp" />
-    <ClCompile Include="SubmitBuffer.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="System.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
+    <ClCompile Include="UIComponent.cpp" />
+    <ClCompile Include="UIContext.cpp" />
+    <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="UserAsset.cpp" />
+    <ClCompile Include="UUID.cpp" />
     <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +220,7 @@
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CameraUIRenderSystem.h" />
     <ClInclude Include="CameraViewportRenderSystem.h" />
     <ClInclude Include="CollisionShape.h" />
     <ClInclude Include="CommandBuffer.h" />
@@ -251,18 +260,27 @@
     <ClInclude Include="ShadowMapRenderSystem.h" />
     <ClInclude Include="SkyboxComponent.h" />
     <ClInclude Include="Snowfall.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="SubmitBuffer.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TransformComponent.h" />
+    <ClInclude Include="UIBorderedShader.glsl" />
+    <ClInclude Include="UIComponent.h" />
+    <ClInclude Include="UIContext.h" />
+    <ClInclude Include="UIEvent.h" />
+    <ClInclude Include="UIRect.h" />
+    <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="UserAsset.h" />
+    <ClInclude Include="UUID.h" />
     <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BloomPost.glsl" />
     <None Include="ChromaticAbberationPost.glsl" />
     <None Include="CopyToSDR.glsl" />
+    <None Include="cpp.hint" />
     <None Include="FontRenderShader.glsl" />
     <None Include="FxaaPost.glsl" />
     <None Include="Lighting.glsl" />
@@ -271,6 +289,7 @@
     <None Include="SkyboxShader.glsl" />
     <None Include="SnowfallShader.glsl" />
     <None Include="TonemappingPost.glsl" />
+    <None Include="UIRectangleShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DeferredLighting.glsl">

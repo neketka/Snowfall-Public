@@ -26,7 +26,7 @@ namespace AssetImporter
             format.Height = obj["height"].Value<int>();
             format.Size = obj["size"].Value<int>();
             format.ImageType = FontImageType.R8DistanceField;
-            format.AtlasData = new byte[bmp.Width * bmp.Height];
+            format.AtlasData = new byte[bmp.Width * bmp.Height];          
 
             unsafe
             {

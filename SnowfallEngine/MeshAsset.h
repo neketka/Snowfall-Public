@@ -10,7 +10,7 @@ class MeshAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API MeshAsset(std::string path, Mesh mesh);
-	SNOWFALLENGINE_API MeshAsset(IAssetStreamIO *stream);
+	SNOWFALLENGINE_API MeshAsset(std::string path, IAssetStreamIO *stream);
 	SNOWFALLENGINE_API ~MeshAsset();
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
@@ -25,8 +25,8 @@ public:
 
 	SNOWFALLENGINE_API void DrawMeshDirect(CommandBuffer& buffer, int instances = 1);
 
-	virtual IAsset *CreateCopy(std::string newPath, IAssetStreamIO *output) override;
-	virtual void Export() override;
+	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
+	SNOWFALLENGINE_API virtual void Export() override;
 private:
 	Mesh *m_mesh;
 	GeometryHandle m_handle;
