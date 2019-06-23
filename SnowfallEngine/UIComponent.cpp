@@ -2,6 +2,10 @@
 #include "UIComponent.h"
 #include "UIContext.h"
 
+UIComponent::UIComponent() : m_enabled(true), m_visible(true), m_bounds(Quad2D(), glm::vec2(), glm::vec2()), m_focused(false), m_drawChildren(true)
+{
+}
+
 UIComponent::~UIComponent()
 {
 	for (UIComponent* comp : m_components)
@@ -27,15 +31,24 @@ bool UIComponent::IsFocused()
 
 void UIComponent::AddComponent(UIComponent *component)
 {
-	m_components.push_back(component);
+	auto iter = std::upper_bound(m_components.begin(), m_components.end(), component, 
+		[](UIComponent *a, UIComponent *b) { return a->GetZIndex() < b->GetZIndex(); });
 	component->Parent = this;
-	SortByZOrder();
+	component->m_context = m_context;
+	if (!m_enabled)
+		component->SetEnabled(false);
+	m_components.insert(iter, 1, component);
 }
 
 void UIComponent::RemoveComponent(UIComponent *component)
 {
 	m_components.erase(std::find(m_components.begin(), m_components.end(), component));
 	delete component;
+}
+
+std::vector<UIComponent*>& UIComponent::GetChildren()
+{
+	return m_components;
 }
 
 void UIComponent::SetContext(UIContext *context)
@@ -52,16 +65,23 @@ void UIComponent::Render(UIRenderer *renderer)
 {
 	if (!m_visible)
 		return;
+
+	renderer->PushClip(m_bounds.RelativeRegion);
+
 	RenderEventArgs args;
 	args.Renderer = renderer;
 	OnRender.Fire(args);
 
-	renderer->PushClip(IQuad2D(m_bounds.RelativeRegion));
-
-	for (UIComponent *comp : m_components)
-		comp->Render(renderer);
+	if (m_drawChildren)
+		RenderChildren(renderer);
 
 	renderer->PopClip();
+}
+
+void UIComponent::RenderChildren(UIRenderer *renderer)
+{
+	for (UIComponent *comp : m_components)
+		comp->Render(renderer);
 }
 
 void UIComponent::Resize(Quad2D oldParent, Quad2D newParent)
@@ -88,7 +108,7 @@ void UIComponent::UpdateFocus(UIComponent *lostFocus, UIComponent *gainFocus)
 	else if (this == lostFocus)
 		LostFocus.Fire(args);
 	for (UIComponent *component : m_components)
-		UpdateFocus(lostFocus, gainFocus);
+		component->UpdateFocus(lostFocus, gainFocus);
 }
 
 void UIComponent::SortByZOrder()
@@ -100,18 +120,15 @@ UIComponent *UIComponent::FindTopmostIntersector(Quad2D quad)
 {
 	if (!(m_enabled && m_visible))
 		return nullptr;
+	for (int i = m_components.size() - 1; i >= 0; --i)
+	{
+		UIComponent *comp = m_components[i]->FindTopmostIntersector(quad);
+		if (comp)
+			return comp;
+	}
 	if (m_bounds.RelativeRegion.Intersects(quad))
 		return this;
-	else
-	{
-		for (int i = m_components.size() - 1; i >= 0; --i)
-		{
-			UIComponent *comp = m_components[i]->FindTopmostIntersector(quad);
-			if (comp)
-				return comp;
-		}
-		return nullptr;
-	}
+	return nullptr;
 }
 
 UIRect UIComponent::GetBounds()
@@ -163,10 +180,24 @@ void UIComponent::SetEnabled(bool enabled)
 {
 	if (!enabled)
 		Unfocus();
+	if (Parent && !Parent->IsEnabled() && enabled)
+		return;
+	for (UIComponent *comp : m_components)
+		comp->SetEnabled(enabled);
 	m_enabled = enabled;
 }
 
 bool UIComponent::IsEnabled()
 {
 	return m_enabled;
+}
+
+void UIComponent::SetDrawingChildren(bool drawing)
+{
+	m_drawChildren = drawing;
+}
+
+bool UIComponent::IsDrawingChildren()
+{
+	return m_drawChildren;
 }

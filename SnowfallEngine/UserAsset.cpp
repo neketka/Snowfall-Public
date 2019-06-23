@@ -11,7 +11,8 @@ UserAsset::UserAsset(std::string path, IAssetStreamIO *stream)
 UserAsset::~UserAsset()
 {
 	//Dispose of resource
-	delete m_stream;
+	if (m_stream)
+		delete m_stream;
 }
 
 std::string UserAsset::GetPath() const

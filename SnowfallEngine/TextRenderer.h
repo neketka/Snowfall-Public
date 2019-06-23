@@ -14,7 +14,7 @@ public:
 	~TextRenderer();
 	void ClearTextBuffer();
 	void SetColor(glm::vec3 color);
-	float GetTextLength(std::string text);
+	float GetTextLength(std::string text, float fontSize);
 	void SetDistanceFieldLength(float width, float edge);
 	void SetDistanceFieldLengthAuto(float size, float ppm);
 	void SetFont(FontAsset& asset);

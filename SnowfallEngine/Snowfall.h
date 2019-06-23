@@ -92,7 +92,7 @@ public:
 	inline void SetScene(Scene *scene) { 
 		m_scene = scene; 
 	}
-	inline Scene& GetScene(Scene& scene) { return *m_scene; }
+	inline Scene& GetScene() { return *m_scene; }
 private:
 	void Init();
 	void SetupDefaultPrototypes();

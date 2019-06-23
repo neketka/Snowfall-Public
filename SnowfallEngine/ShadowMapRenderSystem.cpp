@@ -23,9 +23,17 @@ ShadowMapRenderSystem::~ShadowMapRenderSystem()
 	m_flatShadows->Unload();
 	m_cubeShadows->Unload();
 
+	m_highShadowTarget->Unload();
+	m_cubeShadowTarget->Unload();
+	m_flatShadowTarget->Unload();
+
 	delete m_directionalHighShadow;
 	delete m_flatShadows;
 	delete m_cubeShadows;
+
+	delete m_highShadowTarget;
+	delete m_cubeShadowTarget;
+	delete m_flatShadowTarget;
 }
 
 void ShadowMapRenderSystem::InitializeSystem(Scene& scene)

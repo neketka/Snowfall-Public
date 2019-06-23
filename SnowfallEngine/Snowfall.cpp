@@ -253,6 +253,7 @@ void Snowfall::GameLoop()
 		clock_t beginTime = clock();
 		float clockDiff = static_cast<float>(beginTime - lastFrame) / CLOCKS_PER_SEC;
 
+		m_inputManager->ClearEventQueues();
 		glfwPollEvents(); // Check for user events
 
 		m_meshManager->ClearData();

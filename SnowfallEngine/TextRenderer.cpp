@@ -36,11 +36,6 @@ void TextRenderer::SetColor(glm::vec3 color)
 	m_color = color;
 }
 
-float TextRenderer::GetTextLength(std::string text)
-{
-	return 0.0f;
-}
-
 void TextRenderer::SetDistanceFieldLength(float width, float edge)
 {
 	m_width = width;
@@ -48,10 +43,11 @@ void TextRenderer::SetDistanceFieldLength(float width, float edge)
 }
 
 void TextRenderer::SetDistanceFieldLengthAuto(float size, float ppm)
-{ // Pretty specific values, not always going to work: relationship between size and edge is strange but it works
+{ // Pretty specific values, not always going to work: relationship is strange but it works
+	bool bold = false;
 	float calcMix = size * ppm / 800.f;
-	m_width = glm::mix(0.45f, 0.39f, calcMix);
-	m_edge = glm::mix(0.20f, 0.11f, calcMix);
+	m_width = glm::mix(0.35f, 0.55f, calcMix) + (bold ? 0.20f : 0.f);
+	m_edge = glm::mix(0.35f, 0.14f, calcMix);
 }
 
 void TextRenderer::SetFont(FontAsset& asset)
@@ -75,7 +71,7 @@ void TextRenderer::RenderTextBuffer(glm::vec2 offset, float scale, std::string t
 		GlyphDescription desc = m_font->GetGlyph(c);
 		for (int i = 0; i < 6; ++i)
 		{
-			glm::vec2 pos = arr[i] * glm::vec2(desc.CharWidth, desc.CharHeight) + glm::vec2(offsetX, 0);
+			glm::vec2 pos = arr[i] * glm::vec2(desc.CharWidth, desc.CharHeight) + glm::vec2(offsetX, 0) + glm::vec2(-desc.OffsetX, -desc.CharHeight + desc.OffsetY);
 			glm::vec2 texcoord = tex[i] * glm::vec2(desc.AtlasWidth, desc.AtlasHeight) + glm::vec2(desc.AtlasX, desc.AtlasY);
 			dat.push_back(glm::vec4(pos * scale + offset, texcoord));
 		}

@@ -188,6 +188,11 @@ public:
 	SNOWFALLENGINE_API void AddComponent(EntityId id, std::string component);
 	SNOWFALLENGINE_API void RemoveComponent(EntityId id, std::string component);
 
+	SNOWFALLENGINE_API std::vector<Entity> FindEntitiesByName(std::string name);
+
+	SNOWFALLENGINE_API std::string GetName(EntityId id);
+	SNOWFALLENGINE_API void SetName(EntityId id, std::string name);
+
 	SNOWFALLENGINE_API void SerializeEntity(EntityId id, IAssetStreamIO& stream);
 	SNOWFALLENGINE_API std::vector<Entity> LoadEntities(int count, IAssetStreamIO& stream);
 
@@ -195,6 +200,7 @@ public:
 private:
 	Scene& m_scene;
 	std::map<EntityId, std::vector<Component *>> m_entities;
+	std::map<EntityId, std::string> m_entNamePair;
 };
 
 class Entity
@@ -208,6 +214,8 @@ public:
 	template<class T>
 	void RemoveComponent() { return static_cast<T *>(m_manager->RemoveComponent(m_id, ComponentDescriptor<T>::GetName())); }
 	Entity Clone() { return m_manager->CloneEntity(m_id); }
+	std::string GetName() { return m_manager->GetName(m_id); }
+	void SetName(std::string name) { m_manager->SetName(m_id, name); }
 	template<class T>
 	T *GetComponent() { return static_cast<T *>(m_manager->GetComponent(m_id, ComponentDescriptor<T>::GetName())); }
 	void Kill() { m_manager->KillEntity(m_id); }

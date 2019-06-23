@@ -12,28 +12,28 @@
 class UIRenderer
 {
 public:
-	UIRenderer();
-	~UIRenderer();
+	SNOWFALLENGINE_API UIRenderer();
+	SNOWFALLENGINE_API ~UIRenderer();
 
-	void SetupPass(Pipeline& pipe);
-	void StartRenderPass(Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp);
-	void StartRenderPass(Framebuffer fbo, int drawBuffer0, int drawBuffer1, IQuad2D viewport, glm::mat4 mvp);
-	void EndRenderPass();
+	SNOWFALLENGINE_API void SetupPass(Pipeline& pipe);
+	SNOWFALLENGINE_API void StartRenderPass(Framebuffer fbo, int drawBuffer, IQuad2D viewport, glm::mat4 mvp);
+	SNOWFALLENGINE_API void StartRenderPass(Framebuffer fbo, int drawBuffer0, int drawBuffer1, IQuad2D viewport, glm::mat4 mvp);
+	SNOWFALLENGINE_API void EndRenderPass();
 
-	void SetBorderedRectangleShader(ShaderAsset *shader);
-	void SetRectangleShader(ShaderAsset *shader);
+	SNOWFALLENGINE_API void SetBorderedRectangleShader(ShaderAsset *shader);
+	SNOWFALLENGINE_API void SetRectangleShader(ShaderAsset *shader);
 
-	void PushMatrix(glm::mat4 mat);
-	void PopMatrix();
+	SNOWFALLENGINE_API void PushMatrix(glm::mat4 mat);
+	SNOWFALLENGINE_API void PopMatrix();
 
-	void PushClip(IQuad2D quad);
-	void PopClip();
+	SNOWFALLENGINE_API void PushClip(IQuad2D quad);
+	SNOWFALLENGINE_API void PopClip();
 
-	void RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, glm::vec4 tint);
-	void RenderRectangle(Quad2D quad, glm::vec4 fillColor);
-	void RenderRectangle(Quad2D quad, glm::vec4 borderColor, glm::vec4 fillColor, float borderThickness, bool insetBorder);
-	void RenderRectangle(Quad2D quad, TextureAsset *rectTexture, float borderThickness, glm::vec4 borderTint, glm::vec4 fillTint, bool insetBorder);
-	void RenderText(FontAsset *font, glm::vec2 pos, float size, glm::vec4 color, std::string text);
+	SNOWFALLENGINE_API void RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, glm::vec4 tint);
+	SNOWFALLENGINE_API void RenderRectangle(Quad2D quad, glm::vec4 fillColor);
+	SNOWFALLENGINE_API void RenderRectangle(Quad2D quad, glm::vec4 borderColor, glm::vec4 fillColor, float borderThickness, bool insetBorder);
+	SNOWFALLENGINE_API void RenderRectangle(Quad2D quad, TextureAsset *rectTexture, float borderThickness, glm::vec4 borderTint, glm::vec4 fillTint, bool insetBorder);
+	SNOWFALLENGINE_API void RenderText(FontAsset *font, glm::vec2 pos, float size, glm::vec4 color, std::string text);
 
 	inline int GetCurrentDrawBuffer() { return drawTurn ? m_drawBuffer0 : m_drawBuffer1; }
 	inline int GetSourceDrawBuffer() { return drawTurn ? m_drawBuffer1 : m_drawBuffer0; }

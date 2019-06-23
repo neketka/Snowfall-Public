@@ -69,6 +69,8 @@ TextureAsset::TextureAsset(std::string path, TextureType type, TextureInternalFo
 TextureAsset::~TextureAsset()
 {
 	Unload();
+	if (m_stream)
+		delete m_stream;
 }
 
 std::string TextureAsset::GetPath() const
@@ -122,6 +124,7 @@ void TextureAsset::Load()
 				break;
 			}
 			m_texture.SetMipmapRange(m_minMipmapLoaded - 1, m_mipmaps - 1);
+			delete data;
 		}
 
 		m_stream->CloseStream();

@@ -15,7 +15,8 @@ ShaderAsset::ShaderAsset(std::string path, IAssetStreamIO *stream) : m_stream(st
 ShaderAsset::~ShaderAsset()
 {
 	Unload();
-	delete m_stream;
+	if (m_stream)
+		delete m_stream;
 }
 
 Shader& ShaderAsset::GetShaderVariant(std::set<std::string> qualifiers)

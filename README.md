@@ -20,21 +20,23 @@ Currently implemented features
     * Cook-Torrance and Oren-Nayar BRDF renderer
     * External asset importer
     * Latest OpenGL 4.6 bindings
+    * GUI/Text rendering
+    * Post-processing
+        * Bloom
+        * FXAA
+        * Filmic Tonemapping
 
 Work-in-progress
 ------------------------------
     * Deferred rendering
     * Post-processing
-        * Bloom
         * SSAO
         * SSR
         * Motion Blur
         * DOF
-        * Filmic Tonemapping
         * Eye Adaptation
         * Color Grading
-    * Intergration with Bullet Physics
+    * Integration with Bullet Physics
     * Cascaded shadow maps
-    * GUI/Text rendering
     * Subsurface scattering approximation
     * Actual game

@@ -17,13 +17,10 @@ enum class MouseButton
 	BUTTON_MIDDLE=2
 };
 
-enum class KeyModifier
-{
-	SHIFT=0x0001,
-	CONTROL=0x0002,
-	ALT=0x0004,
-	SUPER=0x0008
-};
+#define KEYMOD_SHIFT (0x0001)
+#define KEYMOD_CONTROL (0x0002)
+#define KEYMOD_ALT (0x0004)
+#define KEYMOD_SUPER (0x0008)
 
 enum class Key
 {

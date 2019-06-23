@@ -9,13 +9,12 @@
 #include <CameraComponent.h>
 #include <LightComponent.h>
 #include <SkyboxComponent.h>
-#include <ShadowMapRenderSystem.h>
-#include <PostProcessRenderSystem.h>
-#include <CameraViewportRenderSystem.h>
+#include <CameraUIRenderSystem.h>
 #include <LocalAssetStream.h>
 
 #include "CameraFlyComponent.h"
 #include "TestComponent.h"
+#include "TestUI.h"
 
 Scene *scene;
 
@@ -57,6 +56,14 @@ void SnowfallGame::InitializeModule()
 	camera.GetComponent<TransformComponent>()->Position = glm::vec3(0, 5, 5);
 	camera.GetComponent<CameraComponent>()->ViewportIndex = 0;
 	camera.GetComponent<CameraComponent>()->FovY = 90;
+	camera.GetComponent<CameraUIRenderComponent>()->ContextName = "TestUI";
+
+	Entity camera1 = scene->GetEntityManager().CreateEntity({ "TransformComponent", "CameraComponent" });
+
+	camera1.SetName("camera1");
+	camera1.GetComponent<TransformComponent>()->Position = glm::vec3(0, 5, 5);
+	camera1.GetComponent<CameraComponent>()->ViewportIndex = 1;
+	camera1.GetComponent<CameraComponent>()->FovY = 90;
 
 	camera.GetComponent<CameraComponent>()->PostProcessStack.push_back(&AssetManager::LocateAssetGlobal<MaterialAsset>("FxaaMaterial"));
 	camera.GetComponent<CameraComponent>()->PostProcessStack.push_back(&AssetManager::LocateAssetGlobal<MaterialAsset>("BloomMaterial"));
@@ -89,14 +96,16 @@ void SnowfallGame::InitializeModule()
 	//stream->OpenStreamWrite();
 	//scene->GetEntityManager().SerializeEntity(e.GetId(), *stream);
 	
-	stream->OpenStreamRead();
-	scene->GetEntityManager().LoadEntities(1, *stream);
+	//stream->OpenStreamRead();
+	//scene->GetEntityManager().LoadEntities(1, *stream);
 	//e.Kill();
+	//stream->CloseStream();
 
 	scene->GetSystemManager().InitializeSystems();
-	Snowfall::GetGameInstance().SetScene(scene);
 
-	stream->CloseStream();
+	Snowfall::GetGameInstance().SetScene(scene);
+	Snowfall::GetGameInstance().RegisterUIContext("TestUI", new TestUI);
+
 	delete stream;
 }
 

@@ -27,8 +27,7 @@ void CameraFlySystem::Update(float deltaTime)
 	for (CameraFlyComponent *comp : m_scene->GetComponentManager().GetComponents<CameraFlyComponent>())
 	{
 		TransformComponent *transform = comp->Owner.GetComponent<TransformComponent>();
-
-		if (Snowfall::GetGameInstance().GetInputManager().IsButtonDown(MouseButton::BUTTON_LEFT))
+		if (Snowfall::GetGameInstance().GetInputManager().IsButtonDown(MouseButton::BUTTON_RIGHT))
 		{
 			if (!clicked)
 			{
@@ -36,7 +35,7 @@ void CameraFlySystem::Update(float deltaTime)
 				locked = !locked;
 				Snowfall::GetGameInstance().GetInputManager().SetMouseLocked(locked);
 				if (locked)
-					Snowfall::GetGameInstance().GetInputManager().SetMousePosition(glm::vec2(transform->Rotation.y / sens, transform->Rotation.x / sens));
+					Snowfall::GetGameInstance().GetInputManager().SetMousePosition(glm::vec2(transform->Rotation.y / sens, -transform->Rotation.x / sens));
 			}
 		}
 		else
@@ -44,8 +43,8 @@ void CameraFlySystem::Update(float deltaTime)
 		if (locked)
 		{
 			glm::vec2 rot = Snowfall::GetGameInstance().GetInputManager().GetMousePosition();
-			transform->Rotation = glm::vec3(glm::clamp(rot.y * sens, -89.9f, 89.9f), rot.x * sens, 0);
-			Snowfall::GetGameInstance().GetInputManager().SetMousePosition(glm::vec2(transform->Rotation.y / sens, transform->Rotation.x / sens));
+			transform->Rotation = glm::vec3(glm::clamp(-rot.y * sens, -89.9f, 89.9f), rot.x * sens, 0);
+			Snowfall::GetGameInstance().GetInputManager().SetMousePosition(glm::vec2(transform->Rotation.y / sens, -transform->Rotation.x / sens));
 		}
 
 		glm::vec3 move = glm::vec3(0, 0, 0);

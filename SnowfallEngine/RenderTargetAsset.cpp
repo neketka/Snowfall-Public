@@ -44,6 +44,10 @@ RenderTargetAsset::RenderTargetAsset(std::string path, IAssetStreamIO *stream)
 RenderTargetAsset::~RenderTargetAsset()
 {
 	Unload();
+	if (m_stream)
+		delete m_stream;
+	for (TextureAsset *asset : m_newTextures)
+		delete asset;
 	//Some TextureAssets will leak!
 }
 

@@ -9,7 +9,8 @@ FontAsset::FontAsset(std::string path, IAssetStreamIO *stream) : m_stream(stream
 FontAsset::~FontAsset()
 {
 	Unload();
-	delete m_stream;
+	if (m_stream)
+		delete m_stream;
 }
 
 std::string FontAsset::GetPath() const
@@ -107,6 +108,46 @@ IAsset *FontAsset::CreateCopy(std::string newPath)
 
 void FontAsset::Export()
 {
+}
+
+float FontAsset::GetTextLength(std::string text, float size)
+{
+	float offsetX = 0;
+	for (char c : text)
+	{
+		GlyphDescription desc = GetGlyph(c);
+		offsetX += desc.Advance;
+	}
+	return offsetX * size;
+}
+
+void FontAsset::GetClosestSeparator(std::string text, float size, float closestPixelPos, float& pixelPos, int& charPos)
+{
+	float cPos = closestPixelPos / size;
+	pixelPos = 0;
+	charPos = 0;
+	for (char c : text)
+	{
+		GlyphDescription desc = GetGlyph(c);
+		float smallerPos = pixelPos;
+		pixelPos += desc.Advance;
+		++charPos;
+
+		if (pixelPos > cPos)
+		{
+			float smallDiff = cPos - smallerPos;
+			float bigDiff = pixelPos - cPos;
+
+			if (smallDiff < bigDiff)
+			{
+				--charPos;
+				pixelPos = smallerPos;
+			}
+
+			break;
+		}
+	}
+	pixelPos *= size;
 }
 
 void FontAsset::SetStream(IAssetStreamIO *stream)

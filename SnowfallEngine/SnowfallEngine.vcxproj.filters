@@ -40,6 +40,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{ad54fcb8-52de-40f2-bc70-aadd75dbd05c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Components">
+      <UniqueIdentifier>{0c1094cb-294b-4889-996e-6c0cc0468163}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -200,6 +203,45 @@
     </ClCompile>
     <ClCompile Include="CameraUIRenderSystem.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UITextBox.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UIButton.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPanel.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UIListBox.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UIScrollBar.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="UIComboBox.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UICheckBox.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UITextureBox.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UITabControl.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UITreeView.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UILabel.cpp">
+      <Filter>UI\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="UIViewport.cpp">
+      <Filter>UI\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +421,42 @@
     </ClInclude>
     <ClInclude Include="CameraUIRenderSystem.h">
       <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UITextBox.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIButton.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPanel.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIListBox.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIScrollBar.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIComboBox.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UICheckBox.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UITextureBox.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UITabControl.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UITreeView.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UILabel.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="UIViewport.h">
+      <Filter>UI\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

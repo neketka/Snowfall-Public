@@ -7,6 +7,9 @@ Entity EntityManager::CreateEntity(std::vector<std::string> components)
 {
 	EntityId id = GenerateUUID();
 	m_entities.insert({ id, std::vector<Component *>() });
+
+	m_entNamePair.insert({ id, "" });
+
 	std::vector<Component *>& comps = m_entities[id];
 	Entity e = Entity(id, this);
 	for (std::string name : components)
@@ -38,6 +41,7 @@ void EntityManager::KillEntity(EntityId id)
 	for (Component *c : m_entities[id])
 		m_scene.GetComponentManager().DeleteComponent(c);
 	m_entities.erase(id);
+	m_entNamePair.erase(id);
 }
 
 Entity EntityManager::CloneEntity(EntityId id)
@@ -77,9 +81,31 @@ void EntityManager::RemoveComponent(EntityId id, std::string component)
 	comps.erase(comps.begin() + i);
 }
 
+std::vector<Entity> EntityManager::FindEntitiesByName(std::string name)
+{
+	std::vector<Entity> ents;
+	for (auto kp : m_entNamePair)
+	{
+		if (kp.second == name)
+			ents.push_back(Entity(kp.first, this));
+	}
+	return ents;
+}
+
+std::string EntityManager::GetName(EntityId id)
+{
+	return m_entNamePair[id];
+}
+
+void EntityManager::SetName(EntityId id, std::string name)
+{
+	m_entNamePair[id] = name;
+}
+
 void EntityManager::SerializeEntity(EntityId id, IAssetStreamIO& stream)
 {
 	stream.WriteString(id);
+	stream.WriteString(m_entNamePair[id]);
 	std::vector<Component *>& comps = m_entities[id];
 	int size = comps.size();
 	stream.WriteStream(&size, 1);
@@ -95,7 +121,9 @@ std::vector<Entity> EntityManager::LoadEntities(int count, IAssetStreamIO& strea
 	for (int i = 0; i < count; ++i)
 	{
 		EntityId id = stream.ReadString();
-		m_entities.insert_or_assign( id, std::vector<Component *>() );
+		std::string name = stream.ReadString();
+		m_entities.insert_or_assign(id, std::vector<Component *>());
+		m_entNamePair.insert_or_assign(id, name);
 		std::vector<Component *>& comps = m_entities[id];
 
 		Entity e = Entity(id, this);

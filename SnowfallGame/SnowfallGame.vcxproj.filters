@@ -13,6 +13,9 @@
     <ClCompile Include="TestComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="TestUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="module.h">
@@ -24,6 +27,9 @@
     <ClInclude Include="TestComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
+    <ClInclude Include="TestUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Module">
@@ -34,6 +40,9 @@
     </Filter>
     <Filter Include="Components">
       <UniqueIdentifier>{690a9ba0-6e69-4db5-b779-fb2534c0c011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{551cf0da-ac26-4337-ae91-a737714e3aaa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

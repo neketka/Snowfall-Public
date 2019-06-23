@@ -24,6 +24,8 @@ void CameraViewportRenderSystem::Update(float deltaTime)
 	CommandBuffer buffer;
 	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
 	{
+		if (!camera->Enabled)
+			continue;
 		if (!camera->KeepInternal)
 			CopyToSDR(buffer, camera);
 	}

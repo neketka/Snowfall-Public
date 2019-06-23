@@ -16,34 +16,54 @@ public:
 class UIContext
 {
 public:
-	~UIContext();
+	SNOWFALLENGINE_API UIContext(int width, int height);
+	SNOWFALLENGINE_API ~UIContext();
 
-	void UpdateContext(UIRenderer& uiRenderer, float time);
-	void SetRootComponent(UIComponent *component);
-	void SetBounds(IQuad2D bounds);
-	void SetDoubleClickTime(float time);
-	void SetHoverTime(float time);
-	void SetInputManager(InputManager* manager);
-	void SetDispatchingEvents(bool dispatching);
-	void SetDispatchingTimers(bool dispatching);
-	void DispatchFocusChange(UIComponent *component);
-	void SetTimer(TimedEvent event);
+	SNOWFALLENGINE_API void UpdateContext(UIRenderer& uiRenderer, float time, bool onlyRender);
 
-	IQuad2D GetBounds();
-	float GetDoubleClickTime();
-	float GetHoverTime();
-	bool IsDispatchingEvents();
-	bool IsDispatchingTimers();
-	UIComponent* GetRootComponent();
+	SNOWFALLENGINE_API void SetInputManager(InputManager *manager);
+	SNOWFALLENGINE_API void SetRootComponent(UIComponent *component);
+	SNOWFALLENGINE_API void SetBounds(IQuad2D bounds);
+
+	SNOWFALLENGINE_API void DispatchFocusChange(UIComponent *component);
+	SNOWFALLENGINE_API UIComponent *GetFocusedComponent();
+
+	SNOWFALLENGINE_API void SetDoubleClickTime(float time);
+	SNOWFALLENGINE_API void SetHoverTime(float time);
+	SNOWFALLENGINE_API void SetPrimaryButton(MouseButton button);
+	SNOWFALLENGINE_API void SetSecondaryButton(MouseButton button);
+
+	SNOWFALLENGINE_API void SetDispatchingEvents(bool dispatching);
+
+	SNOWFALLENGINE_API IQuad2D GetBounds();
+	SNOWFALLENGINE_API float GetDoubleClickTime();
+	SNOWFALLENGINE_API float GetHoverTime();
+	SNOWFALLENGINE_API bool IsDispatchingEvents();
+	SNOWFALLENGINE_API UIComponent* GetRootComponent();
 private:
+	glm::vec2 RaycastPosition(glm::vec2 pos) { return pos; }
+
 	float m_currentTime;
-	std::vector<TimedEvent> m_events;
-	float m_doubleClickTime;
-	float m_hoverTime;
-	UIComponent *m_root;
+
 	bool m_dispatchingEvents;
 	bool m_dispatchingTimers;
+
+	float m_doubleClickTime;
+	float m_hoverTime;
+	MouseButton m_primaryButton;
+	MouseButton m_secondaryButton;
+
 	UIComponent *m_focused;
+	UIComponent *m_lastMouseHover;
+
+	UIComponent *m_held[9];
+
+	UIComponent *m_root;
+
+	float m_lastHoverTime;
+	float m_doubleClickTiming;
+	int m_doubleClickCounter;
+
 	InputManager *m_inputManager;
 	IQuad2D m_bounds;
 };

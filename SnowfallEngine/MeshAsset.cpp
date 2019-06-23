@@ -23,7 +23,8 @@ MeshAsset::~MeshAsset()
 {
 	if (m_inMemory)
 		delete m_mesh;
-	delete m_stream;
+	if (m_stream)
+		delete m_stream;
 }
 
 std::string MeshAsset::GetPath() const

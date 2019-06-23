@@ -70,6 +70,9 @@ void CameraSystem::Update(float deltaTime)
 	CommandBuffer buffer;
 	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
 	{
+		if (!camera->Enabled)
+			continue;
+
 		camera->colorAttachment = 0;
 		if (camera->ViewportIndex != -1)
 			camera->Region = Snowfall::GetGameInstance().GetViewport(camera->ViewportIndex);
@@ -78,13 +81,13 @@ void CameraSystem::Update(float deltaTime)
 		{
 			if (camera->HdrBuffer)
 			{
-				camera->HdrBuffer->Unload();
-				delete camera->HdrBuffer;
 				for (RenderTargetAsset *rasset : camera->Downsampled)
 				{
 					rasset->Unload();
 					delete rasset;
 				}
+				camera->HdrBuffer->Unload();
+				delete camera->HdrBuffer;
 			}
 
 			camera->HdrBuffer = new RenderTargetAsset("", {},

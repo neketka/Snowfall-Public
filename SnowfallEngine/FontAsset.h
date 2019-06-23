@@ -47,6 +47,9 @@ public:
 	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
 	SNOWFALLENGINE_API virtual void Export() override;
 
+	SNOWFALLENGINE_API float GetTextLength(std::string text, float size);
+	SNOWFALLENGINE_API void GetClosestSeparator(std::string text, float size, float closestPixelPos, float& pixelPos, int& charPos);
+
 private:
 	std::string m_name;
 	std::vector<GlyphDescription> m_glyphs;

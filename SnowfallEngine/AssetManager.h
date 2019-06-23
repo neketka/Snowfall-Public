@@ -45,7 +45,7 @@ public:
 	}
 	std::string ReadString(unsigned int length)
 	{
-		char *buffer = new char[length + 1u];
+		char *buffer = new char[length + 1];
 		buffer[length] = '\0';
 		ReadStream(buffer, length);
 		std::string str = std::string(buffer);

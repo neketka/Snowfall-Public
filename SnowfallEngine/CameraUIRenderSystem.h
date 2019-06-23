@@ -7,6 +7,7 @@ class CameraUIRenderComponent : public Component
 public:
 	std::string ContextName;
 	bool IsSpectator;
+	IQuad2D oldRegion;
 };
 
 class CameraUIRenderSystem : public ISystem

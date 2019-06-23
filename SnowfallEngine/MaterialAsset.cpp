@@ -22,7 +22,8 @@ MaterialAsset::~MaterialAsset()
 		for (Sampler s : m_samplers)
 			s.Destroy();
 	}
-	delete m_stream;
+	if (m_stream)
+		delete m_stream;
 }
 
 std::string MaterialAsset::GetPath() const

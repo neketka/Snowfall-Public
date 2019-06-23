@@ -71,7 +71,11 @@ vec4 GetCurrentColor()
 
 vec4 GetTint()
 {
+#ifdef TEXTURED
 	return Tint;
+#else
+	return vec4(1);
+#endif
 }
 
 vec4 FragmentColor();

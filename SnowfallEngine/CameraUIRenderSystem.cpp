@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CameraUIRenderSystem.h"
+#include "UIContext.h"
 
 std::vector<SerializationField> ComponentDescriptor<CameraUIRenderComponent>::GetSerializationFields()
 {
@@ -25,15 +26,27 @@ void CameraUIRenderSystem::Update(float deltaTime)
 		CameraComponent *camera = comp->Owner.GetComponent<CameraComponent>();
 		if (!camera)
 			continue;
+		if (!camera->Enabled)
+			continue;
+
+		UIContext *context = Snowfall::GetGameInstance().GetUIContext(comp->ContextName);
+
 
 		UIRenderer& uiRenderer = Snowfall::GetGameInstance().GetUIRenderer();
-
 		uiRenderer.StartRenderPass(camera->HdrBuffer->GetFramebuffer(), camera->colorAttachment, camera->Region, camera->UIProjectionMatrix);
-		uiRenderer.RenderText(&AssetManager::LocateAssetGlobal<FontAsset>("ArialBasic"), glm::vec2(5.f, camera->Region.Size.y - 40.f), 36.f, glm::vec4(1, 1, 1, 1),
+
+		if (context)
+		{
+			if (comp->oldRegion != camera->Region)
+			{
+				comp->oldRegion = camera->Region;
+				context->SetBounds(camera->Region);
+			}
+			context->UpdateContext(uiRenderer, deltaTime, comp->IsSpectator);
+		}
+
+		uiRenderer.RenderText(&AssetManager::LocateAssetGlobal<FontAsset>("ArialBasic"), glm::vec2(5.f, camera->Region.Size.y - 20.f), 16.f, glm::vec4(1, 1, 1, 1),
 			"FPS: " + std::to_string(static_cast<int>(std::floor(Snowfall::GetGameInstance().GetFPS()))));
-		uiRenderer.RenderTexture(Quad2D(0, 0, 1, 1), Quad2D(100, 100, 300, 300), &AssetManager::LocateAssetGlobal<TextureAsset>("fortnite"), glm::vec4(1));
-		uiRenderer.RenderRectangle(Quad2D(400, 0, 200, 200), glm::vec4(0, 0, 0, 1), glm::vec4(1), 5, true);
-		uiRenderer.RenderRectangle(Quad2D(400, 200, 200, 200), &AssetManager::LocateAssetGlobal<TextureAsset>("coolBorder"), 20, glm::vec4(1), glm::vec4(1, 1, 1, 0.3f), true);
 
 		uiRenderer.EndRenderPass();
 
