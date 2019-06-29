@@ -12,10 +12,11 @@ MeshAsset::MeshAsset(std::string path, Mesh mesh) : m_inMemory(true), m_loaded(f
 	m_mesh = new Mesh;
 	m_mesh->Vertices = mesh.Vertices;
 	m_mesh->Indices = mesh.Indices;
+	m_box = mesh.CalculateAABB();
 	m_handle = GeometryHandle();
 }
 
-MeshAsset::MeshAsset(std::string path, IAssetStreamIO *stream) : m_inMemory(false), m_loaded(false), m_loadSuccess(true), m_stream(stream), m_path(path), m_mesh()
+MeshAsset::MeshAsset(std::string path, IAssetStreamIO *stream) : m_inMemory(false), m_loaded(false), m_loadSuccess(true), m_stream(stream), m_path(path), m_mesh(), m_lastVSize(0), m_lastISize(0)
 {
 }
 
@@ -47,6 +48,9 @@ void MeshAsset::Load()
 
 		m_stream->ReadStream(m_mesh->Vertices.data(), vlen);
 		m_stream->ReadStream(m_mesh->Indices.data(), ilen);
+
+		m_stream->ReadStream(&m_box.MinExtent, 1);
+		m_stream->ReadStream(&m_box.MaxExtent, 1);
 
 		m_stream->CloseStream();
 		m_loaded = true;
@@ -87,6 +91,8 @@ GeometryHandle& MeshAsset::GetGeometry()
 		m_handle = Snowfall::GetGameInstance().GetMeshManager().CreateGeometry(m_mesh->Vertices.size(), m_mesh->Indices.size());
 		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryVertices(m_handle, m_mesh->Vertices.data(), 0, m_mesh->Vertices.size());
 		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryIndices(m_handle, m_mesh->Indices.data(), 0, m_mesh->Indices.size());
+		m_lastVSize = m_mesh->Vertices.size();
+		m_lastISize = m_mesh->Indices.size();
 	}
 	return m_handle;
 }
@@ -96,6 +102,32 @@ Mesh& MeshAsset::GetMesh()
 	if (!IsReady())
 		Load();
 	return *m_mesh;
+}
+
+void MeshAsset::ReloadGeometry()
+{
+	m_box = m_mesh->CalculateAABB();
+	if (!m_handle.VertexAlloc.Allocated())
+	{
+		GetGeometry();
+		return;
+	}
+	m_loaded = true;
+	if (m_mesh->Vertices.size() != m_lastVSize || m_mesh->Indices.size() != m_lastISize)
+	{
+		Snowfall::GetGameInstance().GetMeshManager().EraseGeometry(m_handle);
+		m_handle = GeometryHandle();
+	}
+	else
+	{
+		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryVertices(m_handle, m_mesh->Vertices.data(), 0, m_mesh->Vertices.size());
+		Snowfall::GetGameInstance().GetMeshManager().WriteGeometryIndices(m_handle, m_mesh->Indices.data(), 0, m_mesh->Indices.size());
+	}
+}
+
+BoundingBox& MeshAsset::GetBoundingBox()
+{
+	return m_box;
 }
 
 void MeshAsset::DrawMeshDirect(CommandBuffer& buffer, int instances)

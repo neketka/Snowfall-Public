@@ -46,7 +46,7 @@ class CameraSystem : public ISystem
 {
 public:
 	SNOWFALLENGINE_API CameraSystem();
-	SNOWFALLENGINE_API ~CameraSystem();
+	SNOWFALLENGINE_API virtual ~CameraSystem() override;
 	SNOWFALLENGINE_API virtual void InitializeSystem(Scene& scene) override;
 	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;
 	SNOWFALLENGINE_API virtual std::string GetName() override;

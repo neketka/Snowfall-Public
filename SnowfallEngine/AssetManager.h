@@ -14,6 +14,7 @@ namespace filesystem = std::filesystem;
 class IAssetStreamIO
 {
 public:
+	virtual ~IAssetStreamIO() {}
 	virtual void OpenStreamRead() = 0;
 	virtual void OpenStreamWrite() = 0;
 	virtual void CloseStream() = 0;
@@ -71,6 +72,7 @@ public:
 class IAsset
 {
 public:
+	virtual ~IAsset() {}
 	virtual std::string GetPath() const = 0;
 	virtual void SetStream(IAssetStreamIO *stream) = 0;
 	virtual void Load() = 0;

@@ -17,6 +17,8 @@
 #include "ShadowMapRenderSystem.h"
 #include "PostProcessRenderSystem.h"
 #include "CameraUIRenderSystem.h"
+#include "PhysicsWorldSystem.h"
+#include "PhysicsRigidBodySystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -114,6 +116,10 @@ void Snowfall::LoadModules(std::vector<std::string> paths)
 	m_modules.insert(m_modules.begin(), modules.begin(), modules.end());
 }
 
+void Snowfall::ReloadAllModules()
+{
+}
+
 IQuad2D Snowfall::GetViewport(int index)
 {
 	Quad2D scale = scales[index];
@@ -125,6 +131,8 @@ IQuad2D Snowfall::GetViewport(int index)
 
 void Snowfall::RegisterUIContext(std::string name, UIContext *context)
 {
+	if (m_uiContexts[name])
+		delete m_uiContexts[name];
 	m_uiContexts[name] = context;
 }
 
@@ -219,6 +227,14 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<CameraUIRenderComponent>();
 	m_prototypeManager->AddComponentDescription<SkyboxComponent>();
 
+	m_prototypeManager->AddComponentDescription<PhysicsRigidBodyComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsBoxCollisionComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsSphereCollisionComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsMeshCollisionComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsCylinderCollisionComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsConeCollisionComponent>();
+	m_prototypeManager->AddComponentDescription<PhysicsHeightfieldCollisionComponent>();
+
 	m_prototypeManager->AddSystemPrototype<CameraSystem>();
 	m_prototypeManager->AddSystemPrototype<CameraViewportRenderSystem>();
 	m_prototypeManager->AddSystemPrototype<LightSystem>();
@@ -227,6 +243,8 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddSystemPrototype<ShadowMapRenderSystem>();
 	m_prototypeManager->AddSystemPrototype<TransformSystem>();
 	m_prototypeManager->AddSystemPrototype<CameraUIRenderSystem>();
+	m_prototypeManager->AddSystemPrototype<PhysicsWorldSystem>();
+	m_prototypeManager->AddSystemPrototype<PhysicsRigidBodySystem>();
 }
 
 void Snowfall::DestroyManagers()

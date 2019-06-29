@@ -26,7 +26,7 @@ enum class InterpretValueAs
 	UInt8, UInt8Array, UInt16, UInt16Array, UInt32, UInt32Array, UInt64, UInt64Array,
 	Float32, Float32Array, Float64, Float64Array, FVector2, FVector2Array, FVector3, 
 	FVector3Array, FVector4, FVector4Array, IVector2, IVector2Array, IVector3,
-	IVector3Array, IVector4, IVector4Array, FColor3, FColor4, 
+	IVector3Array, IVector4, IVector4Array, FColor3, FColor4, FMatrix3, FMatrix4, 
 	AnyAsset, MaterialAsset, MeshAsset, ShaderAsset, TextureAsset, RenderTargetAsset, FontAsset
 };
 
@@ -247,6 +247,7 @@ private:
 class SNOWFALLENGINE_API ISystem
 {
 public:
+	virtual ~ISystem() {}
 	virtual void InitializeSystem(Scene& scene) = 0;
 	virtual void Update(float deltaTime) = 0;
 	virtual std::string GetName() = 0;

@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "MeshManager.h"
 #include "CommandBuffer.h"
+#include "BoundingBox.h"
 
 #include "export.h"
 
@@ -11,7 +12,7 @@ class MeshAsset : public IAsset
 public:
 	SNOWFALLENGINE_API MeshAsset(std::string path, Mesh mesh);
 	SNOWFALLENGINE_API MeshAsset(std::string path, IAssetStreamIO *stream);
-	SNOWFALLENGINE_API ~MeshAsset();
+	SNOWFALLENGINE_API virtual ~MeshAsset() override;
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
 	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
@@ -22,12 +23,17 @@ public:
 
 	SNOWFALLENGINE_API GeometryHandle& GetGeometry();
 	SNOWFALLENGINE_API Mesh& GetMesh();
+	SNOWFALLENGINE_API void ReloadGeometry();
+	SNOWFALLENGINE_API BoundingBox& GetBoundingBox();
 
 	SNOWFALLENGINE_API void DrawMeshDirect(CommandBuffer& buffer, int instances = 1);
 
 	SNOWFALLENGINE_API virtual IAsset *CreateCopy(std::string newPath) override;
 	SNOWFALLENGINE_API virtual void Export() override;
 private:
+	int m_lastVSize;
+	int m_lastISize;
+	BoundingBox m_box;
 	Mesh *m_mesh;
 	GeometryHandle m_handle;
 	bool m_inMemory;

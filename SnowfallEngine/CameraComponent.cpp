@@ -56,6 +56,20 @@ CameraSystem::~CameraSystem()
 	for (int i = 0; i < 3; ++i)
 		m_shadowSamplers[i].Destroy();
 	m_sampler.Destroy();
+
+	for (CameraComponent *camera : m_scene->GetComponentManager().GetComponents<CameraComponent>())
+	{
+		if (camera->HdrBuffer)
+		{
+			for (RenderTargetAsset *rasset : camera->Downsampled)
+			{
+				rasset->Unload();
+				delete rasset;
+			}
+			camera->HdrBuffer->Unload();
+			delete camera->HdrBuffer;
+		}
+	}
 }
 
 void CameraSystem::InitializeSystem(Scene& scene)
@@ -189,13 +203,13 @@ void CameraSystem::Update(float deltaTime)
 	{
 		if (camera->HdrBuffer)
 		{
-			camera->HdrBuffer->Unload();
-			delete camera->HdrBuffer;
 			for (RenderTargetAsset *rasset : camera->Downsampled)
 			{
 				rasset->Unload();
 				delete rasset;
 			}
+			camera->HdrBuffer->Unload();
+			delete camera->HdrBuffer;
 		}
 	}
 	buffer.ExecuteCommands();

@@ -41,3 +41,31 @@ void Mesh::CalculateTangents()
 		v2.Tangent = tangent;
 	}
 }
+
+BoundingBox Mesh::CalculateAABB()
+{
+	BoundingBox box;
+
+	box.MinExtent = box.MaxExtent = Vertices[0].Position;
+
+	for (RenderVertex& vertex : Vertices)
+	{
+		glm::vec3 pos = vertex.Position;
+
+		if (pos.x < box.MinExtent.x)
+			box.MinExtent.x = pos.x;
+		if (pos.y < box.MinExtent.y)
+			box.MinExtent.y = pos.y;
+		if (pos.z < box.MinExtent.z)
+			box.MinExtent.y = pos.z;
+
+		if (pos.z > box.MaxExtent.x)
+			box.MaxExtent.y = pos.x;
+		if (pos.y > box.MaxExtent.y)
+			box.MaxExtent.y = pos.y;
+		if (pos.z > box.MaxExtent.z)
+			box.MaxExtent.y = pos.z;
+	}
+
+	return box;
+}

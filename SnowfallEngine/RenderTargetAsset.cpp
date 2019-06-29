@@ -3,22 +3,23 @@
 #include "RenderTargetAsset.h"
 
 RenderTargetAsset::RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureAsset *> newTextures, std::vector<TextureLayerAttachment> attachments, bool deleteTex)
-	: m_textures(textures), m_newTextures(newTextures), m_attachments(attachments)
+	: m_textures(textures), m_newTextures(newTextures), m_attachments(attachments), m_loaded(false)
 {
 	m_textures.insert(m_textures.end(), m_newTextures.begin(), m_newTextures.end());
 }
 
-RenderTargetAsset::RenderTargetAsset(std::string path, IAssetStreamIO *stream)
+RenderTargetAsset::RenderTargetAsset(std::string path, IAssetStreamIO *stream) : m_loaded(false)
 {
 	stream->OpenStreamRead();
 
 	stream->ReadString();
 	int counts[2];
 
+	stream->ReadStream(counts, 2);
+
 	std::vector<TextureAsset *> assets(counts[0]);
 	m_attachments.resize(counts[1]);
 
-	stream->ReadStream(counts, 2);
 	for (int i = 0; i < counts[0]; ++i)
 	{
 		int data[6];
@@ -38,7 +39,10 @@ RenderTargetAsset::RenderTargetAsset(std::string path, IAssetStreamIO *stream)
 			Snowfall::GetGameInstance().GetAssetManager().AddAsset(asset);
 		m_textures.push_back(asset);
 	}
+
 	stream->ReadStream(m_attachments.data(), counts[1]);
+
+	stream->CloseStream();
 }
 
 RenderTargetAsset::~RenderTargetAsset()
@@ -48,7 +52,6 @@ RenderTargetAsset::~RenderTargetAsset()
 		delete m_stream;
 	for (TextureAsset *asset : m_newTextures)
 		delete asset;
-	//Some TextureAssets will leak!
 }
 
 Framebuffer RenderTargetAsset::GetFramebuffer()
@@ -104,7 +107,9 @@ void RenderTargetAsset::Unload()
 	if (m_loaded)
 	{
 		for (TextureAsset *asset : m_textures)
+		{
 			asset->Unload();
+		}
 		m_fbo.Destroy();
 		m_loaded = false;
 	}

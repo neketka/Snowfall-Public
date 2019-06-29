@@ -42,7 +42,7 @@ class SNOWFALLENGINE_API LightSystem : public ISystem
 {
 public:
 	LightSystem();
-	~LightSystem();
+	virtual ~LightSystem() override;
 	virtual void InitializeSystem(Scene& scene) override;
 	virtual void Update(float deltaTime) override;
 	virtual std::string GetName() override;

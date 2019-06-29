@@ -102,7 +102,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;BulletCollision_vs2010_x64_debug.lib;BulletDynamics_vs2010_x64_debug.lib;LinearMath_vs2010_x64_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -154,7 +154,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glew32.lib;glfw3.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -164,7 +164,6 @@
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CameraUIRenderSystem.cpp" />
     <ClCompile Include="CameraViewportRenderSystem.cpp" />
-    <ClCompile Include="CollisionShape.cpp" />
     <ClCompile Include="CommandBuffer.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -184,6 +183,8 @@
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="OcclusionQuery.cpp" />
+    <ClCompile Include="PhysicsRigidBodySystem.cpp" />
+    <ClCompile Include="PhysicsWorldSystem.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PixelTransferrer.cpp" />
     <ClCompile Include="PostProcessRenderSystem.cpp" />
@@ -235,7 +236,6 @@
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CameraUIRenderSystem.h" />
     <ClInclude Include="CameraViewportRenderSystem.h" />
-    <ClInclude Include="CollisionShape.h" />
     <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="export.h" />
@@ -258,6 +258,8 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="NullStreamSource.h" />
     <ClInclude Include="OcclusionQuery.h" />
+    <ClInclude Include="PhysicsRigidBodySystem.h" />
+    <ClInclude Include="PhysicsWorldSystem.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PixelTransferrer.h" />
     <ClInclude Include="PostProcessRenderSystem.h" />

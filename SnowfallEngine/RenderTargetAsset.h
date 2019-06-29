@@ -21,7 +21,7 @@ class RenderTargetAsset : public IAsset
 public:
 	SNOWFALLENGINE_API RenderTargetAsset(std::string path, std::vector<TextureAsset *> textures, std::vector<TextureAsset *> newTextures, std::vector<TextureLayerAttachment> attachments, bool deleteTex=true);
 	SNOWFALLENGINE_API RenderTargetAsset(std::string path, IAssetStreamIO *stream);
-	SNOWFALLENGINE_API ~RenderTargetAsset();
+	SNOWFALLENGINE_API virtual ~RenderTargetAsset() override;
 	virtual std::string GetPath() const override 
 	{
 		return m_path;

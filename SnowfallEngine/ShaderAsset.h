@@ -12,7 +12,7 @@ class ShaderAsset : public IAsset
 public:
 	SNOWFALLENGINE_API ShaderAsset(std::string path, std::string src);
 	SNOWFALLENGINE_API ShaderAsset(std::string path, IAssetStreamIO *stream);
-	SNOWFALLENGINE_API ~ShaderAsset();
+	SNOWFALLENGINE_API virtual ~ShaderAsset() override;
 
 	inline std::string GetSource() 
 	{

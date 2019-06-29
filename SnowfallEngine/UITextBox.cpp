@@ -80,6 +80,9 @@ void UITextBox::ScrollOnCaret()
 		m_scrollOffset = glm::min(textLength - widthThreshold, m_caretPixelPos - widthThreshold);
 	else if (m_caretPixelPos < m_scrollOffset)
 		m_scrollOffset = glm::max(0.f, m_caretPixelPos);
+
+	if (m_scrollOffset + widthThreshold > textLength)
+		m_scrollOffset = textLength - widthThreshold;
 }
 
 FontAsset *UITextBox::GetFont()
@@ -124,7 +127,16 @@ void UITextBox::RenderComponent(RenderEventArgs& args)
 	if (m_text.empty() && !IsFocused())
 		args.Renderer->RenderText(m_font, textRegion.Position + glm::vec2(0, 4), m_fontSize, glm::vec4(0.5f, 0.5f, 0.5f, 1.f), m_placeholder);
 	else
-		args.Renderer->RenderText(m_font, textRegion.Position + glm::vec2(-m_scrollOffset, 4), m_fontSize, m_fontColor, m_text);
+	{
+		float pixOffset = 0;
+
+		int pos0 = 0;
+		int len = textClip.Size.x / (0.15f * m_fontSize); // Rough but a MASSIVE optimization (render only what you see)
+
+		m_font->GetClosestSeparator(m_text, m_fontSize, m_scrollOffset - m_fontSize, pixOffset, pos0);
+
+		args.Renderer->RenderText(m_font, textRegion.Position + glm::vec2(-m_scrollOffset + pixOffset, 4), m_fontSize, m_fontColor, m_text.substr(pos0, len));
+	}
 
 	args.Renderer->PopClip();
 
@@ -133,7 +145,6 @@ void UITextBox::RenderComponent(RenderEventArgs& args)
 		m_lastBlinkTime = Snowfall::GetGameInstance().GetTime();
 		m_showCaret = !m_showCaret;
 	}
-
 
 	if (m_showCaret && IsFocused())
 		args.Renderer->RenderRectangle(Quad2D(textRegion.Position + glm::vec2(-1 - m_scrollOffset + m_caretPixelPos, 0), 
@@ -153,6 +164,14 @@ void UITextBox::OnTyping(TextEventArgs& args)
 {
 	if (args.Character < 32)
 		return;
+	if (m_selectionAnchor != m_caretPos)
+	{
+		int min = glm::min(m_caretPos, m_selectionAnchor);
+		int max = glm::max(m_caretPos, m_selectionAnchor);
+
+		m_caretPos = min;
+		m_text = m_text.substr(0, min) + (max < m_text.length() ? m_text.substr(max) : "");
+	}
 	if (m_caretPos == 0)
 		SetText(args.Character + m_text);
 	else if (m_caretPos == m_text.length())

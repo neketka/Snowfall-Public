@@ -18,7 +18,7 @@ void TestSystem::Update(float deltaTime)
 	for (TestComponent *component : m_scene->GetComponentManager().GetComponents<TestComponent>())
 	{
 		TransformComponent *tcomp = component->Owner.GetComponent<TransformComponent>();
-		tcomp->Rotation += glm::vec3(0, deltaTime * 20.f, 0);
+		tcomp->Rotation += glm::vec3(deltaTime * 200.f, 0, deltaTime * 200.f);
 	}
 }
 

@@ -15,6 +15,7 @@ AssetManager::~AssetManager()
 	for (auto asset : m_assets)
 	{
 		asset.second->Unload();
+		delete asset.second;
 	}
 }
 /*

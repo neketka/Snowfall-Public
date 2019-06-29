@@ -32,7 +32,7 @@ class FontAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API FontAsset(std::string path, IAssetStreamIO *stream);
-	SNOWFALLENGINE_API ~FontAsset();
+	SNOWFALLENGINE_API virtual ~FontAsset() override;
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
 	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;

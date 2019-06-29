@@ -6,7 +6,7 @@ class UserAsset : public IAsset
 {
 public:
 	SNOWFALLENGINE_API UserAsset(std::string path, IAssetStreamIO *stream);
-	SNOWFALLENGINE_API ~UserAsset();
+	SNOWFALLENGINE_API virtual ~UserAsset() override;
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
 	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;

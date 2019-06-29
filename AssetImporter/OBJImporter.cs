@@ -86,9 +86,12 @@ namespace AssetImporter
                     }
                 }
             }
+
             if (!normalsPresent)
                 format.CalculateNormals();
             format.CalculateTangents();
+            format.CalculateAABB();
+
             if (format.Indices.Count > 0)
                 format.Export(internalPath, targetFolder);
             reader.Close();

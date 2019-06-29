@@ -9,7 +9,7 @@ class CameraViewportRenderSystem : public ISystem
 {
 public:
 	SNOWFALLENGINE_API CameraViewportRenderSystem();
-	SNOWFALLENGINE_API ~CameraViewportRenderSystem();
+	SNOWFALLENGINE_API virtual ~CameraViewportRenderSystem() override;
 	SNOWFALLENGINE_API virtual void InitializeSystem(Scene & scene) override;
 	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;
 	SNOWFALLENGINE_API virtual std::string GetName() override;

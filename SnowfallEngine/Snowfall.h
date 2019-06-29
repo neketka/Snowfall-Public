@@ -78,6 +78,7 @@ public:
 	SNOWFALLENGINE_API void CreateViewport(int index);
 	SNOWFALLENGINE_API void SetViewportCoefficients(int index, Quad2D scale, Quad2D offset);
 	SNOWFALLENGINE_API void LoadModules(std::vector<std::string> paths);
+	SNOWFALLENGINE_API void ReloadAllModules();
 	SNOWFALLENGINE_API IQuad2D GetViewport(int index);
 
 	SNOWFALLENGINE_API void RegisterUIContext(std::string name, UIContext *context);

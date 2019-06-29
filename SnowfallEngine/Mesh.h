@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <vector>
+#include "BoundingBox.h"
 
 #include "export.h"
 
@@ -43,6 +44,7 @@ public:
 
 	SNOWFALLENGINE_API void CalculateNormals();
 	SNOWFALLENGINE_API void CalculateTangents();
+	SNOWFALLENGINE_API BoundingBox CalculateAABB();
 
 	std::vector<RenderVertex> Vertices;
 

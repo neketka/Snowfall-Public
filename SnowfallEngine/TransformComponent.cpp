@@ -39,6 +39,7 @@ void TransformRecursively(TransformComponent *component, long instant)
 		if (t->transformInstant < instant)
 			TransformRecursively(t, instant);
 		component->ModelMatrix = t->ModelMatrix * component->ModelMatrix;
+		component->parentMatrix = t->ModelMatrix;
 		component->GlobalRotation += t->Rotation;
 	}
 	component->GlobalPosition = component->ModelMatrix[3];

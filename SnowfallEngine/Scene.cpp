@@ -12,10 +12,10 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+	delete m_sManager;
 	delete m_evManager;
 	delete m_cManager;
 	delete m_eManager;
-	delete m_sManager;
 }
 
 void Scene::Update(float deltaTime)

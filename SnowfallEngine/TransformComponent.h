@@ -25,6 +25,7 @@ public:
 	glm::mat4 ModelMatrix;
 
 	long transformInstant;
+	glm::mat4 parentMatrix;
 };
 
 class SNOWFALLENGINE_API TransformSystem : public ISystem

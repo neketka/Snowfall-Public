@@ -24,7 +24,7 @@ public:
 	SNOWFALLENGINE_API virtual void SetStream(IAssetStreamIO *stream) override;
 	SNOWFALLENGINE_API MaterialAsset(std::string path, Material material);
 	SNOWFALLENGINE_API MaterialAsset(std::string path, std::vector<Sampler> sampler, std::vector<TextureAsset *> textures, std::vector<SamplerProperty> properties, Material baseProperties);
-	SNOWFALLENGINE_API ~MaterialAsset();
+	SNOWFALLENGINE_API virtual ~MaterialAsset() override;
 
 	SNOWFALLENGINE_API virtual std::string GetPath() const override;
 	SNOWFALLENGINE_API virtual void Load() override;

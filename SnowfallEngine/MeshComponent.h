@@ -60,7 +60,7 @@ class MeshRenderingSystem : public ISystem
 {
 public:
 	SNOWFALLENGINE_API MeshRenderingSystem() {}
-	SNOWFALLENGINE_API ~MeshRenderingSystem();
+	SNOWFALLENGINE_API virtual ~MeshRenderingSystem() override;
 	SNOWFALLENGINE_API virtual void InitializeSystem(Scene& scene) override;
 	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;
 	SNOWFALLENGINE_API virtual std::string GetName() override;

@@ -9,7 +9,7 @@ class SNOWFALLENGINE_API ShadowMapRenderSystem : public ISystem
 {
 public:
 	ShadowMapRenderSystem();
-	~ShadowMapRenderSystem();
+	virtual ~ShadowMapRenderSystem() override;
 
 	virtual void InitializeSystem(Scene& scene) override;
 	virtual void Update(float deltaTime) override;

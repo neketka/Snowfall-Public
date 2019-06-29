@@ -65,7 +65,15 @@ namespace AssetImporter
             {
                 writer.Write(i);
             }
-            
+
+            writer.Write(MinExtent.X);
+            writer.Write(MinExtent.Y);
+            writer.Write(MinExtent.Z);
+
+            writer.Write(MaxExtent.X);
+            writer.Write(MaxExtent.Y);
+            writer.Write(MaxExtent.Z);
+
             stream.Flush();
             stream.Close();
         }
@@ -113,8 +121,32 @@ namespace AssetImporter
             }
         }
 
+        public void CalculateAABB()
+        {
+            MinExtent = MaxExtent = Vertices[0].Position;
+            foreach (Vertex v in Vertices)
+            {
+                if (v.Position.X < MinExtent.X)
+                    MinExtent.X = v.Position.X;
+                if (v.Position.Y < MinExtent.Y)
+                    MinExtent.Y = v.Position.Y;
+                if (v.Position.Z < MinExtent.Z)
+                    MinExtent.Z = v.Position.Z;
+
+                if (v.Position.X > MaxExtent.X)
+                    MaxExtent.X = v.Position.X;
+                if (v.Position.Y > MaxExtent.Y)
+                    MaxExtent.Y = v.Position.Y;
+                if (v.Position.Z > MaxExtent.Z)
+                    MaxExtent.Z = v.Position.Z;
+            }
+        }
+
         public string ObjectName;
         public List<Vertex> Vertices;
         public List<int> Indices;
+
+        public Vector3 MinExtent;
+        public Vector3 MaxExtent;
     }
 }

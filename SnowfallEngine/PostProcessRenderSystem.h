@@ -8,7 +8,7 @@ class PostProcessRenderSystem : public ISystem
 {
 public:
 	SNOWFALLENGINE_API PostProcessRenderSystem();
-	SNOWFALLENGINE_API ~PostProcessRenderSystem();
+	SNOWFALLENGINE_API virtual ~PostProcessRenderSystem() override;
 
 	SNOWFALLENGINE_API virtual void InitializeSystem(Scene & scene) override;
 	SNOWFALLENGINE_API virtual void Update(float deltaTime) override;

@@ -8,6 +8,7 @@ class LocalAssetStream : public IAssetStreamIO
 {
 public:
 	SNOWFALLENGINE_API LocalAssetStream(std::string path);
+	SNOWFALLENGINE_API virtual ~LocalAssetStream() override {}
 	SNOWFALLENGINE_API virtual void OpenStreamRead() override;
 	SNOWFALLENGINE_API virtual void OpenStreamWrite() override;
 

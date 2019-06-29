@@ -63,6 +63,8 @@ void ShaderAsset::Load()
 
 void ShaderAsset::Unload()
 {
+	if (!m_loaded)
+		return;
 	for (auto compShader : m_compiledShaders)
 	{
 		compShader.second->Destroy();

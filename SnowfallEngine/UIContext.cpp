@@ -31,7 +31,7 @@ void UIContext::UpdateContext(UIRenderer& uiRenderer, float time, bool onlyRende
 				UIComponent *primaryHeld = m_held[static_cast<int>(m_primaryButton)];
 
 				bool compAllowed = (comp == primaryHeld) == !!primaryHeld && comp && comp->IsEnabled(); //Checks if primary is holding a component and that component is currently held in this case (non held components don't get move events)
-				bool lastAllowed = (m_lastMouseHover == primaryHeld) == !!primaryHeld && comp && comp->IsEnabled(); //Checks if primary is holding a component and that component is last held in this case
+				bool lastAllowed = (m_lastMouseHover == primaryHeld) == !!primaryHeld && m_lastMouseHover && m_lastMouseHover->IsEnabled(); //Checks if primary is holding a component and that component is last held in this case
 
 				if (comp != m_lastMouseHover)
 				{
@@ -107,6 +107,7 @@ void UIContext::UpdateContext(UIRenderer& uiRenderer, float time, bool onlyRende
 					else
 					{
 						m_lastMouseHover->MouseUp.Fire(args);
+						m_held[static_cast<int>(e.Button)] = nullptr;
 
 						if (m_doubleClickCounter == 1)
 						{

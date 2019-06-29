@@ -54,7 +54,7 @@ void MeshRenderingSystem::Update(float deltaTime)
 	for (MeshRenderComponent *render : m_scene->GetComponentManager().GetComponents<MeshRenderComponent>())
 	{
 		TransformComponent *transform = render->Owner.GetComponent<TransformComponent>();
-		if (!render->Batch)
+		if (!render->Batch && render->Mesh)
 			BatchNewObject(*render, *transform);
 	}
 	for (MeshRenderComponent *render : m_scene->GetComponentManager().GetDeadComponents<MeshRenderComponent>())

@@ -64,8 +64,10 @@ void TextRenderer::RenderTextBuffer(glm::vec2 offset, float scale, std::string t
 	const glm::vec2 arr[] = { glm::vec2(0, 0), glm::vec2(1, 0), glm::vec2(1, 1), glm::vec2(1, 1), glm::vec2(0, 1), glm::vec2(0, 0) };
 	const glm::vec2 tex[] = { glm::vec2(0, -1), glm::vec2(1, -1), glm::vec2(1, 0), glm::vec2(1, 0), glm::vec2(0, 0), glm::vec2(0, -1) };
 
-	std::vector<glm::vec4> dat;
+	std::vector<glm::vec4> dat(text.length() * 6);
+
 	float offsetX = 0;
+	int count = 0;
 	for (char c : text)
 	{
 		GlyphDescription desc = m_font->GetGlyph(c);
@@ -73,7 +75,8 @@ void TextRenderer::RenderTextBuffer(glm::vec2 offset, float scale, std::string t
 		{
 			glm::vec2 pos = arr[i] * glm::vec2(desc.CharWidth, desc.CharHeight) + glm::vec2(offsetX, 0) + glm::vec2(-desc.OffsetX, -desc.CharHeight + desc.OffsetY);
 			glm::vec2 texcoord = tex[i] * glm::vec2(desc.AtlasWidth, desc.AtlasHeight) + glm::vec2(desc.AtlasX, desc.AtlasY);
-			dat.push_back(glm::vec4(pos * scale + offset, texcoord));
+			dat[count] = glm::vec4(pos * scale + offset, texcoord);
+			++count;
 		}
 		offsetX += desc.Advance;
 	}
