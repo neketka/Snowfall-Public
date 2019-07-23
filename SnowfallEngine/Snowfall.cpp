@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <functional>
+#include "TerrainStreamingSystem.h"
 
 Snowfall *Snowfall::m_gameInstance;
 
@@ -186,11 +187,14 @@ void Snowfall::Init()
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_DEBUG_OUTPUT);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDebugMessageCallback(MessageCallback, 0);
 
+	m_workerManager = new WorkerManager(m_settings.MaxWorkerThreads);
 	m_assetManager = new AssetManager;
 	m_prototypeManager = new PrototypeManager;
-	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes / sizeof(RenderVertex));
+	m_meshManager = new MeshManager(m_settings.MaxMeshCommands, m_settings.MaxMeshMemoryBytes);
 	m_textRenderer = new TextRenderer(8192);
 	m_preprocessor = new ShaderPreprocessor(*m_assetManager);
 	m_inputManager = new InputManager(m_window);
@@ -205,6 +209,7 @@ void Snowfall::Init()
 	m_assetManager->RegisterReader(new MaterialAssetReader);
 	m_assetManager->RegisterReader(new RenderTargetAssetReader);
 	m_assetManager->RegisterReader(new FontAssetReader);
+	m_assetManager->RegisterReader(new TerrainAssetReader);
 
 	m_assetManager->AddAsset(new MeshAsset("FullScreenQuad", Mesh({
 		RenderVertex(glm::vec3(-1, -1, 1)),
@@ -214,6 +219,9 @@ void Snowfall::Init()
 	}, {
 		0, 1, 2, 2, 3, 0
 	})));
+
+	m_meshManager->AllocateGeometryBuffer<glm::vec2>(TERRAIN_BUFFER_ID, VertexArray({ BufferStructure({ Attribute(0, 0, 2, 8, true) }) }),
+		m_settings.MaxTerrainMemoryBytes * 0.5 / sizeof(glm::vec2), m_settings.MaxTerrainMemoryBytes * 0.5 / sizeof(int));
 
 	SetupDefaultPrototypes();
 }
@@ -226,6 +234,7 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<LightComponent>();
 	m_prototypeManager->AddComponentDescription<CameraUIRenderComponent>();
 	m_prototypeManager->AddComponentDescription<SkyboxComponent>();
+	m_prototypeManager->AddComponentDescription<TerrainComponent>();
 
 	m_prototypeManager->AddComponentDescription<PhysicsRigidBodyComponent>();
 	m_prototypeManager->AddComponentDescription<PhysicsBoxCollisionComponent>();
@@ -233,7 +242,6 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<PhysicsMeshCollisionComponent>();
 	m_prototypeManager->AddComponentDescription<PhysicsCylinderCollisionComponent>();
 	m_prototypeManager->AddComponentDescription<PhysicsConeCollisionComponent>();
-	m_prototypeManager->AddComponentDescription<PhysicsHeightfieldCollisionComponent>();
 
 	m_prototypeManager->AddSystemPrototype<CameraSystem>();
 	m_prototypeManager->AddSystemPrototype<CameraViewportRenderSystem>();
@@ -245,10 +253,12 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddSystemPrototype<CameraUIRenderSystem>();
 	m_prototypeManager->AddSystemPrototype<PhysicsWorldSystem>();
 	m_prototypeManager->AddSystemPrototype<PhysicsRigidBodySystem>();
+	m_prototypeManager->AddSystemPrototype<TerrainStreamingSystem>();
 }
 
 void Snowfall::DestroyManagers()
 {
+	delete m_workerManager;
 	delete m_preprocessor;
 	delete m_inputManager;
 	delete m_textRenderer;
@@ -271,10 +281,12 @@ void Snowfall::GameLoop()
 		clock_t beginTime = clock();
 		float clockDiff = static_cast<float>(beginTime - lastFrame) / CLOCKS_PER_SEC;
 
+		m_workerManager->CheckForFree();
 		m_inputManager->ClearEventQueues();
+		m_meshManager->ClearData();
+
 		glfwPollEvents(); // Check for user events
 
-		m_meshManager->ClearData();
 		m_scene->Update(clockDiff);
 
 		glfwSwapBuffers(m_window);

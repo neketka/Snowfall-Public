@@ -173,24 +173,25 @@
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="JobManager.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="LinearAllocator.cpp" />
     <ClCompile Include="LocalAssetStream.cpp" />
     <ClCompile Include="MaterialAsset.cpp" />
+    <ClCompile Include="MemoryAssetStream.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshAsset.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="OcclusionQuery.cpp" />
+    <ClCompile Include="PhysicsConstraintSystem.cpp" />
     <ClCompile Include="PhysicsRigidBodySystem.cpp" />
     <ClCompile Include="PhysicsWorldSystem.cpp" />
     <ClCompile Include="Pipeline.cpp" />
-    <ClCompile Include="PixelTransferrer.cpp" />
     <ClCompile Include="PostProcessRenderSystem.cpp" />
     <ClCompile Include="Prototype.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="RenderTargetAsset.cpp" />
+    <ClCompile Include="ResourceStreamingSystem.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -206,9 +207,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="TerrainAsset.cpp" />
+    <ClCompile Include="TerrainStreamingSystem.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
+    <ClCompile Include="TextureStreamer.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="UIButton.cpp" />
     <ClCompile Include="UICheckBox.cpp" />
@@ -228,6 +232,7 @@
     <ClCompile Include="UserAsset.cpp" />
     <ClCompile Include="UUID.cpp" />
     <ClCompile Include="VertexArray.cpp" />
+    <ClCompile Include="WorkerManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
@@ -245,12 +250,12 @@
     <ClInclude Include="GLResource.h" />
     <ClInclude Include="InputEnums.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="JobManager.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="LinearAllocator.h" />
     <ClInclude Include="LocalAssetStream.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialAsset.h" />
+    <ClInclude Include="MemoryAssetStream.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshAsset.h" />
     <ClInclude Include="MeshComponent.h" />
@@ -258,13 +263,14 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="NullStreamSource.h" />
     <ClInclude Include="OcclusionQuery.h" />
+    <ClInclude Include="PhysicsConstraintSystem.h" />
     <ClInclude Include="PhysicsRigidBodySystem.h" />
     <ClInclude Include="PhysicsWorldSystem.h" />
     <ClInclude Include="Pipeline.h" />
-    <ClInclude Include="PixelTransferrer.h" />
     <ClInclude Include="PostProcessRenderSystem.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="RenderTargetAsset.h" />
+    <ClInclude Include="ResourceStreamingSystem.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
@@ -277,9 +283,12 @@
     <ClInclude Include="Snowfall.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SubmitBuffer.h" />
+    <ClInclude Include="TerrainAsset.h" />
+    <ClInclude Include="TerrainStreamingSystem.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureAsset.h" />
+    <ClInclude Include="TextureStreamer.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="UIBorderedShader.glsl" />
     <ClInclude Include="UIButton.h" />
@@ -302,6 +311,7 @@
     <ClInclude Include="UserAsset.h" />
     <ClInclude Include="UUID.h" />
     <ClInclude Include="VertexArray.h" />
+    <ClInclude Include="WorkerManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BloomPost.glsl" />
@@ -313,10 +323,13 @@
     <None Include="Lighting.glsl" />
     <None Include="PostProcessShader.glsl" />
     <None Include="SimplePBRShader.glsl" />
+    <None Include="SimpleTerrainShader.glsl" />
     <None Include="SkyboxShader.glsl" />
     <None Include="SnowfallShader.glsl" />
+    <None Include="TerrainShader.glsl" />
     <None Include="TonemappingPost.glsl" />
     <None Include="UIRectangleShader.glsl" />
+    <None Include="Utilities.glsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DeferredLighting.glsl">

@@ -42,7 +42,9 @@ int LocalAssetStream::GetStreamPosition()
 {
 	if (reading)
 		return static_cast<int>(m_istream.tellg());
-	return static_cast<int>(m_ostream.tellp());
+	else if (writing)
+		return static_cast<int>(m_ostream.tellp());
+	return -1;
 }
 
 void LocalAssetStream::SeekStream(int position)
@@ -70,9 +72,11 @@ bool LocalAssetStream::CanWrite()
 	return true;
 }
 
-void LocalAssetStream::OpenStreamWrite()
+void LocalAssetStream::OpenStreamWrite(bool overwrite)
 {
-	m_ostream = std::ofstream(m_path, std::ostream::trunc | std::ostream::binary);
+	if (!std::filesystem::exists(m_path))
+		std::ofstream { m_path };
+	m_ostream = std::ofstream(m_path, (overwrite ? std::ostream::out : std::ostream::trunc) | std::ostream::in | std::ostream::binary);
 	m_length = 0;
 	writing = true;
 }

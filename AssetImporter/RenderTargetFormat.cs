@@ -58,8 +58,7 @@ namespace AssetImporter
 
         public void Export(string internalPath, string folder)
         {
-            string name = internalPath.Split('.').Last();
-            string file = folder + "\\" + name + ".rtasset";
+            string file = folder + "\\" + internalPath.Replace(".", "") + ".rtasset";
             if (File.Exists(file))
                 File.Delete(file);
             FileStream stream = File.Open(file, FileMode.CreateNew);

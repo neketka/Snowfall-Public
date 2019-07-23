@@ -10,7 +10,7 @@
 
 enum class BatchingType
 {
-	Static, Dynamic, Instanced
+	Dynamic, Instanced
 };
 
 class BatchState;
@@ -69,13 +69,11 @@ public:
 	SNOWFALLENGINE_API virtual bool IsMainThread() override { return true; }
 private:
 	void BatchNewObject(MeshRenderComponent& mcomp, TransformComponent& tcomp);
-	void BatchStatic(BatchState& state, MeshRenderComponent& mcomp, TransformComponent& tcomp);
 	void BatchDynamic(BatchState& state, MeshRenderComponent& mcomp, TransformComponent& tcomp, bool instanced);
 	bool CheckForRemoval(BatchState& state);
 	void UpdateDynamicBuffers(BatchState& state);
 	void UploadRenderingCommands(BatchState& state);
 
-	std::vector<BatchState *> m_staticBatches;
 	std::vector<BatchState *> m_dynamicBatches;
 	std::vector<BatchState *> m_instancedBatches;
 

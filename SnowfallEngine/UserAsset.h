@@ -1,5 +1,7 @@
 #pragma once
 #include "AssetManager.h"
+#include "MemoryAssetStream.h"
+#include <vector>
 #include "export.h"
 
 class UserAsset : public IAsset
@@ -18,6 +20,9 @@ public:
 	SNOWFALLENGINE_API void SetData(char *data, int offset, int length);
 	SNOWFALLENGINE_API char *GetData();
 
+	SNOWFALLENGINE_API IAssetStreamIO *GetMemoryStream();
+	SNOWFALLENGINE_API IAssetStreamIO *GetIOStream();
+
 	SNOWFALLENGINE_API int GetDataSize();
 	SNOWFALLENGINE_API void SetDataSize(int bytes);
 
@@ -28,5 +33,6 @@ private:
 	bool m_loaded;
 	std::string m_path;
 	IAssetStreamIO *m_stream;
+	MemoryAssetStream *m_memStream;
 };
 

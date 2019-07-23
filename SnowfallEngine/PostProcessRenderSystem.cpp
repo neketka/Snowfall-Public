@@ -20,7 +20,7 @@ void PostProcessRenderSystem::InitializeSystem(Scene& scene)
 		m_samplers[i].SetWrapMode(TextureChannel::S, WrapMode::ClampToEdge);
 		m_samplers[i].SetWrapMode(TextureChannel::T, WrapMode::ClampToEdge);
 		m_samplers[i].SetWrapMode(TextureChannel::R, WrapMode::ClampToEdge);
-		m_samplers[i].SetMinificationFilter(MinificationFilter::LinearMipmapNearest);
+		m_samplers[i].SetMinificationFilter(MinificationFilter::LinearMipmapLinear);
 		m_samplers[i].SetMagnificationFilter(MagnificationFilter::Linear);
 	}
 	m_quad = &AssetManager::LocateAssetGlobal<MeshAsset>("FullScreenQuad");

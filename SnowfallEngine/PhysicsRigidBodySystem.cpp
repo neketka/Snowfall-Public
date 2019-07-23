@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PhysicsRigidBodySystem.h"
 #include "PhysicsWorldSystem.h"
+#include "TerrainStreamingSystem.h"
 #include "MeshComponent.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "Mesh.h"
@@ -18,9 +19,12 @@ void PhysicsRigidBodySystem::Update(float deltaTime)
 {
 	for (PhysicsRigidBodyComponent *comp : m_scene->GetComponentManager().GetComponents<PhysicsRigidBodyComponent>())
 	{
-		if (!comp->rigidBody)
+		if (!comp->rigidBody || comp->Copied)
+		{
+			comp->Copied = false;
 			if (!BuildRigidbody(comp))
 				continue;
+		}
 
 		TransformComponent *transformComp = comp->Owner.GetComponent<TransformComponent>();
 
@@ -32,15 +36,23 @@ void PhysicsRigidBodySystem::Update(float deltaTime)
 		comp->rigidBody->getCollisionShape()->setLocalScaling(scale);
 		comp->rigidBody->setDamping(comp->LinearDamping, comp->AngularDamping);
 		comp->rigidBody->setLinearVelocity(btVector3(comp->LinearVelocity.x, comp->LinearVelocity.y, comp->LinearVelocity.z));
-		comp->rigidBody->setAngularVelocity(btVector3(comp->AngularVelocity.x, comp->AngularVelocity.y, comp->AngularVelocity.z));
+		comp->rigidBody->setAngularVelocity(btVector3(comp->AngularVelocity.y, comp->AngularVelocity.x, comp->AngularVelocity.z));
 		comp->rigidBody->setRollingFriction(comp->RollingFriction);
 		comp->rigidBody->setFriction(comp->Friction);
 		comp->rigidBody->setRestitution(comp->Restitution);
 		comp->rigidBody->setLinearFactor(btVector3(comp->LinearFactor.x, comp->LinearFactor.y, comp->LinearFactor.z));
 		comp->rigidBody->setAngularFactor(btVector3(comp->AngularFactor.x, comp->AngularFactor.y, comp->AngularFactor.z));
 
+		if (comp->Sleeping != comp->rigidBody->wantsSleeping())
+		{
+			if (comp->Sleeping)
+				comp->rigidBody->setActivationState(WANTS_DEACTIVATION);
+			else
+				comp->rigidBody->activate();
+		}
+
 		glm::mat4 transf = glm::scale(comp->ShapeTransform * transformComp->ModelMatrix, glm::vec3(1.f / scale.x(), 1.f / scale.y(), 1.f / scale.z()));
-		
+
 		btTransform trans;
 		trans.setFromOpenGLMatrix(reinterpret_cast<btScalar *>(&transf));
 	
@@ -111,7 +123,7 @@ bool PhysicsRigidBodySystem::BuildRigidbody(PhysicsRigidBodyComponent *comp)
 		cone = comp->Owner.GetComponent<PhysicsConeCollisionComponent>();
 		if (!cone)
 			return false;
-		shape = new btConeShape(cone->Radius, cone->Height);
+		cone->shape = shape = new btConeShape(cone->Radius, cone->Height);
 		break;
 	case CollisionShapeType::Cylindrical:
 		cylinder = comp->Owner.GetComponent<PhysicsCylinderCollisionComponent>();
@@ -121,8 +133,6 @@ bool PhysicsRigidBodySystem::BuildRigidbody(PhysicsRigidBodyComponent *comp)
 			cylinder->shape = shape = new btCapsuleShape(cylinder->Radius, cylinder->Height);
 		else
 			cylinder->shape = shape = new btCylinderShape(btVector3(cylinder->Height, cylinder->Radius, cylinder->Radius));
-		break;
-	case CollisionShapeType::Heightfield:
 		break;
 	case CollisionShapeType::Mesh:
 		mesh = comp->Owner.GetComponent<PhysicsMeshCollisionComponent>();
@@ -177,6 +187,23 @@ bool PhysicsRigidBodySystem::BuildRigidbody(PhysicsRigidBodyComponent *comp)
 	return true;
 }
 
+glm::vec3 Quat2ZXY(btQuaternion q)
+{
+	q = q.normalize();
+
+	float r11 = -2 * (q.x() * q.y() - q.w() * q.z());
+	float r12 = q.w() * q.w() - q.x() * q.x() + q.y() * q.y() - q.z() * q.z();
+	float r21 = 2 * (q.y() * q.z() + q.w() * q.x());
+	float r31 = -2 * (q.x() * q.z() - q.w() * q.y());
+	float r32 = q.w() * q.w() - q.x() * q.x() - q.y() * q.y() + q.z() * q.z();
+
+	float a = std::atan2f(r31, r32); // z
+	float b = std::asinf(r21); // x
+	float c = std::atan2f(r11, r12); // y
+	
+	return glm::vec3(b, a, c);
+}
+
 void PhysicsRigidBodySystem::UpdateRigidbodiesTransform()
 {
 	for (PhysicsRigidBodyComponent *comp : m_scene->GetComponentManager().GetComponents<PhysicsRigidBodyComponent>())
@@ -184,6 +211,8 @@ void PhysicsRigidBodySystem::UpdateRigidbodiesTransform()
 		if (comp->rigidBody)
 		{
 			TransformComponent *transformComp = comp->Owner.GetComponent<TransformComponent>();
+
+			comp->Sleeping = comp->rigidBody->wantsSleeping();
 
 			btVector3 lvel = comp->rigidBody->getLinearVelocity();
 			btVector3 avel = comp->rigidBody->getAngularVelocity();
@@ -205,12 +234,13 @@ void PhysicsRigidBodySystem::UpdateRigidbodiesTransform()
 
 			trans.getOpenGLMatrix(reinterpret_cast<btScalar *>(&transformComp->ModelMatrix));
 			transformComp->ModelMatrix = glm::scale(transformComp->ModelMatrix, scale);
-			trans.getRotation().getEulerZYX(transformComp->GlobalRotation.z, transformComp->GlobalRotation.y, transformComp->GlobalRotation.x);
+			transformComp->GlobalRotation = Quat2ZXY(trans.getRotation());
 			transformComp->GlobalPosition = glm::vec3(org.x(), org.y(), org.z());
 
 			transformComp->GlobalDirection = -glm::vec3(transformComp->ModelMatrix[0][2], transformComp->ModelMatrix[1][2], transformComp->ModelMatrix[2][2]);
+
 			comp->LinearVelocity = glm::vec3(lvel.x(), lvel.y(), lvel.z());
-			comp->AngularVelocity = glm::vec3(avel.x(), avel.y(), avel.z());
+			comp->AngularVelocity = glm::vec3(avel.y(), avel.x(), avel.z());
 
 			glm::mat4 t = glm::inverse(transformComp->parentMatrix);
 
@@ -218,9 +248,9 @@ void PhysicsRigidBodySystem::UpdateRigidbodiesTransform()
 			local.setFromOpenGLMatrix(reinterpret_cast<btScalar *>(&t));
 			local.mult(trans, local);
 			org = local.getOrigin();
-			local.getRotation().getEulerZYX(transformComp->Rotation.z, transformComp->Rotation.y, transformComp->Rotation.x);
-			transformComp->GlobalRotation *= 180.f / 3.14159265f;
-			transformComp->Rotation *= 180.f / 3.14159265f;
+			transformComp->Rotation = Quat2ZXY(local.getRotation());
+			transformComp->GlobalRotation *= 180.f / SIMD_PI;
+			transformComp->Rotation *= 180.f / SIMD_PI;
 			transformComp->Position = glm::vec3(org.x(), org.y(), org.z());
 		}
 	}
@@ -320,12 +350,5 @@ std::vector<SerializationField> ComponentDescriptor<PhysicsConeCollisionComponen
 	return {
 		SerializationField("Height", SerializationType::ByValue, offsetof(PhysicsConeCollisionComponent, Height), sizeof(float), InterpretValueAs::Float32),
 		SerializationField("Radius", SerializationType::ByValue, offsetof(PhysicsConeCollisionComponent, Radius), sizeof(float), InterpretValueAs::Float32),
-	};
-}
-
-std::vector<SerializationField> ComponentDescriptor<PhysicsHeightfieldCollisionComponent>::GetSerializationFields()
-{
-	return {
-
 	};
 }

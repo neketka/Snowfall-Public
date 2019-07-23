@@ -19,10 +19,6 @@ std::vector<SerializationField> ComponentDescriptor<MeshRenderComponent>::GetSer
 
 MeshRenderingSystem::~MeshRenderingSystem()
 {
-	for (BatchState *state : m_staticBatches)
-	{
-		delete state;
-	}
 	for (BatchState *state : m_dynamicBatches)
 	{
 		delete state;
@@ -54,18 +50,17 @@ void MeshRenderingSystem::Update(float deltaTime)
 	for (MeshRenderComponent *render : m_scene->GetComponentManager().GetComponents<MeshRenderComponent>())
 	{
 		TransformComponent *transform = render->Owner.GetComponent<TransformComponent>();
-		if (!render->Batch && render->Mesh)
+		if ((!render->Batch || render->Copied) && render->Mesh)
+		{
+			render->Copied = false;
+			render->Batch = nullptr;
 			BatchNewObject(*render, *transform);
+		}
 	}
 	for (MeshRenderComponent *render : m_scene->GetComponentManager().GetDeadComponents<MeshRenderComponent>())
 	{
 		if (render->Batch) 
 			render->Batch->Handles[render->MemberIndex].Remove = true;
-	}
-	for (BatchState *state : m_staticBatches)
-	{
-		CheckForRemoval(*state); //TODO: Remove batch if empty
-		UploadRenderingCommands(*state);
 	}
 	for (BatchState *state : m_dynamicBatches)
 	{
@@ -99,94 +94,29 @@ std::vector<std::string> MeshRenderingSystem::GetSystemsAfter()
 void MeshRenderingSystem::BatchNewObject(MeshRenderComponent& mcomp, TransformComponent& tcomp)
 {
 	bool foundBatch = false;
-	switch (mcomp.BatchingType)
+
+	bool instanced = mcomp.BatchingType == BatchingType::Instanced;
+	std::vector<BatchState *>& batches = instanced ? m_instancedBatches : m_dynamicBatches;
+
+	for (BatchState *statePtr : batches)
 	{
-	case BatchingType::Static:
-		for (BatchState *statePtr : m_staticBatches)
+		BatchState& state = *statePtr;
+		if (instanced ? state.Mesh != mcomp.Mesh : false)
+			continue;
+		if (mcomp.SoleBatch)
+			break;
+		if (!state.SoleBatch && state.LayerMask == mcomp.LayerMask && state.Material == mcomp.Material)
 		{
-			BatchState& state = *statePtr;
-			if (mcomp.SoleBatch)
-				break;
-			if (!state.SoleBatch && state.LayerMask == mcomp.LayerMask && state.Material == mcomp.Material)
-			{
-				foundBatch = true;
-				BatchStatic(state, mcomp, tcomp);
-				break;
-			}
+			foundBatch = true;
+			BatchDynamic(state, mcomp, tcomp, instanced);
+			break;
 		}
-		if (!foundBatch)
-		{
-			m_staticBatches.push_back(new BatchState);
-			BatchStatic(*m_staticBatches.back(), mcomp, tcomp);
-		}
-		break;
-	case BatchingType::Dynamic:
-		for (BatchState *statePtr : m_dynamicBatches)
-		{
-			BatchState& state = *statePtr;
-			if (mcomp.SoleBatch)
-				break;
-			if (!state.SoleBatch && state.LayerMask == mcomp.LayerMask && state.Material == mcomp.Material)
-			{
-				foundBatch = true;
-				BatchDynamic(state, mcomp, tcomp, false);
-				break;
-			}
-		}
-		if (!foundBatch)
-		{
-			m_dynamicBatches.push_back(new BatchState);
-			BatchDynamic(*m_dynamicBatches.back(), mcomp, tcomp, false);
-		}
-		break;
-	case BatchingType::Instanced:
-		for (BatchState *statePtr : m_instancedBatches)
-		{
-			BatchState& state = *statePtr;
-			if (mcomp.SoleBatch)
-				break;
-			if (!state.SoleBatch && state.LayerMask == mcomp.LayerMask && state.Material == mcomp.Material && state.Mesh == mcomp.Mesh)
-			{
-				foundBatch = true;
-				BatchDynamic(state, mcomp, tcomp, true);
-				break;
-			}
-		}
-		if (!foundBatch)
-		{
-			m_instancedBatches.push_back(new BatchState);
-			BatchDynamic(*m_instancedBatches.back(), mcomp, tcomp, true);
-		}
-		break;
 	}
-}
-
-void MeshRenderingSystem::BatchStatic(BatchState& state, MeshRenderComponent& mcomp, TransformComponent& tcomp)
-{
-	Mesh& mesh = mcomp.Mesh->GetMesh();
-	GeometryHandle handle = Snowfall::GetGameInstance().GetMeshManager().CreateGeometry(mesh.Vertices.size(), mesh.Indices.size());
-	state.Handles.push_back(BatchMember());
-	state.BatchType = BatchingType::Static;
-	state.LayerMask = mcomp.LayerMask;
-	state.SoleBatch = mcomp.SoleBatch;
-	state.Material = mcomp.Material;
-
-	state.StateChange.LayerMask = state.LayerMask;
-	state.ShaderSpecialization = { "STATIC" };
-	state.StateChange.Type = PrimitiveType::Triangles;
-	state.StateChange.InstanceCount = 1;
-
-	BatchMember& member = state.Handles.back();
-	member.Geometry = handle;
-	member.Component = &mcomp;
-	mcomp.MemberIndex = static_cast<int>(state.Handles.size()) - 1;
-	mcomp.Batch = &state;
-	
-	std::vector<RenderVertex> vertices(mesh.Vertices);
-	transformVertices(vertices, tcomp.ModelMatrix);
-
-	Snowfall::GetGameInstance().GetMeshManager().WriteGeometryVertices(handle, vertices.data(), 0, vertices.size());
-	Snowfall::GetGameInstance().GetMeshManager().WriteGeometryIndices(handle, mesh.Indices.data(), 0, mesh.Indices.size());
+	if (!foundBatch)
+	{
+		batches.push_back(new BatchState);
+		BatchDynamic(*batches.back(), mcomp, tcomp, instanced);
+	}
 }
 
 void MeshRenderingSystem::BatchDynamic(BatchState& state, MeshRenderComponent& mcomp, TransformComponent& tcomp, bool instanced)
@@ -263,8 +193,8 @@ void MeshRenderingSystem::UpdateDynamicBuffers(BatchState& state)
 	{
 		state.TransformBuffer.Destroy();
 		state.ObjectParameterBuffer.Destroy();
-		state.TransformBuffer = Buffer<glm::mat4>(matrices.size() * sizeof(glm::mat4), BufferOptions(false, false, false, false, true, false));
-		state.ObjectParameterBuffer = Buffer<glm::vec4>(params.size() * sizeof(glm::vec4), BufferOptions(false, false, false, false, true, false));
+		state.TransformBuffer = Buffer<glm::mat4>(matrices.size(), BufferOptions(false, false, false, false, true, false));
+		state.ObjectParameterBuffer = Buffer<glm::vec4>(params.size(), BufferOptions(false, false, false, false, true, false));
 	}
 	state.StateChange.Descriptor = ShaderDescriptor();
 

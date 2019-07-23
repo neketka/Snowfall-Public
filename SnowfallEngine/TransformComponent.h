@@ -38,7 +38,12 @@ public:
 	virtual std::vector<std::string> GetSystemsBefore() override;
 	virtual std::vector<std::string> GetSystemsAfter() override;
 	virtual bool IsMainThread() override { return true; }
+
+	void RebaseOrigin(glm::vec3 origin);
+	glm::vec3 GetRebaseOrigin();
 private:
+	glm::vec3 m_rebaseDiff;
+	glm::vec3 m_rebaseOrigin;
 	Scene *m_scene = nullptr;
 	long m_transformInstant = -1;
 };

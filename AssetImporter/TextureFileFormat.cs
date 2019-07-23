@@ -54,7 +54,7 @@ namespace AssetImporter
 
         public void Export(string internalPath, string folder)
         {
-            string file = folder + "\\" + internalPath.Split('.').Last() + ".tasset";
+            string file = folder + "\\" + internalPath.Replace(".", "") + ".tasset";
             if (File.Exists(file))
                 File.Delete(file);
             FileStream stream = File.Open(file, FileMode.CreateNew);

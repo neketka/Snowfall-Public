@@ -59,7 +59,7 @@ void UIButton::RenderComponent(RenderEventArgs& args)
 		: m_clicking ? glm::vec4(0.7f, 0.7f, 0.7f, 1) : glm::vec4(1, 1, 1, 1);
 	args.Renderer->RenderRectangle(GetBounds().RelativeRegion, borderColor, fillColor, borderThickness, true);
 
-	float halfHeight = m_fontSize / 2.f;
+	float halfHeight = m_fontSize / 2.f - 2;
 	float halfWidth = m_font->GetTextLength(m_text, m_fontSize) / 2.f;
 
 	args.Renderer->RenderText(m_font, GetBounds().RelativeRegion.GetCenter() - glm::vec2(halfWidth, halfHeight), m_fontSize, m_fontColor, m_text);

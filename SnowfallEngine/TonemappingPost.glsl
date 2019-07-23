@@ -36,7 +36,7 @@ void main()
 
 	vec4 sampled = Snowfall_GetColor();
 
-	vec3 color = tonemapReinhard(sampled.xyz * exposure);
+	vec3 color = acesFilm(sampled.xyz * exposure);
 
 	Snowfall_SetColor(vec4(color, sampled.a));
 }

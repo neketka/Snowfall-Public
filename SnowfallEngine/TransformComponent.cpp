@@ -23,13 +23,14 @@ void TransformSystem::InitializeSystem(Scene& scene)
 glm::mat4 CreateTransform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 {
 	return glm::translate(pos) * glm::rotate(glm::radians(rot.z), glm::vec3(0, 0, 1)) *
-		glm::rotate(glm::radians(rot.x), glm::vec3(1, 0, 0)) * glm::rotate(glm::radians(rot.y), glm::vec3(0, 1, 0)) * glm::scale(scale);;
+		glm::rotate(glm::radians(rot.x), glm::vec3(1, 0, 0)) * glm::rotate(glm::radians(rot.y), glm::vec3(0, 1, 0)) * glm::scale(scale);
 }
 
-void TransformRecursively(TransformComponent *component, long instant)
+void TransformRecursively(TransformComponent *component, glm::vec3 origin, long instant)
 {
-	if (component->transformInstant == instant || !(component->Enabled || (component->transformInstant != 0)))
+	if (component->transformInstant == instant || !(component->Enabled || component->transformInstant == 0))
 		return;
+	component->Position -= origin;
 	component->ModelMatrix = CreateTransform(component->Position, component->Rotation, component->Scale);
 	component->transformInstant = instant;
 	component->GlobalRotation = component->Rotation;
@@ -37,12 +38,12 @@ void TransformRecursively(TransformComponent *component, long instant)
 	{
 		TransformComponent *t = component->Parent.GetComponent<TransformComponent>();
 		if (t->transformInstant < instant)
-			TransformRecursively(t, instant);
+			TransformRecursively(t, origin, instant);
 		component->ModelMatrix = t->ModelMatrix * component->ModelMatrix;
 		component->parentMatrix = t->ModelMatrix;
 		component->GlobalRotation += t->Rotation;
 	}
-	component->GlobalPosition = component->ModelMatrix[3];
+	component->GlobalPosition = glm::vec3(component->ModelMatrix[3]);
 	component->GlobalDirection = -glm::vec3(component->ModelMatrix[0][2], component->ModelMatrix[1][2], component->ModelMatrix[2][2]);
 }
 
@@ -50,7 +51,8 @@ void TransformSystem::Update(float deltaTime)
 {
 	for (TransformComponent *transformComp : m_scene->GetComponentManager().GetComponents<TransformComponent>())
 	{
-		TransformRecursively(transformComp, m_transformInstant);
+		TransformRecursively(transformComp, m_rebaseDiff, m_transformInstant);
+		m_rebaseDiff = glm::vec3(0);
 	}
 	++m_transformInstant;
 }
@@ -68,4 +70,15 @@ std::vector<std::string> TransformSystem::GetSystemsBefore()
 std::vector<std::string> TransformSystem::GetSystemsAfter()
 {
 	return {};
+}
+
+void TransformSystem::RebaseOrigin(glm::vec3 origin)
+{
+	m_rebaseDiff = origin - m_rebaseOrigin;
+	m_rebaseOrigin = origin;
+}
+
+glm::vec3 TransformSystem::GetRebaseOrigin()
+{
+	return m_rebaseOrigin;
 }

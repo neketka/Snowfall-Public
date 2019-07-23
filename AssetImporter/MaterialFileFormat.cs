@@ -65,8 +65,7 @@ namespace AssetImporter
 
         public void Export(string internalPath, string folder)
         {
-            string name = internalPath.Split('.').Last();
-            string file = folder + "\\" + name + ".mtasset";
+            string file = folder + "\\" + internalPath.Replace(".", "") + ".mtasset";
             if (File.Exists(file))
                 File.Delete(file);
             FileStream stream = File.Open(file, FileMode.CreateNew);

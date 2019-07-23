@@ -179,7 +179,7 @@ void MaterialAsset::Export()
 {
 	if (m_stream)
 	{
-		m_stream->OpenStreamWrite();
+		m_stream->OpenStreamWrite(false);
 		auto consts = m_baseProperties.Constants;
 		
 		m_stream->WriteString(m_path);

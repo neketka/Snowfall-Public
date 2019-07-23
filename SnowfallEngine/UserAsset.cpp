@@ -6,6 +6,7 @@ UserAsset::UserAsset(std::string path, IAssetStreamIO *stream)
 {
 	m_path = path;
 	m_stream = stream;
+	m_memStream = new MemoryAssetStream(m_data);
 }
 
 UserAsset::~UserAsset()
@@ -13,6 +14,7 @@ UserAsset::~UserAsset()
 	//Dispose of resource
 	if (m_stream)
 		delete m_stream;
+	delete m_memStream;
 }
 
 std::string UserAsset::GetPath() const
@@ -41,7 +43,7 @@ void UserAsset::Load()
 
 void UserAsset::Unload()
 {
-	m_data.clear();
+	m_data.resize(0);
 }
 
 bool UserAsset::IsReady()
@@ -56,7 +58,8 @@ bool UserAsset::IsValid()
 
 void UserAsset::SetData(char *data, int offset, int length)
 {
-	memcpy(m_data.data(), data, length);
+	m_memStream->SeekStream(offset);
+	m_memStream->WriteStreamBytes(data, length);
 }
 
 int UserAsset::GetDataSize()
@@ -72,6 +75,16 @@ void UserAsset::SetDataSize(int bytes)
 char *UserAsset::GetData()
 {
 	return m_data.data();
+}
+
+IAssetStreamIO *UserAsset::GetMemoryStream()
+{
+	return m_memStream;
+}
+
+IAssetStreamIO *UserAsset::GetIOStream()
+{
+	return m_stream;
 }
 
 IAsset *UserAsset::CreateCopy(std::string newPath)

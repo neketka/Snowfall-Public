@@ -5,6 +5,7 @@
 #include <MeshComponent.h>
 #include <Snowfall.h>
 #include <InputManager.h>
+#include <PhysicsRigidBodySystem.h>
 
 std::vector<SerializationField> ComponentDescriptor<CameraFlyComponent>::GetSerializationFields()
 {
@@ -22,11 +23,13 @@ void CameraFlySystem::Update(float deltaTime)
 	static bool clicked = false;
 	static bool locked = false;
 	static float sens = 0.1f;
-	static float speed = 2.0f;
+	static float speed = 10.0f;
 
 	for (CameraFlyComponent *comp : m_scene->GetComponentManager().GetComponents<CameraFlyComponent>())
 	{
+		comp->Owner.GetComponent<PhysicsRigidBodyComponent>()->Sleeping = false;
 		TransformComponent *transform = comp->Owner.GetComponent<TransformComponent>();
+
 		if (Snowfall::GetGameInstance().GetInputManager().IsButtonDown(MouseButton::BUTTON_RIGHT))
 		{
 			if (!clicked)

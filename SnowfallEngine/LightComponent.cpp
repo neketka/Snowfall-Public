@@ -60,6 +60,7 @@ void LightSystem::InitializeSystem(Scene& scene)
 void LightSystem::Update(float deltaTime)
 {
 	std::vector<LightStruct> lights;
+	glm::vec3 origin = m_scene->GetSystemManager().GetSystem<TransformSystem>()->GetRebaseOrigin();
 	for (LightComponent *comp : m_scene->GetComponentManager().GetComponents<LightComponent>())
 	{
 		if (!comp->Enabled)
@@ -67,7 +68,7 @@ void LightSystem::Update(float deltaTime)
 		TransformComponent *tcomp = comp->Owner.GetComponent<TransformComponent>();
 		LightStruct sct;
 		sct.Type = static_cast<int>(comp->Type);
-		sct.Position = glm::vec4(tcomp->GlobalPosition, std::cosf(glm::radians(comp->InnerCutoff)));
+		sct.Position = glm::vec4(tcomp->GlobalPosition - origin, std::cosf(glm::radians(comp->InnerCutoff)));
 		sct.Direction = glm::vec4(tcomp->GlobalDirection, std::cosf(glm::radians(comp->OuterCutoff)));
 		sct.Range = comp->Range;
 		sct.RangeCutoff = comp->RangeCutoff;

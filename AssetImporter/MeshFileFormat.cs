@@ -86,10 +86,10 @@ namespace AssetImporter
                 Vertex v2 = Vertices[Indices[i + 1]];
                 Vertex v3 = Vertices[Indices[i + 2]];
 
-                Vector3 normal = Vector3.Cross(v2.Position - v1.Position, v3.Position - v2.Position);
-                v1.Normal = normal;
-                v2.Normal = normal;
-                v3.Normal = normal;
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(v2.Position - v1.Position, v3.Position - v2.Position));
+                v1.Normal += normal;
+                v2.Normal += normal;
+                v3.Normal += normal;
             }
             foreach (Vertex v in Vertices)
                 v.Normal = Vector3.Normalize(v.Normal);

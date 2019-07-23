@@ -4,54 +4,43 @@
 
 MeshManager::MeshManager(int indirectCommands, int meshBufferVertexCount)
 	: m_indirect(indirectCommands, BufferOptions(false, false, false, false, true, false)),
-	m_indirectAtomicCounter(1, BufferOptions(true, true, true, true, true, false)),
-	m_vertexData(meshBufferVertexCount),
-	m_indices(meshBufferVertexCount * 1.1f)
+	m_indirectAtomicCounter(1, BufferOptions(true, true, true, true, true, false))
 {
-	m_defaultArray = VertexArray({ BufferStructure({
+
+	AllocateGeometryBuffer<RenderVertex>(0, VertexArray({ BufferStructure({
 		Attribute(0, 0, 3, 12, true), //Pos
 		Attribute(1, 12, 4, 16, true), //Color
 		Attribute(2, 28, 3, 12, true), //Normal
 		Attribute(3, 40, 3, 12, true), //Tangent
 		Attribute(4, 52, 2, 8, true), //UV
-	}) });
+	}) }), meshBufferVertexCount * 0.5 / sizeof(RenderVertex), meshBufferVertexCount * 0.5 / sizeof(int));
 
 	m_indirectAtomicCounter.MapBuffer(0, 2, MappingOptions(true, true, true, true, false, false, false, true));
-
-	m_defaultArray.SetBuffer(0, m_vertexData.GetBuffer());
-	m_defaultArray.SetIndexBuffer(m_indices.GetBuffer());
 }
 
 MeshManager::~MeshManager()
 {
 	m_indirect.Destroy();
 	m_indirectAtomicCounter.Destroy();
-	m_vertexData.Destroy();
-	m_indices.Destroy();
+	for (auto kp : m_geometryBuffers)
+		delete kp.second;
 }
 
-GeometryHandle MeshManager::CreateGeometry(int vlength, int ilength)
+GeometryHandle MeshManager::CreateGeometry(int vlength, int ilength, int buffer)
 {
-	GeometryHandle handle;
-	handle.VertexAlloc = m_vertexData.Allocate(vlength);
-	handle.IndexAlloc = m_indices.Allocate(ilength);
+	GeometryHandle handle = m_geometryBuffers[buffer]->CreateGeometry(vlength, ilength);
+	handle.Buffer = buffer;
 	return handle;
-}
-
-void MeshManager::WriteGeometryVertices(GeometryHandle handle, RenderVertex *data, int offset, int size)
-{
-	m_vertexData.UploadData(handle.VertexAlloc, data, offset, size);
 }
 
 void MeshManager::WriteGeometryIndices(GeometryHandle handle, int *data, int offset, int size)
 {
-	m_indices.UploadData(handle.IndexAlloc, data, offset, size);
+	m_geometryBuffers[handle.Buffer]->WriteGeometryIndices(handle, data, offset, size);
 }
 
 void MeshManager::EraseGeometry(GeometryHandle handle)
 {
-	m_vertexData.Release(handle.VertexAlloc);
-	m_indices.Release(handle.IndexAlloc);
+	m_geometryBuffers[handle.Buffer]->EraseGeometry(handle);
 }
 
 void MeshManager::ClearData()
@@ -63,7 +52,7 @@ void MeshManager::ClearData()
 
 void MeshManager::WriteIndirectCommandsToCullingPass(std::vector<GeometryHandle>& geometry, std::vector<BoundingBox>& boundingBoxes, RendererStateChange& state)
 {
-	state.Count = geometry.size();
+	state.ObjectCount = geometry.size();
 	m_cullingGeometry.insert(m_cullingGeometry.end(), geometry.begin(), geometry.end());
 	m_cullingBoxes.insert(m_cullingBoxes.end(), boundingBoxes.begin(), boundingBoxes.end());
 	m_stateChanges.push_back(state);
@@ -79,7 +68,7 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 	for (RendererStateChange& change : m_stateChanges)
 	{
 		int objectsPassed = 0;
-		for (int i = 0; i < change.Count; ++i)
+		for (int i = 0; i < change.ObjectCount; ++i)
 		{
 			GeometryHandle handle = m_cullingGeometry[i + current];
 			BoundingBox box = m_cullingBoxes[i + current];
@@ -95,10 +84,10 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 				commands.push_back(command);
 			}
 		}
-		change.IndirectOffset = passed;
-		change.IndirectLength = objectsPassed;
+		change.indirectOffset = passed;
+		change.indirectLength = objectsPassed;
 
-		current += change.Count;
+		current += change.ObjectCount;
 		passed += objectsPassed;
 	}
 	m_indirect.CopyData(commands, 0);
@@ -107,9 +96,9 @@ void MeshManager::RunCullingPass(std::vector<Frustum> frusta)
 
 void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& constants, ShaderDescriptor& descriptor, LayerMask mask, std::set<std::string> specializations, bool overrideShader, bool overrideConstants)
 {
-	p.VertexStage.VertexArray = m_defaultArray;
 	for (RendererStateChange& change : m_stateChanges)
 	{
+		p.VertexStage.VertexArray = m_geometryBuffers[change.GeometryBuffer]->GetVertexArray();
 		if (!(mask & change.LayerMask))
 			continue;
 		std::set spec = std::set(change.Specializations);
@@ -127,7 +116,7 @@ void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& con
 		buffer.BindDescriptorCommand(change.Descriptor);
 
 		buffer.BindIndirectCommandBufferCommand(m_indirect);
-		buffer.DrawIndexedIndirectCommand(change.Type, change.IndirectOffset * sizeof(DrawElementsIndirectCommand), change.IndirectLength, 0);
+		buffer.DrawIndexedIndirectCommand(change.Type, change.indirectOffset * sizeof(DrawElementsIndirectCommand), change.indirectLength, 0);
 	}
 }
 

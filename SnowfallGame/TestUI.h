@@ -14,6 +14,8 @@ public:
 	TestUI();
 private:
 	void RenderTest(RenderEventArgs& args);
+	void Send(EventArgs& args);
 
+	UIButton *m_send;
 	UIComponent *m_root;
 };

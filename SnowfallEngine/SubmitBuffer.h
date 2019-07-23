@@ -33,6 +33,11 @@ public:
 		m_allocator.Deallocate(alloc);
 	}
 
+	float GetAllocatedPercentage()
+	{
+		return static_cast<float>(m_allocator.GetUsedMemory()) / static_cast<float>(m_allocator.GetMaxMemory());
+	}
+
 	inline Buffer<T> GetBuffer() { return m_buffer; }
 private:
 	LinearAllocator m_allocator;

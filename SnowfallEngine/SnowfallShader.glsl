@@ -6,13 +6,19 @@
 #include "Lighting"
 #include "DeferredLighting"
 
+void MaterialProps(inout Material mat, PerVertexData data);
+
 #ifdef VERTEX
+
+#ifndef OVERRIDE_ATTRIBUTES
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
 layout(location = 2) in vec3 Normal;
 layout(location = 3) in vec3 Tangent;
 layout(location = 4) in vec2 Texcoord;
+
+#endif
 
 #ifndef SHADOWPASS
 
@@ -24,13 +30,16 @@ layout(location = 4) out vec2 out_Texcoord;
 layout(location = 5) out int out_ObjectId;
 layout(location = 6) out int out_ParamCount;
 layout(location = 7) out float out_Time;
+layout(location = 8) out vec4 out_VertexColor;
 
 #endif
 
 layout(location = 0) uniform mat4 ProjectionMatrix;
 layout(location = 1) uniform mat4 ViewMatrix;
+
 layout(location = 2) uniform int ParamCount;
 layout(location = 3) uniform int ObjectIdOffset;
+
 layout(location = 15) uniform float Time;
 
 layout(std430, binding = 0) buffer DynamicTransformBuffer
@@ -76,10 +85,25 @@ mat4 Snowfall_GetWorldMatrix()
 	return TransformMatrices[Snowfall_GetObjectID() * 2];
 }
 
+#ifdef VERTEX_MATERIAL
+layout(location = 4) uniform vec3 CamPos;
+
+vec3 Snowfall_GetCameraPosition()
+{
+	return CamPos;
+}
+#endif
+
+#ifndef VERTEX_MATERIAL
+layout(location = 4) uniform vec3 CamPos;
+#endif
+
 mat4 Snowfall_GetNormalMatrix()
 {
 	return TransformMatrices[Snowfall_GetObjectID() * 2 + 1];
 }
+
+#ifndef OVERRIDE_ATTRIBUTES
 
 vec3 Snowfall_GetWorldSpacePosition()
 {
@@ -118,10 +142,41 @@ vec2 Snowfall_GetTexcoord()
 	return Texcoord;
 }
 
+#endif
+
 vec4 Snowfall_WorldToClipSpace(vec3 worldSpace)
 {
 	return ProjectionMatrix * ViewMatrix * vec4(worldSpace, 1);
 }
+
+#if defined(VERTEX_MATERIAL) && !defined(SHADOWPASS)
+
+#define MATERIAL
+
+void PerformVertexLighting()
+{
+	Material mat;
+	PerVertexData data;
+
+	data.PixelPosition = out_Position;
+	data.CameraPosition = Snowfall_GetCameraPosition();
+	data.TBNMatrix = mat3(out_Normal, out_Tangent, cross(out_Normal, out_Tangent));
+	data.Texcoord = out_Texcoord;
+	data.Normal = out_Normal;
+	data.Color = out_Color;
+
+	MaterialProps(mat, data);
+
+	out_VertexColor = vec4(Snowfall_GetMaterialResult(mat, data), 1);
+}
+
+#else
+
+void PerformVertexLighting()
+{
+}
+
+#endif
 
 void Snowfall_SetOutputData(VertexOutputData oData)
 {
@@ -135,6 +190,8 @@ void Snowfall_SetOutputData(VertexOutputData oData)
 	out_ObjectId = Snowfall_GetObjectID();
 	out_ParamCount = ParamCount;
 	out_Time = Snowfall_GetTime();
+	out_VertexColor = vec4(0);
+	PerformVertexLighting();
 #else
 	gl_Position = vec4(oData.Position, 1.0);
 #endif
@@ -183,6 +240,7 @@ layout(location = 4) in vec2 in_Texcoord[];
 layout(location = 5) in int in_ObjectId[];
 layout(location = 6) in int in_ParamCount[];
 layout(location = 7) in float in_Time[];
+layout(location = 8) in vec4 in_VertexColor[];
 
 layout(location = 0) out vec3 out_Position;
 layout(location = 1) out vec4 out_Color;
@@ -192,6 +250,7 @@ layout(location = 4) out vec2 out_Texcoord;
 layout(location = 5) out int out_ObjectId;
 layout(location = 6) out int out_ParamCount;
 layout(location = 7) out float out_Time;
+layout(location = 8) out vec4 out_VertexColor;
 
 #endif
 
@@ -219,6 +278,7 @@ void main()
 			out_ObjectId = in_ObjectId[i];
 			out_ParamCount = in_ParamCount[i];
 			out_Time = in_Time[i];
+			out_VertexColor = in_VertexColor[i];
 #endif
 #ifdef SHADOWPASS
 			gl_Layer = LAYER;
@@ -262,11 +322,16 @@ layout(location = 4) in vec2 Texcoord;
 layout(location = 5) flat in int ObjectId;
 layout(location = 6) flat in int ParamCount;
 layout(location = 7) in float Time;
+layout(location = 8) in vec4 VertexColor;
 
+#ifndef VERTEX_MATERIAL
 layout(location = 4) uniform vec3 CamPos;
-layout(location = 12) uniform sampler2DShadow HighDirectionalShadow;
-layout(location = 13) uniform sampler2DArrayShadow FlatShadows;
-layout(location = 14) uniform samplerCubeArrayShadow CubeShadows;
+
+vec3 Snowfall_GetCameraPosition()
+{
+	return CamPos;
+}
+#endif
 
 layout(std430, binding = 1) buffer ObjectParamsBuffer
 {
@@ -286,11 +351,6 @@ float Snowfall_GetTime()
 vec3 Snowfall_GetPosition()
 {
 	return Position;
-}
-
-vec3 Snowfall_GetCameraPosition()
-{
-	return CamPos;
 }
 
 vec4 Snowfall_GetColor()
@@ -319,64 +379,38 @@ vec2 Snowfall_GetTexcoord()
 }
 
 #ifndef CUSTOM_FRAGMENT
-
+#define MATERIAL
 layout(location = 0) out vec4 fragment;
 
-void Snowfall_SetMaterialData(Material mat)
+#ifdef VERTEX_MATERIAL
+
+#define LIGHTING
+
+void main()
 {
-	vec3 color = vec3(0.0, 0.0, 0.0);
-
-	const int DIRECTIONAL_SHADOW_SAMPLES = 16;
-	const int SHADOW_SAMPLES = 9;
-
-	const float DIRECTIONAL_SHADOW_SPAN = sqrt(DIRECTIONAL_SHADOW_SAMPLES) / 2.0;
-	const float SHADOW_SPAN = sqrt(SHADOW_SAMPLES) / 2.0;
-
-	for (int i = 0; i < PassLightCount; ++i)
-	{
-		Light light = AllLights[PassLightIndices[i]];
-		float shadow = 1.0;
-
-		if (allInvocations(light.HighIndex == -1))
-		{
-			shadow = 1.0;
-		}
-		else
-		{
-			ivec2 offset = ivec2(2, 2);
-			vec4 points = vec4(1.0, 1.0, 1.0, 1.0);
-			vec4 shadowCoord = light.LightSpace * vec4(Snowfall_GetPosition(), 1);
-
-			vec2 flatTexels = 1.0 / textureSize(FlatShadows, 0).xy;
-			vec2 cubeTexels = 1.0 / textureSize(CubeShadows, 0).xy;
-			vec2 dirTexels = 1.0 / textureSize(HighDirectionalShadow, 0);
-
-			shadow = 0.0;
-
-			switch (light.Type)
-			{
-			case 0:
-				for (float y = -DIRECTIONAL_SHADOW_SPAN; y < DIRECTIONAL_SHADOW_SPAN; y += 1.0)
-					for (float x = -DIRECTIONAL_SHADOW_SPAN; x < DIRECTIONAL_SHADOW_SPAN; x += 1.0)
-						shadow += texture(HighDirectionalShadow, vec3(shadowCoord.xy + vec2(x, y) * dirTexels, shadowCoord.z));
-				shadow /= DIRECTIONAL_SHADOW_SAMPLES;
-				break;
-			case 1:
-				//shadow = texture(CubeShadows, );
-				break;
-			case 2:
-				shadowCoord /= shadowCoord.w;
-				for (float y = -SHADOW_SPAN; y < SHADOW_SPAN; y += 1.0)
-					for (float x = -SHADOW_SPAN; x < SHADOW_SPAN; x += 1.0)
-						shadow += texture(FlatShadows, vec4(shadowCoord.xy + vec2(x, y) * flatTexels * shadowCoord.w, light.HighIndex, shadowCoord.z));
-				shadow /= SHADOW_SAMPLES;
-				break;
-			}
-		}
-		color += CalculateLight(Snowfall_GetCameraPosition(), Snowfall_GetPosition(), light, mat, shadow);
-	}
-	fragment = vec4(color + mat.Emissive, 1.0);
+	fragment = VertexColor;
 }
+
+#else
+
+void main()
+{
+	Material mat;
+	PerVertexData data;
+
+	data.PixelPosition = Snowfall_GetPosition();
+	data.CameraPosition = Snowfall_GetCameraPosition();
+	data.TBNMatrix = mat3(Snowfall_GetNormal(), Snowfall_GetTangent(), Snowfall_GetBinormal());
+	data.Texcoord = Snowfall_GetTexcoord();
+	data.Normal = Snowfall_GetNormal();
+	data.Color = Snowfall_GetColor();
+
+	MaterialProps(mat, data);
+
+	fragment = vec4(Snowfall_GetMaterialResult(mat, data), 1);
+}
+
+#endif
 
 #endif
 

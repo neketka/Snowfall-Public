@@ -186,7 +186,7 @@ void CameraSystem::Update(float deltaTime)
 		ShaderConstants constants;
 		constants.AddConstant(0, camera->ProjectionMatrix);
 		constants.AddConstant(1, camera->ViewMatrix);
-		constants.AddConstant(4, transform->Position);
+		constants.AddConstant(4, transform->GlobalPosition);
 		constants.AddConstant(12, shadowRenderer->GetDirectionHighShadowTexture()->GetTextureObject(), m_shadowSamplers[0]);
 		constants.AddConstant(13, shadowRenderer->GetFlatShadowTexture()->GetTextureObject(), m_shadowSamplers[1]);
 		constants.AddConstant(14, shadowRenderer->GetCubeShadowTexture()->GetTextureObject(), m_shadowSamplers[2]);

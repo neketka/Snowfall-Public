@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PhysicsWorldSystem.h"
 #include "PhysicsRigidBodySystem.h"
+#include "TerrainStreamingSystem.h"
 
 PhysicsWorldSystem::PhysicsWorldSystem()
 {
@@ -36,6 +37,31 @@ PhysicsWorldSystem::~PhysicsWorldSystem()
 	delete m_handle.CollisionConfiguration;
 }
 
+void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
+	int numManifolds = world->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numManifolds; i++)
+	{
+		btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+		btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
+		btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
+
+		int numContacts = contactManifold->getNumContacts();
+		for (int j = 0; j < numContacts; j++)
+		{
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+			if (pt.getDistance() < 0.f)
+			{
+				const btVector3& ptA = pt.getPositionWorldOnA();
+				const btVector3& ptB = pt.getPositionWorldOnB();
+				const btVector3& normalOnB = pt.m_normalWorldOnB;
+				std::string comp1 = reinterpret_cast<Component *>(obA->getUserPointer())->InternalName;
+				std::string comp2 = reinterpret_cast<Component *>(obB->getUserPointer())->InternalName;
+				Snowfall::GetGameInstance().Log(LogType::Message, "Collision: " + comp1 + " " + comp2);
+			}
+		}
+	}
+}
+
 void PhysicsWorldSystem::InitializeSystem(Scene& scene)
 {
 	m_scene = &scene;
@@ -47,6 +73,8 @@ void PhysicsWorldSystem::InitializeSystem(Scene& scene)
 	
 	m_handle.DynamicsWorld = new btDiscreteDynamicsWorld(m_handle.Dispatcher, m_handle.OverlappingPairCache, 
 		m_handle.Solver, m_handle.CollisionConfiguration);
+	//m_handle.DynamicsWorld->setInternalTickCallback(myTickCallback);
+
 	SetGravity(glm::vec3(0, -9.81f, 0));
 }
 

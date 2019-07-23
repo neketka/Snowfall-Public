@@ -16,7 +16,7 @@ class IAssetStreamIO
 public:
 	virtual ~IAssetStreamIO() {}
 	virtual void OpenStreamRead() = 0;
-	virtual void OpenStreamWrite() = 0;
+	virtual void OpenStreamWrite(bool overwrite) = 0;
 	virtual void CloseStream() = 0;
 	virtual void WriteStreamBytes(char *buffer, int length) = 0;
 
@@ -37,13 +37,13 @@ public:
 	template<class T>
 	void ReadStream(T *buffer, int length) { ReadStreamBytes(reinterpret_cast<char *>(buffer), length * sizeof(T)); }
 
-
 	std::string ReadString()
 	{
 		unsigned int size = 0;
 		ReadStream(&size, 1);
 		return ReadString(size);
 	}
+
 	std::string ReadString(unsigned int length)
 	{
 		char *buffer = new char[length + 1];
@@ -60,11 +60,22 @@ public:
 	virtual void SeekStream(int position) = 0;
 	virtual int GetStreamPosition() = 0;
 	virtual int GetStreamLength() = 0;
+
+	void SeekStreamRelative(int delta)
+	{
+		SeekStream(GetStreamPosition() + delta);
+	}
 };
 
-class IAssetReader
+enum class AssetReadingPriority
+{
+	First, Middle, Last
+};
+
+class SNOWFALLENGINE_API IAssetReader
 {
 public:
+	virtual AssetReadingPriority GetPriority() { return AssetReadingPriority::Middle; }
 	virtual std::vector<std::string> GetExtensions() = 0;
 	virtual void LoadAssets(std::string ext, IAssetStreamIO *stream, AssetManager& assetManager) = 0;
 };
@@ -97,6 +108,7 @@ public:
 
 	SNOWFALLENGINE_API void SetUserDataFolder(std::string name);
 	SNOWFALLENGINE_API IAsset *CreateUserData(std::string path);
+	SNOWFALLENGINE_API IAssetStreamIO *CreateUserDataStream(std::string path);
 	SNOWFALLENGINE_API void EnumerateUnpackedFolder(std::string path);
 	SNOWFALLENGINE_API void RegisterReader(IAssetReader *reader); // Pointer will be owned by the AssetManager instance
 	SNOWFALLENGINE_API void AddAsset(IAsset *asset); // Pointer will be owned by the AssetManager instance

@@ -7,7 +7,7 @@ public:
 	NullStreamSource() {}
 
 	virtual void OpenStreamRead() override {}
-	virtual void OpenStreamWrite() override {}
+	virtual void OpenStreamWrite(bool overwrite) override {}
 	virtual void CloseStream() override {}
 	virtual void WriteStreamBytes(char * buffer, int length) override {}
 	virtual void ReadStreamBytes(char * buffer, int length) override {}

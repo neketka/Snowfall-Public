@@ -15,6 +15,11 @@ using LayerMask = unsigned long long;
 
 class Scene;
 
+enum class BooleanStateUpdate
+{
+	Unchanged, True, False
+};
+
 enum class SerializationType
 {
 	NonSerializable, Entity, String, Asset, EntityVector, StringVector, AssetVector, ByValue, ByValueVector
@@ -84,6 +89,7 @@ class SystemFactory : public ISystemFactory
 {
 public:
 	virtual ISystem *CreateInstance() override { return dynamic_cast<ISystem *>(new T); }
+	static std::string GetName() { return std::string(typeid(T).name() + 6); }
 };
 
 class PrototypeManager 
@@ -133,12 +139,6 @@ private:
 };
 
 class Entity;
-
-class IEvent
-{
-public:
-	std::string Name;
-};
 
 class ComponentManager
 {
@@ -208,21 +208,37 @@ class Entity
 public:
 	Entity(EntityId id, EntityManager *manager) : m_id(id), m_manager(manager) { }
 	Entity() : m_id(""), m_manager(nullptr) { }
+
 	inline EntityId GetId() { return m_id; }
+
 	template<class T>
 	void AddComponent() { return static_cast<T *>(m_manager->AddComponent(m_id, ComponentDescriptor<T>::GetName())); }
 	template<class T>
 	void RemoveComponent() { return static_cast<T *>(m_manager->RemoveComponent(m_id, ComponentDescriptor<T>::GetName())); }
+
 	Entity Clone() { return m_manager->CloneEntity(m_id); }
+	void Kill() { m_manager->KillEntity(m_id); }
+
 	std::string GetName() { return m_manager->GetName(m_id); }
 	void SetName(std::string name) { m_manager->SetName(m_id, name); }
+
 	template<class T>
 	T *GetComponent() { return static_cast<T *>(m_manager->GetComponent(m_id, ComponentDescriptor<T>::GetName())); }
-	void Kill() { m_manager->KillEntity(m_id); }
+
+	bool operator==(Entity& other) const { return m_id == other.m_id; }
+	bool operator!=(Entity& other) const { return m_id != other.m_id; }
+
 	bool IsNull() { return m_id == ""; }
 private:
 	EntityId m_id;
 	EntityManager *m_manager;
+};
+
+class IEvent
+{
+public:
+	std::string Name;
+	Entity Entity;
 };
 
 class Component
@@ -230,6 +246,7 @@ class Component
 public:
 	Entity Owner;
 	std::string InternalName;
+	bool Copied = false;
 };
 
 class EventManager
@@ -237,8 +254,12 @@ class EventManager
 public:
 	EventManager() { }
 	SNOWFALLENGINE_API std::vector<IEvent *> ListenEvents(std::string system);
+
 	SNOWFALLENGINE_API void SubscribeEvent(std::string system, std::string name);
 	SNOWFALLENGINE_API void PushEvent(std::string name, IEvent *event);
+
+	SNOWFALLENGINE_API void SubscribeEntityEvent(std::string system, std::string name, Entity e);
+	SNOWFALLENGINE_API void PushEntityEvent(std::string name, Entity e, IEvent *event);
 private:
 	std::map<std::string, std::vector<std::string>> m_subscribers;
 	std::map<std::string, std::vector<IEvent *>> m_eventsPerSubscriber;
@@ -272,6 +293,11 @@ public:
 	SNOWFALLENGINE_API void AddSystem(std::string name);
 	SNOWFALLENGINE_API void AddEnabledSystems(std::vector<std::string> names);
 	SNOWFALLENGINE_API ISystem *GetSystem(std::string name);
+	template<class T>
+	T *GetSystem()
+	{
+		return dynamic_cast<T *>(GetSystem(SystemFactory<T>::GetName()));
+	}
 	SNOWFALLENGINE_API void InitializeSystems();
 	SNOWFALLENGINE_API void UpdateSystems(float deltaTime, int group=-1);
 	SNOWFALLENGINE_API inline std::vector<int> GetMainThreadGroups() { return m_mainThreadGroups; }

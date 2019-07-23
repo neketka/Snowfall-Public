@@ -31,6 +31,9 @@ public:
 	CollisionShapeType ShapeType;
 	glm::mat4 ShapeTransform;
 
+	bool Sleeping = false;
+	bool BroadcastingCollision = false;
+
 	btRigidBody *rigidBody;
 	CollisionShapeType prevType;
 };
@@ -97,11 +100,6 @@ public:
 	float Radius;
 
 	btCollisionShape *shape;
-};
-
-class PhysicsHeightfieldCollisionComponent : public Component
-{
-public:
 };
 
 class SNOWFALLENGINE_API PhysicsRigidBodySystem : public ISystem

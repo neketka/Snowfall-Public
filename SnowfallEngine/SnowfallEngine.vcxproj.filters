@@ -55,6 +55,27 @@
     <Filter Include="Components\Physics">
       <UniqueIdentifier>{c1d1e8e7-a0bd-4468-ba48-bec733f5fe60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Terrain">
+      <UniqueIdentifier>{52dcae0c-4d24-4513-bfda-893b179e7e8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Post">
+      <UniqueIdentifier>{93ef0fdf-3dc5-412c-a590-a3c49eb8d112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Deferred">
+      <UniqueIdentifier>{f00f04a5-7df6-4f93-a0dc-5d8d23abdd5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Lighting">
+      <UniqueIdentifier>{cb7b4b80-5c20-4daa-9572-9169e6526f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Basic">
+      <UniqueIdentifier>{1bb65b03-5cf1-442b-a3a9-192dd1e161c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Parent">
+      <UniqueIdentifier>{0e0fd098-9060-4f1a-93af-576b750a1088}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\UI">
+      <UniqueIdentifier>{fadb15de-3231-4c72-9c07-31c10e3d7c52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -87,9 +108,6 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="JobManager.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="LinearAllocator.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
@@ -113,9 +131,6 @@
     </ClCompile>
     <ClCompile Include="Pipeline.cpp">
       <Filter>OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="PixelTransferrer.cpp">
-      <Filter>Tools</Filter>
     </ClCompile>
     <ClCompile Include="Prototype.cpp">
       <Filter>ECS</Filter>
@@ -258,6 +273,27 @@
     <ClCompile Include="PhysicsRigidBodySystem.cpp">
       <Filter>Components\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsConstraintSystem.cpp">
+      <Filter>Components\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainAsset.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryAssetStream.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceStreamingSystem.cpp">
+      <Filter>Components\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainStreamingSystem.cpp">
+      <Filter>Components\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureStreamer.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkerManager.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -286,9 +322,6 @@
     </ClInclude>
     <ClInclude Include="GLResource.h">
       <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="JobManager.h">
-      <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="LinearAllocator.h">
       <Filter>Tools</Filter>
@@ -319,9 +352,6 @@
     </ClInclude>
     <ClInclude Include="Pipeline.h">
       <Filter>OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelTransferrer.h">
-      <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="Quad.h">
       <Filter>Geometry</Filter>
@@ -394,9 +424,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Export</Filter>
-    </ClInclude>
-    <ClInclude Include="UIBorderedShader.glsl">
-      <Filter>Shaders</Filter>
     </ClInclude>
     <ClInclude Include="UIComponent.h">
       <Filter>UI</Filter>
@@ -476,47 +503,80 @@
     <ClInclude Include="PhysicsRigidBodySystem.h">
       <Filter>Components\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsConstraintSystem.h">
+      <Filter>Components\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainAsset.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryAssetStream.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceStreamingSystem.h">
+      <Filter>Components\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainStreamingSystem.h">
+      <Filter>Components\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="UIBorderedShader.glsl">
+      <Filter>Shaders\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureStreamer.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkerManager.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Lighting.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplePBRShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SnowfallShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="DeferredLighting.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SkyboxShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="CopyToSDR.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="PostProcessShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="TonemappingPost.glsl">
-      <Filter>Shaders</Filter>
-    </None>
+    <None Include="cpp.hint" />
     <None Include="BloomPost.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Post</Filter>
     </None>
     <None Include="ChromaticAbberationPost.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Post</Filter>
     </None>
     <None Include="FxaaPost.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Post</Filter>
+    </None>
+    <None Include="TonemappingPost.glsl">
+      <Filter>Shaders\Post</Filter>
+    </None>
+    <None Include="CopyToSDR.glsl">
+      <Filter>Shaders\Deferred</Filter>
+    </None>
+    <None Include="SimplePBRShader.glsl">
+      <Filter>Shaders\Basic</Filter>
+    </None>
+    <None Include="SnowfallShader.glsl">
+      <Filter>Shaders\Parent</Filter>
+    </None>
+    <None Include="Lighting.glsl">
+      <Filter>Shaders\Lighting</Filter>
     </None>
     <None Include="FontRenderShader.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\UI</Filter>
+    </None>
+    <None Include="DeferredLighting.glsl">
+      <Filter>Shaders\Lighting</Filter>
     </None>
     <None Include="UIRectangleShader.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\UI</Filter>
     </None>
-    <None Include="cpp.hint" />
+    <None Include="TerrainShader.glsl">
+      <Filter>Shaders\Parent</Filter>
+    </None>
+    <None Include="PostProcessShader.glsl">
+      <Filter>Shaders\Parent</Filter>
+    </None>
+    <None Include="SkyboxShader.glsl">
+      <Filter>Shaders\Basic</Filter>
+    </None>
+    <None Include="Utilities.glsl">
+      <Filter>Shaders\Basic</Filter>
+    </None>
+    <None Include="SimpleTerrainShader.glsl">
+      <Filter>Shaders\Basic</Filter>
+    </None>
   </ItemGroup>
 </Project>

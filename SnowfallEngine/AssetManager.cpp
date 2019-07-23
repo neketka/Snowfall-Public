@@ -17,6 +17,10 @@ AssetManager::~AssetManager()
 		asset.second->Unload();
 		delete asset.second;
 	}
+	for (auto reader : m_readers)
+	{
+		delete reader.second;
+	}
 }
 /*
 void AssetManager::EnumerateLocalPath(bool asRoot, std::string path)
@@ -51,25 +55,46 @@ void AssetManager::SetUserDataFolder(std::string name)
 	{
 		if (!filesystem::is_directory(entry))
 		{
-			LocalAssetStream *src = new LocalAssetStream(entry.path().string());
+			std::string ext = filesystem::path(entry).extension().string();
 
-			src->OpenStreamRead();
+			if (ext == ".udata")
+			{
+				LocalAssetStream *src = new LocalAssetStream(entry.path().string());
 
-			UserAsset *asset = new UserAsset(src->ReadString(), src);
-			m_assets.insert({ asset->GetPath(), asset });
+				src->OpenStreamRead();
 
-			src->CloseStream();
+				UserAsset *asset = new UserAsset(src->ReadString(), src);
+				m_assets.insert({ asset->GetPath(), asset });
+
+				src->CloseStream();
+			}
+			else
+			{
+				auto reader_iter = m_readers.find(ext);
+				if (reader_iter != m_readers.end())
+				{
+					LocalAssetStream *src = new LocalAssetStream(entry.path().string());
+					reader_iter->second->LoadAssets(ext, src, *this);
+				}
+			}
 		}
 	}
 }
 
 IAsset *AssetManager::CreateUserData(std::string path)
 {
-	LocalAssetStream *stream = new LocalAssetStream(m_userFolder.append(GenerateUUID() + ".udata").string());
+	std::filesystem::path p = m_userFolder;
+	LocalAssetStream *stream = new LocalAssetStream(p.append(path + ".udata").string());
 	UserAsset *uasset = new UserAsset(path, stream);
 	uasset->Export();
 
 	return uasset;
+}
+
+IAssetStreamIO *AssetManager::CreateUserDataStream(std::string path)
+{
+	std::filesystem::path p = m_userFolder;
+	return new LocalAssetStream(p.append(path).string());;
 }
 
 void AssetManager::EnumerateUnpackedFolder(std::string path)

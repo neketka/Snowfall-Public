@@ -43,6 +43,9 @@ public:
 	SNOWFALLENGINE_API void Deallocate(MemoryAllocation region);
 	SNOWFALLENGINE_API void Defragment();
 	SNOWFALLENGINE_API void SetMoveCallback(std::function<void(MemoryRegion, MemoryRegion)> moveMem);
+	int GetMaxMemory() { return m_maxCapacity; }
+	int GetFreeMemory() { return m_curCapacity; }
+	int GetUsedMemory() { return m_maxCapacity - m_curCapacity; }
 private:
 	int m_maxCapacity;
 	int m_curCapacity;

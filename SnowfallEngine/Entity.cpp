@@ -31,7 +31,7 @@ Component *EntityManager::GetComponent(EntityId id, std::string component)
 	return nullptr;
 }
 
-std::vector<Component*>& EntityManager::GetComponents(EntityId id)
+std::vector<Component *>& EntityManager::GetComponents(EntityId id)
 {
 	return m_entities[id];
 }
@@ -55,6 +55,7 @@ Entity EntityManager::CloneEntity(EntityId id)
 	{
 		Component *cloned = m_scene.GetComponentManager().CloneComponent(comp);
 		cloned->Owner = e;
+		cloned->Copied = true;
 		comps.push_back(cloned);
 	}
 	return e;

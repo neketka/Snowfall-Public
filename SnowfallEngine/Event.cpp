@@ -19,8 +19,26 @@ void EventManager::SubscribeEvent(std::string system, std::string name)
 
 void EventManager::PushEvent(std::string name, IEvent *event)
 {
+	event->Name = name;
 	auto iter = m_subscribers.end();
 	if ((iter = m_subscribers.find(name)) == m_subscribers.end())
+		return;
+	for (std::string system : iter->second)
+		m_eventsPerSubscriber[system].push_back(event);
+}
+
+void EventManager::SubscribeEntityEvent(std::string system, std::string name, Entity e)
+{
+	SubscribeEvent(system, name + e.GetId());
+}
+
+void EventManager::PushEntityEvent(std::string name, Entity e, IEvent *event)
+{
+	event->Name = name;
+	event->Entity = e;
+
+	auto iter = m_subscribers.end();
+	if ((iter = m_subscribers.find(name + e.GetId())) == m_subscribers.end())
 		return;
 	for (std::string system : iter->second)
 		m_eventsPerSubscriber[system].push_back(event);

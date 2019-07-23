@@ -9,6 +9,7 @@
 #include "TextRenderer.h"
 #include "UIRenderer.h"
 #include "Module.h"
+#include "WorkerManager.h"
 
 #include <map>
 #include <GL\glew.h>
@@ -17,6 +18,8 @@
 #include <vector>
 
 #include "export.h"
+
+#define TERRAIN_BUFFER_ID 0xFAFA
 
 enum class LogType
 {
@@ -35,13 +38,18 @@ class EngineSettings
 public:
 	int MaxComponentPoolMemory;
 	int ComponentPoolChunks;
-	int MaxTextureMemory;
 
+	int MaxWorkerThreads;
+
+	int TextureUploadPoolBytes;
 	int ShadowMapResolution;
 	int CloseShadowMapResolution;
 
 	int MaxMeshMemoryBytes;
+	int MaxTerrainMemoryBytes;
+	int MaxTextureMemoryBytes;
 	int MaxMeshCommands;
+
 	int TextureUnits;
 	int ImageUnits;
 };
@@ -72,6 +80,7 @@ public:
 	inline InputManager& GetInputManager() { return *m_inputManager; }
 	inline TextRenderer& GetTextRenderer() { return *m_textRenderer; }
 	inline UIRenderer& GetUIRenderer() { return *m_uiRenderer; }
+	inline WorkerManager& GetWorkerManager() { return *m_workerManager; }
 
 	inline EngineSettings& GetEngineSettings() { return m_settings; }
 
@@ -113,6 +122,7 @@ private:
 	ShaderPreprocessor *m_preprocessor; // Global preprocessor
 	InputManager *m_inputManager;
 	UIRenderer *m_uiRenderer;
+	WorkerManager *m_workerManager;
 
 	EngineSettings m_settings;
 	GLFWwindow *m_window;

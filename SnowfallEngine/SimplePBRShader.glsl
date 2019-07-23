@@ -1,14 +1,13 @@
 #include "SnowfallShader"
 
-#ifdef FRAGMENT
+#ifdef MATERIAL
 
-layout(location = 16) uniform sampler2D tex;
+layout(location = 20) uniform sampler2D tex;
 
-void main()
+void MaterialProps(inout Material mat, PerVertexData data)
 {
 	vec4 params = Snowfall_GetObjectParameter(0);
-	
-	Material mat;
+
 	float t = Snowfall_GetTime();
 
 	vec2 coord = Snowfall_GetTexcoord();
@@ -18,8 +17,6 @@ void main()
 	mat.Metalness = params.x;
 	mat.Roughness = params.y;
 	mat.AO = 1.0;
-
-	Snowfall_SetMaterialData(mat);
 }
 
 #endif

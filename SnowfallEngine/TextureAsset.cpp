@@ -22,6 +22,8 @@ TextureAsset::TextureAsset(std::string path, IAssetStreamIO *stream) : m_stream(
 	m_mipmaps = header.MipmapCount;
 
 	m_minMipmapLoaded = m_mipmaps;
+	m_minMipmapSetting = m_mipmaps - 1;
+
 	m_firstPos = stream->GetStreamPosition();
 	m_topPos = m_firstPos;
 
@@ -124,7 +126,7 @@ void TextureAsset::Load()
 				break;
 			}
 			m_texture.SetMipmapRange(m_minMipmapLoaded - 1, m_mipmaps - 1);
-			delete data;
+			delete[] data;
 		}
 
 		m_stream->CloseStream();
@@ -172,7 +174,7 @@ void TextureAsset::SetLOD(float lod)
 {
 	if (lod == 1)
 		Unload();
-	m_minMipmapSetting = lod * m_mipmaps;
+	m_minMipmapSetting = glm::clamp<int>(lod * (m_mipmaps - 1), 0, m_mipmaps - 1);
 	Load();
 }
 
