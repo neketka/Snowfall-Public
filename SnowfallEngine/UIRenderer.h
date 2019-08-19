@@ -29,6 +29,7 @@ public:
 	SNOWFALLENGINE_API void PushClip(IQuad2D quad);
 	SNOWFALLENGINE_API void PopClip();
 
+	SNOWFALLENGINE_API void RenderTexture(Quad2D src, Quad2D dest, Texture texture, glm::vec4 tint);
 	SNOWFALLENGINE_API void RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, glm::vec4 tint);
 	SNOWFALLENGINE_API void RenderRectangle(Quad2D quad, glm::vec4 fillColor);
 	SNOWFALLENGINE_API void RenderRectangle(Quad2D quad, glm::vec4 borderColor, glm::vec4 fillColor, float borderThickness, bool insetBorder);

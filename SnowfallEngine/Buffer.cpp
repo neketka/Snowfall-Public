@@ -42,6 +42,11 @@ void TBuffer::MapBuffer(int offset, int length, MappingOptions options)
 	m_mappingPtr = glMapNamedBufferRange(m_id, offset * m_tsize, length * m_tsize, options.GetEnum());
 }
 
+void TBuffer::CopyFromBuffer(void *dest, int offset, int length)
+{
+	glGetNamedBufferSubData(m_id, offset * m_tsize, length * m_tsize, dest);
+}
+
 void TBuffer::UnmapBuffer()
 {
 	glUnmapNamedBuffer(m_id);

@@ -21,22 +21,24 @@ Currently implemented features
     * External asset importer
     * Latest OpenGL 4.6 bindings
     * GUI/Text rendering
+    * Cascaded shadow maps
+    * Integration with Bullet Physics
     * Post-processing
         * Bloom
         * FXAA
         * Filmic Tonemapping
+        * Eye Adaptation
 
 Work-in-progress
 ------------------------------
     * Deferred rendering
+	* Particle System
+	* Real-time IBL
     * Post-processing
         * SSAO
         * SSR
         * Motion Blur
         * DOF
-        * Eye Adaptation
         * Color Grading
-    * Integration with Bullet Physics
-    * Cascaded shadow maps
     * Subsurface scattering approximation
     * Actual game

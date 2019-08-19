@@ -61,7 +61,6 @@ namespace AssetImporter
             foreach (string dir in Directory.GetDirectories(path))
             {
                 WalkDirectory(dir, (internalPath == "" ? "" : ".") + Path.GetFileNameWithoutExtension(dir), false);
-                Console.WriteLine(Path.GetFileNameWithoutExtension(dir));
             }
         }
 

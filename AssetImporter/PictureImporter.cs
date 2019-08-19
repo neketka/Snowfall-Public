@@ -20,7 +20,13 @@ namespace AssetImporter
                 format.Type = TextureType.TextureCubemap;
                 internalPath = internalPath.Replace("_CUBE", "");
             }
-
+            else if (internalPath.Contains("_2DARRAY"))
+            {
+                format.Type = TextureType.Texture2DArray;
+                inputFile = inputFile.Substring(0, inputFile.IndexOf("_2DARRAY")) + "_2DARRAY" + Path.GetExtension(inputFile);
+                internalPath = internalPath.Substring(0, internalPath.IndexOf("_2DARRAY"));
+            }
+            
             MipmapLevel level = new MipmapLevel();
             level.Level = 0;
 
@@ -60,6 +66,42 @@ namespace AssetImporter
                 }
                 format.BaseWidth = faceSize;
                 format.BaseHeight = faceSize;
+            }
+            else if (format.Type == TextureType.Texture2DArray)
+            {
+                format.Format = TexturePixelFormat.BGRA;
+                int width = 0;
+                int height = 0;
+                List<Bitmap> bmps = new List<Bitmap>();
+                for (int i = 0;; ++i)
+                {
+                    string thisIndex = inputFile.Replace("_2DARRAY", "_2DARRAY" + i);
+                    if (!File.Exists(thisIndex))
+                        break;
+
+                    Bitmap bmp = new Bitmap(thisIndex);
+                    bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                    width = bmp.Width;
+                    height = bmp.Height;
+
+                    bmps.Add(bmp);
+                }
+
+                level.Data = new byte[width * height * bmps.Count * 4];
+
+                int index = 0;
+                foreach (Bitmap bmp in bmps)
+                {
+                    BitmapData data = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                    System.Runtime.InteropServices.Marshal.Copy(data.Scan0, level.Data, width * height * 4 * index, width * height * 4);
+                    bmp.UnlockBits(data);
+                    ++index;
+                }
+
+                format.BaseWidth = width;
+                format.BaseHeight = height;
+                format.BaseDepth = bmps.Count;
             }
 
             format.MipmapLevels.Add(level);

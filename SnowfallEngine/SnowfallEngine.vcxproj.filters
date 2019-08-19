@@ -76,6 +76,21 @@
     <Filter Include="Shaders\UI">
       <UniqueIdentifier>{fadb15de-3231-4c72-9c07-31c10e3d7c52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Postprocesses">
+      <UniqueIdentifier>{697e14b9-234c-4796-a763-af4d09805a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Environment">
+      <UniqueIdentifier>{45ea4782-e23f-4bea-9b20-f36302be0193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Test">
+      <UniqueIdentifier>{12e360d3-e56f-41b4-9827-38506b5738a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Particles">
+      <UniqueIdentifier>{a50b8e9a-738d-4a1a-96c9-c927874607fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Particles">
+      <UniqueIdentifier>{6b5b6090-547f-44f7-8107-13318b1eb91a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -294,6 +309,18 @@
     <ClCompile Include="WorkerManager.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="Noise.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="EyeAdaptationSystem.cpp">
+      <Filter>Components\Postprocesses</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyRenderSystem.cpp">
+      <Filter>Components\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleGenerationSystem.cpp">
+      <Filter>Components\Particles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="export.h">
@@ -458,9 +485,6 @@
     <ClInclude Include="UITextureBox.h">
       <Filter>UI\Components</Filter>
     </ClInclude>
-    <ClInclude Include="UITabControl.h">
-      <Filter>UI\Components</Filter>
-    </ClInclude>
     <ClInclude Include="UITreeView.h">
       <Filter>UI\Components</Filter>
     </ClInclude>
@@ -527,6 +551,21 @@
     <ClInclude Include="WorkerManager.h">
       <Filter>Tools</Filter>
     </ClInclude>
+    <ClInclude Include="Noise.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="EyeAdaptationSystem.h">
+      <Filter>Components\Postprocesses</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyRenderSystem.h">
+      <Filter>Components\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="UITabControl.h">
+      <Filter>UI\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleGenerationSystem.h">
+      <Filter>Components\Particles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -569,14 +608,44 @@
     <None Include="PostProcessShader.glsl">
       <Filter>Shaders\Parent</Filter>
     </None>
-    <None Include="SkyboxShader.glsl">
-      <Filter>Shaders\Basic</Filter>
-    </None>
     <None Include="Utilities.glsl">
       <Filter>Shaders\Basic</Filter>
     </None>
     <None Include="SimpleTerrainShader.glsl">
       <Filter>Shaders\Basic</Filter>
+    </None>
+    <None Include="EyeAdaptationStore.glsl">
+      <Filter>Shaders\Post</Filter>
+    </None>
+    <None Include="EyeAdaptationEase.glsl">
+      <Filter>Shaders\Post</Filter>
+    </None>
+    <None Include="SkyboxShader.glsl">
+      <Filter>Shaders\Environment</Filter>
+    </None>
+    <None Include="RenderToCubemap.glsl">
+      <Filter>Shaders\Environment</Filter>
+    </None>
+    <None Include="AtmosphericSkyFunc.glsl">
+      <Filter>Shaders\Environment</Filter>
+    </None>
+    <None Include="AtmosphericSkyShader.glsl">
+      <Filter>Shaders\Environment</Filter>
+    </None>
+    <None Include="ComputeTest.glsl">
+      <Filter>Shaders\Test</Filter>
+    </None>
+    <None Include="ParticleSimulation.glsl">
+      <Filter>Shaders\Particles</Filter>
+    </None>
+    <None Include="ParticleDef.glsl">
+      <Filter>Shaders\Particles</Filter>
+    </None>
+    <None Include="ParticleGeneration.glsl">
+      <Filter>Shaders\Particles</Filter>
+    </None>
+    <None Include="ParticleSorting.glsl">
+      <Filter>Shaders\Particles</Filter>
     </None>
   </ItemGroup>
 </Project>

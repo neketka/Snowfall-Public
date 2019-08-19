@@ -111,6 +111,12 @@ void TextureAsset::Load()
 					level, m_pixelFormat, m_pixelType, data);
 				break;
 			case TextureType::Texture2DArray:
+				stride = static_cast<int>(std::floor(m_baseWidth * power)) * static_cast<int>(std::floor(m_baseHeight * power)) * GetByteDepth(m_pixelFormat, m_pixelType);
+				for (int i = 0; i < m_baseDepth; ++i)
+				{
+					m_texture.SetData(0, 0, i, static_cast<int>(std::floor(m_baseWidth * power)), static_cast<int>(std::floor(m_baseHeight * power)), 1,
+						level, m_pixelFormat, m_pixelType, data + (i * stride));
+				}
 				break;
 			case TextureType::Texture3D:
 				break;

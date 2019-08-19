@@ -13,12 +13,14 @@
 #include "CameraComponent.h"
 #include "LightComponent.h"
 #include "SkyboxComponent.h"
+#include "SkyRenderSystem.h"
 #include "CameraViewportRenderSystem.h"
 #include "ShadowMapRenderSystem.h"
 #include "PostProcessRenderSystem.h"
 #include "CameraUIRenderSystem.h"
 #include "PhysicsWorldSystem.h"
 #include "PhysicsRigidBodySystem.h"
+#include "EyeAdaptationSystem.h"
 
 #include <iostream>
 #include <fstream>
@@ -186,7 +188,9 @@ void Snowfall::Init()
 	glewInit();
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+#ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
+#endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDebugMessageCallback(MessageCallback, 0);
@@ -231,10 +235,12 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddComponentDescription<TransformComponent>();
 	m_prototypeManager->AddComponentDescription<MeshRenderComponent>();
 	m_prototypeManager->AddComponentDescription<CameraComponent>();
-	m_prototypeManager->AddComponentDescription<LightComponent>();
+	m_prototypeManager->AddComponentDescription<DirectionalLightComponent>();
+	m_prototypeManager->AddComponentDescription<SpotLightComponent>();
 	m_prototypeManager->AddComponentDescription<CameraUIRenderComponent>();
 	m_prototypeManager->AddComponentDescription<SkyboxComponent>();
 	m_prototypeManager->AddComponentDescription<TerrainComponent>();
+	m_prototypeManager->AddComponentDescription<EyeAdaptationComponent>();
 
 	m_prototypeManager->AddComponentDescription<PhysicsRigidBodyComponent>();
 	m_prototypeManager->AddComponentDescription<PhysicsBoxCollisionComponent>();
@@ -254,6 +260,8 @@ void Snowfall::SetupDefaultPrototypes()
 	m_prototypeManager->AddSystemPrototype<PhysicsWorldSystem>();
 	m_prototypeManager->AddSystemPrototype<PhysicsRigidBodySystem>();
 	m_prototypeManager->AddSystemPrototype<TerrainStreamingSystem>();
+	m_prototypeManager->AddSystemPrototype<EyeAdaptationSystem>();
+	m_prototypeManager->AddSystemPrototype<SkyRenderSystem>();
 }
 
 void Snowfall::DestroyManagers()

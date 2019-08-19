@@ -80,6 +80,7 @@ public:
 	inline int GetLevel() { return m_level; }
 	inline TextureInternalFormat GetFormat() { return m_format; }
 	inline GLuint GetID() { return m_id; }
+
 private:
 	int m_layer = 0;
 	int m_level = 0;
@@ -94,6 +95,22 @@ public:
 	Texture(int width, int height, bool isCubemap, int levels, TextureInternalFormat format);
 	Texture(int width, int height, int depth, int levels, TextureInternalFormat format);
 	Texture(int width, int height, int slices, bool isCubemapArray, int levels, TextureInternalFormat format);
+
+	Texture(Texture viewTarget, int baseLevel, int baseSlice, int width, int height, bool isCubemap, int levels, TextureInternalFormat format) : Texture(width, height, isCubemap, levels, format)
+	{
+		glTextureView(m_id, m_type, viewTarget.GetID(), static_cast<GLenum>(format), baseLevel, levels, baseSlice, isCubemap ? 6 : 1);
+	}
+
+	Texture(Texture viewTarget, int baseLevel, int baseSlice, int width, int height, int depth, int levels, TextureInternalFormat format) : Texture(width, height, depth, levels, format)
+	{
+		glTextureView(m_id, m_type, viewTarget.GetID(), static_cast<GLenum>(format), baseLevel, levels, baseSlice, depth);
+	}
+
+	Texture(Texture viewTarget, int baseLevel, int baseSlice, int width, int height, int slices, bool isCubemapArray, int levels, TextureInternalFormat format) : Texture(width, height, slices, isCubemapArray, levels, format)
+	{
+		glTextureView(m_id, m_type, viewTarget.GetID(), static_cast<GLenum>(format), baseLevel, levels, baseSlice, m_d);
+	}
+
 	void GenerateMipmap();
 	void SetData(int x, int y, int w, int h, int level, TexturePixelFormat format, TextureDataType type, const void *pixels);
 	void SetData(int x, int y, int z, int w, int h, int d, int level, TexturePixelFormat format, TextureDataType type, const void *pixels);
@@ -112,10 +129,12 @@ public:
 
 	inline GLuint GetID() { return m_id; }
 	inline TextureInternalFormat GetFormat() { return m_format; }
+
 	inline int GetWidth() { return m_w; }
 	inline int GetHeight() { return m_h; }
+	inline int GetDepth() { return m_h; }
 private:
-	int m_w = 0, m_h = 0;
+	int m_w = 0, m_h = 0, m_d = 0;
 	static int m_imagesMade;
 	GLuint m_id = 0;
 	GLenum m_type = 0;

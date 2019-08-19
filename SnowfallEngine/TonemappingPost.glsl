@@ -2,6 +2,9 @@
 
 #passes PASS0
 
+layout(location = 5) uniform sampler2D avgLuma;
+layout(location = 6) uniform vec4 lumaValues;
+
 // Based on Filmic Tonemapping Operators http://filmicgames.com/archives/75
 vec3 tonemapFilmic(vec3 color) 
 {
@@ -32,7 +35,8 @@ vec3 tonemapReinhard(vec3 color)
 void main()
 {
 	NO_AUXILLARY;
-	const float exposure = 1;
+	float luma = texture(avgLuma, vec2(0, 0)).r;
+	float exposure = lumaValues.w / (clamp(luma, lumaValues.x, lumaValues.y) - lumaValues.z);
 
 	vec4 sampled = Snowfall_GetColor();
 

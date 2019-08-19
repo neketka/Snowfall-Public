@@ -112,6 +112,8 @@ void PostProcessRenderSystem::RunPostprocess(CommandBuffer& buffer, CameraCompon
 		buffer.BindPipelineCommand(pipe);
 		buffer.BindConstantsCommand(consts);
 		buffer.BindConstantsCommand(consts2);
+		buffer.BindConstantsCommand(postProcess->GetMaterial().Constants);
+
 		m_quad->DrawMeshDirect(buffer);
 
 		if (std::find(downscales.begin(), downscales.end(), passIndex) != downscales.end())

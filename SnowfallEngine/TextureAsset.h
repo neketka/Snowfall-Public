@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetManager.h"
 #include "Texture.h"
+#include <functional>
 
 #include "export.h"
 

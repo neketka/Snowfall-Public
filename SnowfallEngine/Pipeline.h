@@ -82,6 +82,7 @@ public:
 	
 	bool FrontFaceCulling = false;
 	bool BackFaceCulling = false;
+	bool DepthClamping = false;
 
 	bool _keepAttributes = false;
 };

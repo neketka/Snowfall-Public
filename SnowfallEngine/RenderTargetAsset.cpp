@@ -106,7 +106,7 @@ void RenderTargetAsset::Unload()
 {
 	if (m_loaded)
 	{
-		for (TextureAsset *asset : m_textures)
+		for (TextureAsset *asset : m_newTextures)
 		{
 			asset->Unload();
 		}

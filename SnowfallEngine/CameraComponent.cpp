@@ -40,12 +40,11 @@ CameraSystem::CameraSystem()
 
 	for (int i = 0; i < 3; ++i)
 	{
-		m_shadowSamplers[i].SetWrapMode(TextureChannel::S, WrapMode::ClampToBorder);
-		m_shadowSamplers[i].SetWrapMode(TextureChannel::T, WrapMode::ClampToBorder);
-		m_shadowSamplers[i].SetWrapMode(TextureChannel::R, WrapMode::ClampToBorder);
+		m_shadowSamplers[i].SetWrapMode(TextureChannel::S, WrapMode::ClampToEdge);
+		m_shadowSamplers[i].SetWrapMode(TextureChannel::T, WrapMode::ClampToEdge);
+		m_shadowSamplers[i].SetWrapMode(TextureChannel::R, WrapMode::ClampToEdge);
 		m_shadowSamplers[i].SetMinificationFilter(MinificationFilter::Linear);
 		m_shadowSamplers[i].SetMagnificationFilter(MagnificationFilter::Linear);
-		m_shadowSamplers[i].SetBorderColor(glm::vec4(1, 1, 1, 1));
 		m_shadowSamplers[i].SetComparison(ComparisonFunc::LessEqual);
 		m_shadowSamplers[i].SetCompareMode(true);
 	}
@@ -104,6 +103,7 @@ void CameraSystem::Update(float deltaTime)
 				delete camera->HdrBuffer;
 			}
 
+			int levels = glm::max<int>(5, glm::ceil(glm::log2(glm::max<float>(camera->Region.Size.x, camera->Region.Size.y))));
 			camera->HdrBuffer = new RenderTargetAsset("", {},
 			{
 					new TextureAsset("", TextureType::Texture2D,
@@ -112,7 +112,7 @@ void CameraSystem::Update(float deltaTime)
 				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 1),
 
 					new TextureAsset("", TextureType::Texture2D,
-				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 5), //Auxillary
+				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, levels), //Auxillary
 					new TextureAsset("", TextureType::Texture2D,
 				TextureInternalFormat::RGBA32F, camera->Region.Size.x, camera->Region.Size.y, 1, 5),
 
@@ -160,11 +160,11 @@ void CameraSystem::Update(float deltaTime)
 
 		auto skyboxes = m_scene->GetComponentManager().GetComponents<SkyboxComponent>();
 		if (skyboxes.size() > 0)
-			RenderSkybox(buffer, camera, glm::inverse(camera->ProjectionMatrix * camera->ViewMatrix), skyboxes[0]->Cubemap);
+			RenderSkybox(buffer, camera, glm::inverse(camera->ProjectionMatrix * glm::mat4(glm::mat3(camera->ViewMatrix))), skyboxes[0]->Cubemap);
 
 		std::vector<int> indices;
 		int index = 0;
-		for (LightComponent *light : m_scene->GetComponentManager().GetComponents<LightComponent>())
+		for (DirectionalLightComponent *light : m_scene->GetComponentManager().GetComponents<DirectionalLightComponent>())
 		{
 			if (index == 31)
 				break;
@@ -172,8 +172,16 @@ void CameraSystem::Update(float deltaTime)
 			++index;
 		}
 
-		lights.CopyData(&index, 0, 4);
-		lights.CopyData(indices.data(), 4, 4 * index);
+		for (SpotLightComponent *light : m_scene->GetComponentManager().GetComponents<SpotLightComponent>())
+		{
+			if (index == 31)
+				break;
+			indices.push_back(index);
+			++index;
+		}
+
+		lights.CopyData(&index, CASCADING_SIZE, 4);
+		lights.CopyData(indices.data(), CASCADING_SIZE + 4, 4 * index);
 
 		Pipeline pipeline;
 		pipeline.FragmentStage.DepthTest = true;
@@ -187,7 +195,7 @@ void CameraSystem::Update(float deltaTime)
 		constants.AddConstant(0, camera->ProjectionMatrix);
 		constants.AddConstant(1, camera->ViewMatrix);
 		constants.AddConstant(4, transform->GlobalPosition);
-		constants.AddConstant(12, shadowRenderer->GetDirectionHighShadowTexture()->GetTextureObject(), m_shadowSamplers[0]);
+		//constants.AddConstant(12, shadowRenderer->GetDirectionHighShadowTexture()->GetTextureObject(), m_shadowSamplers[0]);
 		constants.AddConstant(13, shadowRenderer->GetFlatShadowTexture()->GetTextureObject(), m_shadowSamplers[1]);
 		constants.AddConstant(14, shadowRenderer->GetCubeShadowTexture()->GetTextureObject(), m_shadowSamplers[2]);
 		constants.AddConstant(15, Snowfall::GetGameInstance().GetTime());

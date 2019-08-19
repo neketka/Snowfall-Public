@@ -76,14 +76,17 @@ void TerrainAsset::Load()
 		upd.ChunkX = req.X;
 		upd.ChunkY = req.Y;
 		upd.ChunkAddress = req.Address;
+		upd.NewlyCreated = false;
 
 		req.Lod = glm::clamp(req.Lod, -1, LOD_COUNT - 1);
 
 		float c = glm::ceil(m_chunkBaseLength / glm::pow(2, req.Lod));
 
 		TerrainChunk *chunk;
-		if (!m_addressMap.contains(req.Address))
+		if (!m_addressMap.count(req.Address))
 		{
+			if (req.Lod == -1)
+				continue;
 			chunk = new TerrainChunk;
 			int baseLen = m_chunkBaseLength;
 			for (int i = 0; i < LOD_COUNT; ++i)
@@ -105,12 +108,15 @@ void TerrainAsset::Load()
 			chunk->LowestLoadedLOD = 0;
 			chunk->ChunkDataAsset = nullptr;
 
+			memset(chunk->LockReadLOD, 0, sizeof(bool) * LOD_COUNT);
+			memset(chunk->LockWriteLOD, 0, sizeof(bool) * LOD_COUNT);
+
 			int texSize = glm::ceil(m_chunkBaseLength / glm::pow(2, LOD_COUNT - 1)) * glm::pow(2, LOD_COUNT - 1);
 
 			chunk->TerrainTexture = new TextureAsset("", TextureType::Texture2D, TextureInternalFormat::RGBA32F, texSize, texSize, 1, 4);
 			chunk->NormalTexture = new TextureAsset("", TextureType::Texture2D, TextureInternalFormat::RGBA32F, texSize, texSize, 1, 4);
-			chunk->LowerBoundHeights = new float[m_chunkBaseLength * m_chunkBaseLength];
-			memset(chunk->LowerBoundHeights, 0, sizeof(float) * m_chunkBaseLength * m_chunkBaseLength);
+			chunk->LowerBoundHeights = new float[(m_chunkBaseLength - 1) * (m_chunkBaseLength - 1)];
+			memset(chunk->LowerBoundHeights, 0, sizeof(float) * (m_chunkBaseLength - 1) * (m_chunkBaseLength - 1));
 
 			m_addressMap[req.Address] = chunk;
 
@@ -120,7 +126,6 @@ void TerrainAsset::Load()
 				for (int i = req.Lod; i < LOD_COUNT; ++i)
 				{
 					TryLoadChunkLODFromAsset(chunk, i);
-					UpdateEdgeValuesWithNeighbors(chunk, i);
 				}
 
 				chunk->MaxLoadedLOD = chunk->CurrentLOD = req.Lod;
@@ -137,7 +142,7 @@ void TerrainAsset::Load()
 
 			m_updates.push_back(upd);
 
-			m_changedChunks.emplace(req.Address);
+			m_changedChunks.insert(req.Address);
 
 			chunk->PhysicsShape = new btHeightfieldTerrainShape(c, c, chunk->Heights[req.Lod], 1, m_minHeight, m_maxHeight, 1, PHY_ScalarType::PHY_FLOAT, true);
 			chunk->PhysicsShape->setLocalScaling(btVector3(m_realBaseLength / c, 1, m_realBaseLength / c));
@@ -158,37 +163,43 @@ void TerrainAsset::Load()
 
 		if (req.Lod == -1)
 		{
-			m_addressMap.erase(ChunkToAddress(chunk->Location));
-			TrySaveChunkToAsset(chunk);
-			DisposeChunk(chunk);
-			m_updates.push_back(upd);
+			m_addressMap.unsafe_erase(ChunkToAddress(chunk->Location)); // Look over this
+			Snowfall::GetGameInstance().GetWorkerManager().EnqueueTask<nullptr_t>([this, chunk, req](int iter) {
+				TrySaveChunkToAsset(chunk);
+				DisposeChunk(chunk);
+				return nullptr;
+			}, 1);
 		}
 		else if (chunk->CurrentLOD < req.Lod)
 		{
 			chunk->CurrentLOD = req.Lod;
-			if (req.Lod > chunk->LowestLoadedLOD)
-			{
-				PropagateLOD(chunk);
-				chunk->LowestLoadedLOD = LOD_COUNT - 1;
-				m_changedChunks.emplace(req.Address);
-				m_updates.push_back(upd);
-			}
+			Snowfall::GetGameInstance().GetWorkerManager().EnqueueTask<nullptr_t>([this, chunk, req](int iter) {
+				if (req.Lod > chunk->LowestLoadedLOD)
+				{
+					if (chunk->MaxLoadedLOD != 0)
+						TryLoadChunkLODFromAsset(chunk, 0);
+					PropagateLOD(chunk);
+					chunk->LowestLoadedLOD = LOD_COUNT - 1;
+				}
+				m_changedChunks.insert(req.Address);
+				return nullptr;
+			}, 1);
 		}
 		else if (chunk->CurrentLOD > req.Lod)
 		{
-			int diff = req.Lod - chunk->MaxLoadedLOD;
-			if (diff <= 0)
-				chunk->CurrentLOD = req.Lod;
-			else
-			{
-				for (int i = req.Lod; i < chunk->MaxLoadedLOD; ++i)
+			chunk->CurrentLOD = req.Lod;
+			Snowfall::GetGameInstance().GetWorkerManager().EnqueueTask<nullptr_t>([this, chunk, req](int iter) {
+				if (req.Lod < chunk->MaxLoadedLOD)
 				{
-					TryLoadChunkLODFromAsset(chunk, i);
-					UpdateEdgeValuesWithNeighbors(chunk, i);
+					for (int i = chunk->MaxLoadedLOD + 1; i >= req.Lod; --i)
+						TryLoadChunkLODFromAsset(chunk, i);
+					chunk->MaxLoadedLOD = req.Lod;
 				}
-			}
-			m_updates.push_back(upd);
+				m_changedChunks.insert(req.Address);
+				return nullptr;
+			}, 1);
 		}
+		m_updates.push_back(upd);
 	}
 
 	m_loadRequests.clear();
@@ -257,17 +268,29 @@ GeometryHandle TerrainAsset::GetGeometry(int lod)
 
 int TerrainAsset::ChunkToAddress(glm::ivec2 pos)
 {
-	short x = pos.x;
-	short y = pos.y;
-	return x << 16 | y;
+	int x = pos.x << 16;
+	int y = pos.y & 0xFFFF;
+	return x | y;
+}
+
+glm::ivec2 TerrainAsset::AddressToChunk(int address)
+{
+	short x = address >> 16;
+	short y = address & 0xFFFF;
+	return glm::ivec2(x, y);
 }
 
 glm::ivec4 TerrainAsset::WorldPosToChunk(glm::ivec2 pos)
 {
-	auto remX = std::div(pos.x, m_realBaseLength);
-	auto remY = std::div(pos.y, m_realBaseLength);
+	int rW = m_realBaseLength - 1;
 
-	return glm::ivec4(remX.quot, remY.quot, remX.rem, remY.rem);
+	int divX = pos.x / rW;
+	int remX = ((pos.x < 0) ? (rW - pos.x) : (pos.x)) % rW;
+
+	int divY = (pos.y) / rW;
+	int remY = ((pos.y < 0) ? (rW - pos.y) : (pos.y)) % rW;
+
+	return glm::ivec4(divX, divY, remX, remY);
 }
 
 void TerrainAsset::SetTerrainMaterial(MaterialAsset *asset)
@@ -289,126 +312,158 @@ void TerrainAsset::RequestChunkMaxLOD(int pX, int pY, int lod)
 
 void TerrainAsset::SetLowerBoundArea(int address, float *data)
 {
-	if (IsChunkLoaded(address))
-	{
-		TerrainChunk *chunk = m_addressMap[address];
-		memcpy(chunk->LowerBoundHeights, data, sizeof(float) * m_chunkBaseLength * m_chunkBaseLength);
-	}
+	int kW = m_chunkBaseLength - 1;
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return;
+	LockForWriting(address, 0);
+	memcpy(chunk->LowerBoundHeights, data, sizeof(float) * kW * kW);
+	UnlockWriting(address, 0);
 }
 
-void TerrainAsset::ModifyArea(float *data, int x, int y, int w, int h)
+void TerrainAsset::SetArea(int address, float *data)
 {
 	int kW = m_chunkBaseLength - 1;
-	for (int rX = 0; rX < w; ++rX)
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return;
+
+	LockForWriting(address, 0);
+	chunk->MaxLoadedLOD = 0;
+	chunk->CurrentLOD = 0;
+	chunk->LowestLoadedLOD = 0;
+	for (int y = 0; y < kW; ++y)
 	{
-		auto divmodX = std::div(rX + x, kW);
-		TerrainChunk *chunk = nullptr; 
-		int address = 0;
-		for (int rY = 0; rY < h; ++rY)
-		{
-			int modY = (rY + y) % kW;
-			if (modY == 0)
-			{
-				int divY = (rY + y) / kW;
-				address = ChunkToAddress(glm::ivec2(divmodX.quot, divY));
-				if (!m_addressMap.contains(address))
-				{
-					chunk = nullptr;
-					rY += kW;
-					continue;
-				}
-				chunk = m_addressMap[address];
-				if (!EnsureLOD(chunk, 0))
-				{
-					rY += kW;
-					continue;
-				}
-				if (chunk)
-				{
-					m_changedChunks.emplace(address);
-					chunk->MaxLoadedLOD = 0;
-					chunk->CurrentLOD = 0;
-					chunk->LowestLoadedLOD = 0;
-				}
-			}
-			int addr = modY * m_chunkBaseLength + divmodX.rem;
-			if (chunk)
-				chunk->Heights[0][addr] = glm::clamp(data[rY * w + rX], chunk->LowerBoundHeights[addr], m_maxHeight);
-		}
-		if (chunk)
-			m_changedChunks.emplace(address);
+		for (int x = 0; x < kW; ++x)
+			chunk->Heights[0][y * m_chunkBaseLength + x] = data[y * kW + x];
+	}
+	m_changedChunks.insert(address);
+	UnlockWriting(address, 0);
+	if (IsChunkLoaded(address))
+	{
 	}
 }
 
-void TerrainAsset::ModifyArea(int address, float *data)
+void TerrainAsset::SetAlphaMap(int address, glm::vec4 *data)
 {
-	TerrainChunk *chunk = nullptr;
-	if (m_addressMap.contains(address))
+	int kW = m_chunkBaseLength - 1;
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return;
+
+	LockForWriting(address, 0);
+	chunk->MaxLoadedLOD = 0;
+	chunk->CurrentLOD = 0;
+	chunk->LowestLoadedLOD = 0;
+	for (int y = 0; y < kW; ++y)
 	{
-		chunk = m_addressMap[address];
+		for (int x = 0; x < kW; ++x)
+			chunk->AlphaMap[0][y * m_chunkBaseLength + x] = data[y * kW + x];
+	}
+	m_changedChunks.insert(address);
+	UnlockWriting(address, 0);
+}
+
+void TerrainAsset::ApplyOperation(TerrainOperation op, int x, int y, int w, int h, bool async)
+{
+	auto func = [this, op, x, y, w, h](int iter) {
+		int kW = m_chunkBaseLength - 1;
+		int rW = m_realBaseLength - 1;
+		int address = 0;
+		for (int rX = 0; rX < w; ++rX)
+		{
+			int divX = (rX + x) / kW;
+			int remX = ((rX + x < 0) ? (kW - rX - x) : (rX + x)) % kW;
+			TerrainChunk *chunk = nullptr;
+			for (int rY = 0; rY < h; ++rY)
+			{
+				int divY = (rY + y) / kW;
+				int remY = ((rY + y < 0) ? (kW - rY - y) : (rY + y)) % kW;
+				if (remY == 0)
+				{
+					address = ChunkToAddress(glm::ivec2(divX, divY));
+					if (!(chunk = PullChunkConcurrent(address)))
+					{
+						chunk = nullptr;
+						rY += kW;
+						continue;
+					}
+					UnlockWriting(address, 0);
+					if (!EnsureLOD(chunk, 0))
+					{
+						rY += kW;
+						continue;
+					}
+					while (!LockForWriting(address, 0));
+					if (chunk)
+					{
+						m_changedChunks.insert(address);
+						chunk->MaxLoadedLOD = 0;
+						chunk->CurrentLOD = 0;
+						chunk->LowestLoadedLOD = 0;
+					}
+				}
+				int addr = remY * m_chunkBaseLength + remX;
+				if (chunk)
+				{
+					float kX = rW * divX + static_cast<float>(remX) / kW * rW;
+					float kY = rW * divY + static_cast<float>(remY) / kW * rW;
+
+					op(chunk->Heights[0][addr], chunk->AlphaMap[0][addr], chunk->LowerBoundHeights[remY * kW + remX],
+						glm::vec2(kX, kY), glm::ivec2(remX, remY), glm::ivec2(divX, divY));
+
+					chunk->Heights[0][addr] = glm::clamp(chunk->Heights[0][addr], m_minHeight, m_maxHeight);
+					m_changedChunks.insert(address);
+				}
+			}
+		}
+		UnlockWriting(address, 0);
+		return nullptr;
+	};
+
+	if (async)
+		Snowfall::GetGameInstance().GetWorkerManager().EnqueueTask<nullptr_t>(func, 1);
+	else
+		func(0);
+}
+
+void TerrainAsset::ApplyOperation(TerrainOperation op, int address, bool async)
+{
+	if (!IsChunkLoaded(address))
+		return;
+
+	auto func = [this, op, address](int iter) {
+		while (!LockForWriting(address, 0));
+
+		int kW = m_chunkBaseLength - 1;
+		int rW = m_realBaseLength - 1;
+		TerrainChunk *chunk = PullChunkConcurrent(address);
+		if (!chunk)
+			return nullptr;
 		chunk->MaxLoadedLOD = 0;
 		chunk->CurrentLOD = 0;
 		chunk->LowestLoadedLOD = 0;
-		memcpy(chunk->Heights[0], data, m_chunkBaseLength * m_chunkBaseLength * sizeof(float));
-		m_changedChunks.emplace(address);
-	}
-}
-
-void TerrainAsset::ModifyAlphaMap(glm::vec4 *data, int x, int y, int w, int h)
-{
-	int kW = m_chunkBaseLength - 1;
-	for (int rX = 0; rX < w; ++rX)
-	{
-		auto divmodX = std::div(rX + x, kW);
-		TerrainChunk *chunk = nullptr;
-		int address = 0;
-		for (int rY = 0; rY < h; ++rY)
+		for (int y = 0; y < kW; ++y)
 		{
-			int modY = (rY + y) % kW;
-			if (modY == 0)
+			for (int x = 0; x < kW; ++x)
 			{
-				int divY = (rY + y) / kW;
-				address = ChunkToAddress(glm::ivec2(divmodX.quot, divY));
-				if (!m_addressMap.contains(address))
-				{
-					rY += kW;
-					continue;
-				}
-				chunk = m_addressMap[address];
-				if (!EnsureLOD(chunk, 0))
-				{
-					rY += kW;
-					continue;
-				}
-				if (chunk)
-				{
-					m_changedChunks.emplace(address);
-					chunk->MaxLoadedLOD = 0;
-					chunk->CurrentLOD = 0;
-					chunk->LowestLoadedLOD = 0;
-				}
-			}
-			int addr = modY * m_chunkBaseLength + divmodX.rem;
-			if (chunk) //Investigate why this can be null sometimes
-				chunk->AlphaMap[0][addr] = data[rY * w + rX];
-		}
-	}
-}
+				int addr = y * m_chunkBaseLength + x;
 
-void TerrainAsset::ModifyAlphaMap(int address, glm::vec4 *data)
-{
-	if (IsChunkLoaded(address))
-	{
-		TerrainChunk *chunk = m_addressMap[address];
-		chunk->MaxLoadedLOD = 0;
-		chunk->CurrentLOD = 0;
-		chunk->LowestLoadedLOD = 0;
-		for (int i = 0; i < m_chunkBaseLength * m_chunkBaseLength; ++i)
-		{
-			chunk->AlphaMap[0][i] = data[i];
+				float kX = rW * chunk->Location.x + static_cast<float>(x) / kW * rW;
+				float kY = rW * chunk->Location.y + static_cast<float>(y) / kW * rW;
+
+				op(chunk->Heights[0][addr], chunk->AlphaMap[0][addr], chunk->LowerBoundHeights[y * kW + x], glm::vec2(kX, kY), glm::ivec2(x, y), chunk->Location);
+			}
 		}
-		m_changedChunks.emplace(address);
-	}
+		UnlockWriting(address, 0);
+		m_changedChunks.insert(address);
+		return nullptr;
+	};
+
+	if (async)
+		Snowfall::GetGameInstance().GetWorkerManager().EnqueueTask<nullptr_t>(func, 1);
+	else
+		func(0);
 }
 
 void TerrainAsset::ClearLodUpdates()
@@ -428,12 +483,27 @@ bool TerrainAsset::DoesChunkExist(int address)
 
 bool TerrainAsset::IsChunkLoaded(int address)
 {
-	return m_addressMap.contains(address);
+	return m_addressMap.count(address) != 0;
+}
+
+void TerrainAsset::UnloadChunks(std::vector<int> addresses, bool allNotIncluded)
+{
+	for (auto addrKp : m_addressMap)
+	{
+		glm::ivec2 pos = AddressToChunk(addrKp.first);
+		if (std::find(addresses.begin(), addresses.end(), addrKp.first) != addresses.end())
+		{
+			if (!allNotIncluded)
+				RequestChunkMaxLOD(pos.x, pos.y, -1);
+		}
+		else if (allNotIncluded)
+			RequestChunkMaxLOD(pos.x, pos.y, -1);
+	}
 }
 
 glm::vec2 CartesianToSphericalNormal(glm::vec3 cartesian)
 {
-	float theta = glm::atan(sqrt(cartesian.x * cartesian.x), cartesian.z);
+	float theta = glm::acos(cartesian.z);
 	float phi = glm::atan(cartesian.y, cartesian.x);
 
 	return glm::vec2(theta, phi);
@@ -442,43 +512,135 @@ glm::vec2 CartesianToSphericalNormal(glm::vec3 cartesian)
 void TerrainAsset::ApplyChangesToGPU()
 {
 	WorkerManager& manager = Snowfall::GetGameInstance().GetWorkerManager();
-	for (int addr : m_changedChunks)
+	concurrency::concurrent_unordered_set<int> upds(m_changedChunks);
+	m_changedChunks.clear();
+	concurrency::concurrent_unordered_set<int> upds2;
+	
+	for (int addr : upds)
 	{
-		TerrainChunk *chunk = m_addressMap[addr];
+		TerrainChunk *chunk = PullChunkConcurrent(addr);
+		if (!chunk)
+			return;
+		if (!LockForWriting(addr, chunk->CurrentLOD))
+		{
+			m_changedChunks.insert(addr);
+			continue;
+		}
+		upds2.insert(addr);
 		UpdateEdgeValuesWithNeighbors(chunk, chunk->CurrentLOD);
-		WorkerTask<CalculatedGPUData *> *worker = &manager.EnqueueTask<CalculatedGPUData *>([this, addr](int iteration) {
+		UnlockWriting(addr, chunk->CurrentLOD);
+	}
+	
+	for (int addr : upds2)
+	{
+		TerrainChunk *chunk = PullChunkConcurrent(addr);
+		int lod = chunk->CurrentLOD;
+
+		WorkerTask<CalculatedGPUData *> *worker = &manager.EnqueueTask<CalculatedGPUData *>([this, addr, lod, chunk](int iteration) {
 			CalculatedGPUData *data = new CalculatedGPUData;
 			
-			TerrainChunk *chunk = data->chunk = m_addressMap[addr];
+			data->chunk = chunk;
 
-			int lod = data->lod = chunk->CurrentLOD;
+			while (!LockForReading(addr, lod));
+
+			data->lod = chunk->CurrentLOD = lod;
+			data->addr = addr;
 			int c = glm::ceil(m_chunkBaseLength / glm::pow(2, lod));
 			int c2 = c * c;
 
 			std::vector<glm::vec4>& terrainData = data->terrainData = std::vector<glm::vec4>(c2);
 			std::vector<glm::vec4>& normalData = data->normalData = std::vector<glm::vec4>(c2);
 
+			int leftAddr = ChunkToAddress(chunk->Location + glm::ivec2(-1, 0)), rightAddr = ChunkToAddress(chunk->Location + glm::ivec2(1, 0)), 
+				upAddr = ChunkToAddress(chunk->Location + glm::ivec2(0, 1)), downAddr = ChunkToAddress(chunk->Location + glm::ivec2(0, -1));
+
+			TerrainChunk *left = PullChunkConcurrent(leftAddr), *right = PullChunkConcurrent(rightAddr), 
+				*up = PullChunkConcurrent(upAddr), *down = PullChunkConcurrent(downAddr);
+
+			while (!LockForReading(leftAddr, lod));
+			while (!LockForReading(rightAddr, lod));
+			while (!LockForReading(upAddr, lod));
+			while (!LockForReading(downAddr, lod));
+
 			for (int x = 0; x < c; ++x)
 			{
 				for (int y = 0; y < c; ++y)
 				{
+					if (chunk->CurrentLOD != lod)
+					{
+						UnlockReading(addr, lod);
+
+						UnlockReading(leftAddr, lod);
+						UnlockReading(rightAddr, lod);
+						UnlockReading(upAddr, lod);
+						UnlockReading(downAddr, lod);
+
+						delete data;
+						data = nullptr;
+						return data;
+					}
+
 					float center = chunk->Heights[lod][y * c + x];
-					float centerL = chunk->Heights[lod][y * c + glm::max(0, x - 1)] / m_realBaseLength;
-					float centerR = chunk->Heights[lod][y * c + glm::min(x + 1, c - 1)] / m_realBaseLength;
-					float centerU = chunk->Heights[lod][glm::max(0, y - 1) * c + x] / m_realBaseLength;
-					float centerD = chunk->Heights[lod][glm::min(y + 1, c - 1) * c + x] / m_realBaseLength;
+
+					float centerL, centerR, centerU, centerD;
+					if (x < 1)
+					{
+						if (left && EnsureLOD(left, lod))
+							centerL = left->Heights[lod][y * c + c - 2];
+						else
+							centerL = center;
+					}
+					else centerL = chunk->Heights[lod][y * c + (x - 1)];
+
+					if (x == c - 1)
+					{
+						if (right && EnsureLOD(right, lod))
+							centerR = right->Heights[lod][y * c + 1];
+						else
+							centerR = center;
+					}
+					else centerR = chunk->Heights[lod][y * c + (x + 1)];
+
+					if (y == c - 1)
+					{
+						if (up && EnsureLOD(up, lod))
+							centerU = up->Heights[lod][1 * c + x];
+						else
+							centerU = center;
+					}
+					else centerU = chunk->Heights[lod][(y + 1) * c + x];
+
+					if (y == 0) 
+					{
+						if (down && EnsureLOD(down, lod))
+							centerD = down->Heights[lod][(c - 2) * c + x];
+						else
+							centerD = center;
+					}
+					else centerD = chunk->Heights[lod][(y - 1) * c + x];
 
 					unsigned alpha = glm::packUnorm4x8(chunk->AlphaMap[lod][y * c + x]);
 
-					glm::vec3 tangent = glm::vec3(2.f, centerR - centerL, 0.f);
-					glm::vec3 binormal = glm::vec3(0.f, centerD - centerU, 2.f);
-					glm::vec3 normal = glm::cross(tangent, binormal);
+					float twoOverC = 2.f * m_realBaseLength / c;
+
+					glm::vec3 vertical = -glm::vec3(0.f, centerU - centerD, twoOverC);
+					glm::vec3 horizontal = -glm::vec3(twoOverC, centerR - centerL, 0.f);
+					glm::vec3 normal = glm::normalize(glm::cross(vertical, horizontal));
+
+					glm::vec3 tangent = -glm::normalize(horizontal);
 
 					terrainData[y * c + x] = glm::vec4(center, *reinterpret_cast<float *>(&alpha), 0.f, 0.f);
-					normalData[y * c + x] = glm::vec4(CartesianToSphericalNormal(glm::normalize(normal)),
-						CartesianToSphericalNormal(glm::normalize(tangent)));
+					normalData[y * c + x] = glm::vec4(CartesianToSphericalNormal(normal),
+						CartesianToSphericalNormal(tangent));
 				}
 			}
+
+			UnlockReading(addr, lod);
+
+			UnlockReading(leftAddr, data->lod);
+			UnlockReading(rightAddr, data->lod);
+			UnlockReading(upAddr, data->lod);
+			UnlockReading(downAddr, data->lod);
 
 			return data;
 		}, 1);
@@ -493,17 +655,24 @@ void TerrainAsset::ApplyChangesToGPU()
 		{
 			CalculatedGPUData *data = worker->GetResults()[0];
 			worker->Destroy();
-			int c = glm::ceil(m_chunkBaseLength / glm::pow(2, data->lod));
+			if (data && IsChunkLoaded(data->addr))
+			{
+				int c = glm::ceil(m_chunkBaseLength / glm::pow(2, data->lod));
 
-			data->chunk->TerrainTexture->GetTextureObject().SetData(0, 0, c, c, data->lod, TexturePixelFormat::RGBA, TextureDataType::Float, data->terrainData.data());
-			data->chunk->NormalTexture->GetTextureObject().SetData(0, 0, c, c, data->lod, TexturePixelFormat::RGBA, TextureDataType::Float, data->normalData.data());
+				data->chunk->TerrainTexture->GetTextureObject().SetData(0, 0, c, c, data->lod, TexturePixelFormat::RGBA, TextureDataType::Float, data->terrainData.data());
+				data->chunk->NormalTexture->GetTextureObject().SetData(0, 0, c, c, data->lod, TexturePixelFormat::RGBA, TextureDataType::Float, data->normalData.data());
 
-			delete data;
+				if (data->chunk->RenderedLOD == -1)
+					data->chunk->RenderedLOD = data->lod;
+				else if (data->chunk->CurrentLOD == data->lod)
+					data->chunk->RenderedLOD = data->lod;
+			}
+			if (data)
+				delete data;
 			m_workingCalcs.erase(m_workingCalcs.begin() + i);
 			--i;
 		}
 	}
-	m_changedChunks.clear();
 }
 
 void TerrainAsset::RenderTerrainToMeshManager(LayerMask mask)
@@ -525,21 +694,43 @@ void TerrainAsset::RenderTerrainToMeshManager(LayerMask mask)
 	for (auto kp : m_addressMap)
 	{
 		TerrainChunk *chunk = kp.second;
-		if (chunk->CurrentLOD >= LOD_COUNT / 2)
-			state.Specializations = { "VERTEX_MATERIAL" };
 
-		std::vector<GeometryHandle> ghandles{ GetGeometry(chunk->CurrentLOD) };
+		if (chunk->RenderedLOD == -1)
+			continue;
+
+		if (chunk->CurrentLOD >= LOD_COUNT - 1)
+			state.Specializations = { "VERTEX_MATERIAL" };
+		else
+			state.Specializations = { };
+
+		std::vector<GeometryHandle> ghandles{ GetGeometry(chunk->RenderedLOD) };
 		std::vector<BoundingBox> boxes{ BoundingBox() };
 
 		float uvRatio = m_chunkBaseLength / (glm::ceil(m_chunkBaseLength / glm::pow(2, LOD_COUNT - 1)) * glm::pow(2, LOD_COUNT - 1));
 
 		state.Constants.AddConstant(16, chunk->TerrainTexture->GetTextureObject(), m_samplers[0]);
 		state.Constants.AddConstant(17, chunk->NormalTexture->GetTextureObject(), m_samplers[1]);
-		state.Constants.AddConstant(18, glm::vec4(chunk->Location.x * (m_realBaseLength - 1), chunk->Location.y * (m_realBaseLength - 1), chunk->CurrentLOD, m_realBaseLength - 1));
+		state.Constants.AddConstant(18, glm::vec4(chunk->Location.x * (m_realBaseLength - 1), chunk->Location.y * (m_realBaseLength - 1), chunk->RenderedLOD, m_realBaseLength - 1));
 		state.Constants.AddConstant(19, glm::vec4(uvRatio));
 
 		mManager.WriteIndirectCommandsToCullingPass(ghandles, boxes, state);
 	}
+}
+
+TerrainChunk *TerrainAsset::PullChunkConcurrent(int address)
+{
+	if (IsChunkLoaded(address))
+	{
+		try
+		{
+			return m_addressMap[address];
+		}
+		catch (std::exception& e)
+		{
+			return nullptr;
+		}
+	}
+	return nullptr;
 }
 
 void TerrainAsset::TryLoadChunkLODFromAsset(TerrainChunk *chunk, int lod)
@@ -550,12 +741,13 @@ void TerrainAsset::TryLoadChunkLODFromAsset(TerrainChunk *chunk, int lod)
 		stream->OpenStreamRead();
 		stream->ReadString();
 
-		chunk->LoadingLOD[lod] = true;
+		while (!LockForWriting(ChunkToAddress(chunk->Location), lod));
+
 		int w = m_chunkBaseLength * m_chunkBaseLength;
-		stream->ReadStream(chunk->LowerBoundHeights, w);
+		int wM1 = (m_chunkBaseLength - 1) * (m_chunkBaseLength - 1);
+		stream->ReadStream(chunk->LowerBoundHeights, wM1);
 		for (int i = 0; i < lod; ++i)
 		{
-			chunk->LoadingLOD[i] = false;
 			stream->SeekStreamRelative(w * 5 * sizeof(float));
 			w = glm::ceil(w / 4);
 		}
@@ -563,6 +755,8 @@ void TerrainAsset::TryLoadChunkLODFromAsset(TerrainChunk *chunk, int lod)
 		stream->ReadStream(chunk->Heights[lod], w);
 		stream->ReadStream(chunk->AlphaMap[lod], w);
 		stream->CloseStream();
+
+		UnlockWriting(ChunkToAddress(chunk->Location), lod);
 	}
 }
 
@@ -587,12 +781,12 @@ void TerrainAsset::TrySaveChunkToAsset(TerrainChunk *chunk)
 	stream->OpenStreamWrite(true);
 	stream->WriteString(chunk->ChunkDataAsset->GetPath());
 
-	memset(chunk->LoadingLOD, 0xFFFFFFFF, sizeof(bool) * (chunk->LowestLoadedLOD + 1));
 	int w = m_chunkBaseLength * m_chunkBaseLength;
-	stream->WriteStream(chunk->LowerBoundHeights, w);
-	for (int i = 0; i < chunk->LowestLoadedLOD + 1; ++i)
+	int wM1 = (m_chunkBaseLength - 1) * (m_chunkBaseLength - 1);
+	stream->WriteStream(chunk->LowerBoundHeights, wM1);
+	for (int i = 0; i <= chunk->LowestLoadedLOD; ++i)
 	{
-		chunk->LoadingLOD[i] = false;
+		while (!LockForReading(ChunkToAddress(chunk->Location), i));
 		if (i < chunk->MaxLoadedLOD)
 		{
 			stream->SeekStreamRelative(w * 5 * sizeof(float));
@@ -602,6 +796,7 @@ void TerrainAsset::TrySaveChunkToAsset(TerrainChunk *chunk)
 			stream->WriteStream(chunk->Heights[i], w);
 			stream->WriteStream(chunk->AlphaMap[i], w);
 		}
+		UnlockReading(ChunkToAddress(chunk->Location), i);
 		w = glm::ceil(w / 4);
 	}
 	int pos = stream->GetStreamPosition();
@@ -620,6 +815,13 @@ void TerrainAsset::DisposeChunk(TerrainChunk *chunk)
 	}
 	chunk->ChunkDataAsset = nullptr;
 
+	for (int i = 0; i < LOD_COUNT; ++i)
+	{
+		while (!LockForWriting(ChunkToAddress(chunk->Location), i));
+		delete[] chunk->AlphaMap[i];
+		delete[] chunk->Heights[i];
+	}
+
 	chunk->TerrainTexture->Unload();
 	delete chunk->TerrainTexture;
 	chunk->TerrainTexture = nullptr;
@@ -630,12 +832,6 @@ void TerrainAsset::DisposeChunk(TerrainChunk *chunk)
 
 	delete[] chunk->LowerBoundHeights;
 
-	for (int i = 0; i < LOD_COUNT; ++i)
-	{
-		delete[] chunk->AlphaMap[i];
-		delete[] chunk->Heights[i];
-	}
-
 	delete chunk;
 }
 
@@ -645,9 +841,13 @@ void TerrainAsset::PropagateLOD(TerrainChunk *chunk)
 		return;
 	int w0 = m_chunkBaseLength;
 	int w1 = glm::ceil(static_cast<float>(m_chunkBaseLength) / 2);
+	int addr = ChunkToAddress(chunk->Location);
 
 	for (int i = 1; i < LOD_COUNT; ++i)
 	{
+		while (!LockForReading(addr, i - 1));
+		while (!LockForWriting(addr, i));
+
 		float *prevLodHeight = chunk->Heights[i - 1];
 		float *thisLodHeight = chunk->Heights[i];
 
@@ -674,6 +874,9 @@ void TerrainAsset::PropagateLOD(TerrainChunk *chunk)
 		}
 		w0 = glm::ceil(static_cast<float>(w0) / 2);
 		w1 = glm::ceil(static_cast<float>(w1) / 2);
+
+		UnlockReading(addr, i - 1);
+		UnlockWriting(addr, i);
 	}
 	chunk->MaxLoadedLOD = 0;
 	chunk->LowestLoadedLOD = LOD_COUNT - 1;
@@ -681,14 +884,9 @@ void TerrainAsset::PropagateLOD(TerrainChunk *chunk)
 
 bool TerrainAsset::EnsureLOD(TerrainChunk *chunk, int lod)
 {
-	if (chunk->MaxLoadedLOD <= lod)
-		return true;
-	if (chunk->LoadingLOD[lod])
-	{
-		while (chunk->LoadingLOD[lod]);
-		return true;
-	}
-	return false;
+	if (!chunk)
+		return false;
+	return chunk->MaxLoadedLOD <= lod && lod <= chunk->LowestLoadedLOD;
 }
 
 void TerrainAsset::UpdateEdgeValuesWithNeighbors(TerrainChunk *chunk, int lod)
@@ -704,20 +902,20 @@ void TerrainAsset::UpdateEdgeValuesWithNeighbors(TerrainChunk *chunk, int lod)
 	int w = glm::ceil(m_chunkBaseLength / glm::pow(2, lod));
 
 	TerrainChunk *top, *topRight, *right, *bottom, *bottomLeft, *left;
-
-	if (m_addressMap.contains(tAddr) && EnsureLOD(top = m_addressMap[tAddr], lod))
+	
+	if (IsChunkLoaded(tAddr) && EnsureLOD(top = m_addressMap[tAddr], lod))
 	{
 		memcpy(chunk->Heights[lod] + long long(w * (w - 1)), top->Heights[lod], sizeof(float) * (w - 1));
 		memcpy(chunk->AlphaMap[lod] + long long(w * (w - 1)), top->AlphaMap[lod], sizeof(glm::vec4) * (w - 1));
 	}
 
-	if (m_addressMap.contains(trAddr) && EnsureLOD(topRight = m_addressMap[trAddr], lod))
+	if (IsChunkLoaded(trAddr) && EnsureLOD(topRight = m_addressMap[trAddr], lod))
 	{
 		chunk->Heights[lod][w * (w - 1) + (w - 1)] = topRight->Heights[lod][0];
 		chunk->AlphaMap[lod][w * (w - 1) + (w - 1)] = topRight->AlphaMap[lod][0];
 	}
 
-	if (m_addressMap.contains(rAddr) && EnsureLOD(right = m_addressMap[rAddr], lod))
+	if (IsChunkLoaded(rAddr) && EnsureLOD(right = m_addressMap[rAddr], lod))
 	{
 		for (int i = 0; i < w - 1; ++i)
 		{
@@ -725,21 +923,24 @@ void TerrainAsset::UpdateEdgeValuesWithNeighbors(TerrainChunk *chunk, int lod)
 			chunk->AlphaMap[lod][w * i + w - 1] = right->AlphaMap[lod][w * i];
 		}
 	}
-
-	if (m_addressMap.contains(bAddr) && EnsureLOD(bottom = m_addressMap[bAddr], lod))
+	
+	if (IsChunkLoaded(bAddr) && EnsureLOD(bottom = m_addressMap[bAddr], lod))
 	{
+		m_changedChunks.insert(bAddr);
 		memcpy(bottom->Heights[lod] + long long(w * (w - 1)), chunk->Heights[lod], sizeof(float) * (w - 1));
 		memcpy(bottom->AlphaMap[lod] + long long(w * (w - 1)), chunk->AlphaMap[lod], sizeof(glm::vec4) * (w - 1));
 	}
 
-	if (m_addressMap.contains(blAddr) && EnsureLOD(bottomLeft = m_addressMap[blAddr], lod))
+	if (IsChunkLoaded(blAddr) && EnsureLOD(bottomLeft = m_addressMap[blAddr], lod))
 	{
+		m_changedChunks.insert(blAddr);
 		bottomLeft->Heights[lod][w * (w - 1) + (w - 1)] = chunk->Heights[lod][0];
 		bottomLeft->AlphaMap[lod][w * (w - 1) + (w - 1)] = chunk->AlphaMap[lod][0];
 	}
 
-	if (m_addressMap.contains(lAddr) && EnsureLOD(left = m_addressMap[lAddr], lod))
+	if (IsChunkLoaded(lAddr) && EnsureLOD(left = m_addressMap[lAddr], lod))
 	{
+		m_changedChunks.insert(lAddr);
 		for (int i = 0; i < w - 1; ++i)
 		{
 			left->Heights[lod][w * i + w - 1] = chunk->Heights[lod][w * i];
@@ -805,6 +1006,44 @@ void TerrainAsset::SavePageFile()
 		m_pageFileStream->WriteString(kp.second);
 	}
 	m_pageFileStream->CloseStream();
+}
+
+bool TerrainAsset::LockForReading(int address, int lod)
+{
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return true;
+	if (chunk->LockWriteLOD[lod] == 1)
+		return false;
+	++chunk->LockReadLOD[lod];
+	return true;
+}
+
+bool TerrainAsset::LockForWriting(int address, int lod)
+{
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return true;
+	if (chunk->LockReadLOD[lod] >= 1 || chunk->LockWriteLOD[lod] == 1)
+		return false;
+	++chunk->LockWriteLOD[lod];
+	return true;
+}
+
+void TerrainAsset::UnlockReading(int address, int lod)
+{
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return;
+	--chunk->LockReadLOD[lod];
+}
+
+void TerrainAsset::UnlockWriting(int address, int lod)
+{
+	TerrainChunk *chunk = PullChunkConcurrent(address);
+	if (!chunk)
+		return;
+	--chunk->LockWriteLOD[lod];
 }
 
 void TerrainAsset::LoadGeometries()

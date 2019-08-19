@@ -106,6 +106,19 @@ void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& con
 		if (!overrideShader)
 			p.Shader = change.Shader->GetShaderVariant(spec);
 
+		BufferBlending blend;
+
+		blend.Buffer = 0;
+		blend.SourceColor = BlendFunction::SourceAlpha;
+		blend.SourceAlpha = BlendFunction::SourceAlpha;
+		blend.DestinationColor = BlendFunction::OneMinusSourceAlpha;
+		blend.DestinationAlpha = BlendFunction::OneMinusSourceAlpha;
+		blend.ColorEquation = BlendEquation::Add;
+		blend.AlphaEquation = BlendEquation::Add;
+
+		p.FragmentStage.Blending = true;
+		p.FragmentStage.BufferBlends = { blend };
+
 		buffer.BindPipelineCommand(p);
 
 		buffer.BindConstantsCommand(constants); //TODO: add combine function in the future instead of replacing buffers
@@ -118,5 +131,22 @@ void MeshManager::Render(CommandBuffer& buffer, Pipeline p, ShaderConstants& con
 		buffer.BindIndirectCommandBufferCommand(m_indirect);
 		buffer.DrawIndexedIndirectCommand(change.Type, change.indirectOffset * sizeof(DrawElementsIndirectCommand), change.indirectLength, 0);
 	}
+}
+
+std::vector<BoundingBox> MeshManager::GetLayerBounds(LayerMask mask)
+{
+	std::vector<BoundingBox> bounds;
+	int current = 0;
+	for (RendererStateChange& change : m_stateChanges)
+	{
+		for (int i = 0; i < change.ObjectCount; ++i)
+		{
+			BoundingBox box = m_cullingBoxes[i + current];
+			if (change.LayerMask & mask)
+				bounds.push_back(box);
+		}
+		current += change.ObjectCount;
+	}
+	return bounds;
 }
 

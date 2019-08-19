@@ -42,6 +42,11 @@ void Pipeline::BindPipeline()
 	else
 		glDisable(GL_CULL_FACE);
 
+	if (this->VertexStage.DepthClamping)
+		glEnable(GL_DEPTH_CLAMP);
+	else
+		glDisable(GL_DEPTH_CLAMP);
+
 	//Tesselation Stage
 	glPatchParameteri(GL_PATCH_VERTICES, this->TessellationStage.PatchSize);
 

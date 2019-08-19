@@ -7,16 +7,42 @@
 
 #include "export.h"
 
+#define LIGHT_CASCADES 4
+
+#define CASCADING_SIZE (sizeof(float) * LIGHT_CASCADES + sizeof(int) * LIGHT_CASCADES + sizeof(int) * (LIGHT_CASCADES % 2) \
++ sizeof(glm::mat4) * LIGHT_CASCADES)
+
 enum class LightType
 {
 	Directional = 0, Point = 1, Spot = 2
 };
 
-class LightComponent : public Component
+class DirectionalLightComponent : public Component
 {
 public:
-	LightComponent() : LayerMask(0xFFFFFFFFFFFFFFFF) {}
-	LightType Type;
+	DirectionalLightComponent() : LayerMask(0xFFFFFFFFFFFFFFFF) {}
+	bool Enabled;
+	bool Shadowing;
+
+	LayerMask ShadowLayerMask;
+	LayerMask LayerMask;
+
+	glm::vec3 Color;
+	float Intensity;
+
+	float CascadeSizes[LIGHT_CASCADES];
+	Entity CascadeCamera;
+
+	glm::mat4 lightSpaceMatrices[LIGHT_CASCADES];
+	float lightSpaceDistances[LIGHT_CASCADES];
+	int indices[LIGHT_CASCADES];
+	TextureAsset *shadowMap;
+};
+
+class SpotLightComponent : public Component
+{
+public:
+	SpotLightComponent() : LayerMask(0xFFFFFFFFFFFFFFFF) {}
 	bool Enabled;
 	bool Shadowing;
 
@@ -31,11 +57,9 @@ public:
 	float Range;
 	float RangeCutoff;
 
-	glm::mat4 lightSpace;
+	int index;
+	glm::mat4 lightSpaceMatrix;
 	TextureAsset *shadowMap;
-	int highIndex;
-	int middleIndex;
-	int lowIndex;
 };
 
 class SNOWFALLENGINE_API LightSystem : public ISystem

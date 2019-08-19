@@ -1,29 +1,54 @@
 #include "TerrainShader"
 
+#define layers 8
+
 #ifdef MATERIAL
 
-layout(location = 20) uniform sampler2D SnowDiffuse;
-layout(location = 21) uniform sampler2D SnowTangentMap;
-layout(location = 22) uniform sampler2D SnowRoughness;
-layout(location = 23) uniform sampler2D SnowAO;
+layout(location = 20) uniform sampler2DArray TerrainAtlas; // Snow/Ground: Diffuse, Normal, Roughness, AO
 
-layout(location = 24) uniform sampler2D GroundDiffuse;
-layout(location = 25) uniform sampler2D GroundTangentMap;
-layout(location = 26) uniform sampler2D GroundRoughness;
-layout(location = 27) uniform sampler2D GroundAO;
+vec2 ParallaxOcclusionMapping(sampler2DArray depthMap, float layer, vec2 uv, vec2 displacement, float pivot) {
+	const float layerDepth = 1.0 / float(layers);
+	float currentLayerDepth = 0.0;
+
+	vec2 deltaUv = displacement / float(layers);
+	vec2 currentUv = uv + pivot * displacement;
+	float currentDepth = texture(depthMap, vec3(currentUv, layer)).r;
+
+	for (int i = 0; i < layers; i++) {
+		if (currentLayerDepth > currentDepth)
+			break;
+
+		currentUv -= deltaUv;
+		currentDepth = texture(depthMap, vec3(currentUv, layer)).r;
+		currentLayerDepth += layerDepth;
+	}
+
+	vec2 prevUv = currentUv + deltaUv;
+	float endDepth = currentDepth - currentLayerDepth;
+	float startDepth =
+		texture(depthMap, vec3(prevUv, layer)).r - currentLayerDepth + layerDepth;
+
+	float w = endDepth / (endDepth - startDepth);
+
+	return mix(currentUv, prevUv, w);
+}
 
 void MaterialProps(inout Material mat, PerVertexData data)
 {
-	float t = Snowfall_GetTime();
+	vec3 view = transpose(data.TBNMatrix) * normalize(data.CameraPosition - data.PixelPosition);
+	vec2 coord = data.Texcoord * 16;//ParallaxOcclusionMapping(TerrainAtlas, 4.0, , view.xy * 5, 0.0);
 
-	vec2 coord = data.Texcoord * 16.0;
 	vec4 alpha = data.Color;
-
-	mat.Diffuse = texture(SnowDiffuse, coord).rgb * alpha.r + texture(GroundDiffuse, coord).rgb * alpha.g;
-	mat.Normal = data.TBNMatrix * (texture(SnowTangentMap, coord).rgb * alpha.r + texture(GroundTangentMap, coord).rgb * alpha.g);
+	
+	mat.Diffuse = (texture(TerrainAtlas, vec3(coord, 0)).rgb * alpha.r + texture(TerrainAtlas, vec3(coord, 5)).rgb * alpha.g);
+	mat.Normal = data.TBNMatrix * (normalize(texture(TerrainAtlas, vec3(coord, 1)).rgb * alpha.r + texture(TerrainAtlas, vec3(coord, 6)).rgb * alpha.g) * 2.0 - 1.0);
 	mat.Metalness = 0;
-	mat.Roughness = texture(SnowRoughness, coord).r * alpha.r + texture(GroundRoughness, coord).r * alpha.g;
-	mat.AO = texture(SnowAO, coord).r * alpha.r + texture(GroundAO, coord).r * alpha.g;
+	mat.Roughness = texture(TerrainAtlas, vec3(coord, 2)).r * alpha.r + texture(TerrainAtlas, vec3(coord, 7)).r * alpha.g;
+	mat.AO = texture(TerrainAtlas, vec3(coord, 3)).r * alpha.r + texture(TerrainAtlas, vec3(coord, 8)).r * alpha.g;
+	mat.Alpha = texture(TerrainAtlas, vec3(coord, 0)).a;
+	/*
+	mat.Emissive = max(vec3(0), data.Tangent * vec3(1));
+	mat.Alpha = 1.0;*/
 }
 
 #endif

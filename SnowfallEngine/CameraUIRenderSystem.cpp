@@ -2,6 +2,8 @@
 #include "CameraUIRenderSystem.h"
 #include "UIContext.h"
 
+#include "ShadowMapRenderSystem.h"
+
 std::vector<SerializationField> ComponentDescriptor<CameraUIRenderComponent>::GetSerializationFields()
 {
 	return {

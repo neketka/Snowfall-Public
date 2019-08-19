@@ -7,6 +7,9 @@ class TerrainComponent : public Component
 {
 public:
 	TerrainAsset *Terrain;
+	Entity StreamingCamera;
+	float MaxStreamDistance;
+	LayerMask LayerMask;
 
 	std::map<int, btCollisionObject *> physicsObjects;
 };

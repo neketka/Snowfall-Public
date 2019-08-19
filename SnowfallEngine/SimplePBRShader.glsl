@@ -17,6 +17,7 @@ void MaterialProps(inout Material mat, PerVertexData data)
 	mat.Metalness = params.x;
 	mat.Roughness = params.y;
 	mat.AO = 1.0;
+	mat.Alpha = 1.0;
 }
 
 #endif

@@ -10,5 +10,10 @@ public:
 	
 	glm::vec3 MinExtent;
 	glm::vec3 MaxExtent;
+
+	inline glm::vec3 GetCenter() 
+	{
+		return (MinExtent + MaxExtent) / 2.f;
+	}
 };
 

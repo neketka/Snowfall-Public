@@ -42,6 +42,12 @@ private:
 class CommandBuffer
 {
 public:
+	CommandBuffer() {
+		m_commands.reserve(40);
+		m_descriptors.reserve(20);
+		m_pipelines.reserve(20);
+		m_constants.reserve(20);
+	}
 	SNOWFALLENGINE_API void ClearColorFramebufferCommand(int attachment, glm::vec4 color);
 	SNOWFALLENGINE_API void ClearDepthFramebufferCommand(float value);
 	SNOWFALLENGINE_API void ClearAllBuffers();

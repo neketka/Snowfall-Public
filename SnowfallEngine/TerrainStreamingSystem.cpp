@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TerrainStreamingSystem.h"
 #include "PhysicsWorldSystem.h"
-#include <glm/gtc/noise.hpp>
+#include "Noise.h"
 
 TerrainStreamingSystem::TerrainStreamingSystem()
 {
@@ -24,9 +24,28 @@ void TerrainStreamingSystem::Update(float deltaTime)
 		{
 			comp->Terrain->ClearLodUpdates();
 
-			comp->Terrain->RequestChunkMaxLOD(0, 0, 0);
-			comp->Terrain->RequestChunkMaxLOD(1, 0, 0);
-			comp->Terrain->RequestChunkMaxLOD(0, 1, 0);
+			glm::vec2 camChunkPos;
+
+			TransformComponent *cam = comp->StreamingCamera.GetComponent<TransformComponent>();
+			if (cam)
+			{
+				camChunkPos = glm::round((glm::vec2(cam->GlobalPosition.x, cam->GlobalPosition.z) + glm::vec2(0.5f)) * (1 / (float(comp->Terrain->GetRealLength()) - 1))) - glm::vec2(0.5f);
+			}
+
+			std::vector<int> addresses;
+
+			for (int y = 0; y <= comp->MaxStreamDistance * 2; ++y)
+			{
+				for (int x = 0; x <= comp->MaxStreamDistance * 2; ++x)
+				{
+					glm::vec2 chunk = glm::vec2(x, y) + camChunkPos + glm::vec2(-comp->MaxStreamDistance + 0.5f);
+					float dist = glm::length(camChunkPos - chunk) * (LOD_COUNT - 2) / comp->MaxStreamDistance;
+
+					comp->Terrain->RequestChunkMaxLOD(chunk.x, chunk.y, glm::min<int>(3, dist));
+					addresses.push_back(comp->Terrain->ChunkToAddress(chunk));
+				}
+			}
+			comp->Terrain->UnloadChunks(addresses, true);
 
 			comp->Terrain->Load();
 
@@ -66,30 +85,18 @@ void TerrainStreamingSystem::Update(float deltaTime)
 			}
 
 			comp->Terrain->ApplyChangesToGPU();
-			comp->Terrain->RenderTerrainToMeshManager(0xFFFFFFFFFFFFFFFF);
+			comp->Terrain->RenderTerrainToMeshManager(comp->LayerMask);
 
 			int size = comp->Terrain->GetBaseLength() - 1;
 			for (TerrainLoadUpdate& upd : comp->Terrain->GetLoadUpdates())
 			{
 				if (!upd.NewlyCreated)
 					continue;
-				std::vector<glm::vec4> alpha(257 * 257);
-				std::vector<float> heights(257 * 257);
-				for (int y = 0; y < 257; ++y)
-				{
-					for (int x = 0; x < 257; ++x)
-					{
-						float kX = (x + size * upd.ChunkX);
-						float kY = (y + size * upd.ChunkY);
-
-						bool d = glm::simplex(glm::vec3(kX, kY, Snowfall::GetGameInstance().GetTime())) > 0;
-						alpha[y * 257 + x] = d ? glm::vec4(1, 0, 0, 0) : glm::vec4(0, 1, 0, 0);
-						heights[y * 257 + x] = (glm::simplex(glm::vec2(kX * 0.01f, kY * 0.01f)) + 1) * 16.f;
-					}
-				}
-
-				comp->Terrain->ModifyArea(upd.ChunkAddress, heights.data());
-				comp->Terrain->ModifyAlphaMap(upd.ChunkAddress, alpha.data());
+				comp->Terrain->ApplyOperation([](float& height, glm::vec4& alpha, float& lowerBound, glm::vec2 chunkVertexPos, glm::ivec2 chunkVertexIndex, glm::ivec2 chunkPos) {
+					lowerBound = FractalSimplex(3, chunkVertexPos, 4.f, 2.f, 0.003f, 0, 64);
+					height = lowerBound + 5;
+					alpha = glm::vec4(1, 0, 0, 0);
+				}, upd.ChunkAddress, true);
 			}
 		}
 	}

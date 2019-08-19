@@ -26,6 +26,7 @@ void CameraViewportRenderSystem::Update(float deltaTime)
 	{
 		if (!camera->Enabled)
 			continue;
+
 		if (!camera->KeepInternal)
 			CopyToSDR(buffer, camera);
 	}

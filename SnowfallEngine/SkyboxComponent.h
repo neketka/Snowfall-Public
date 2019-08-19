@@ -7,4 +7,6 @@ class SkyboxComponent : public Component
 public:
 	TextureAsset *Cubemap;
 	bool Enabled;
+
+	RenderTargetAsset *renderTarget;
 };

@@ -3,7 +3,7 @@
 
 vec2 CartesianToSphericalNormal(vec3 cartesian)
 {
-	float theta = atan(sqrt(cartesian.x * cartesian.x), cartesian.z);
+	float theta = acos(cartesian.z);
 	float phi = atan(cartesian.y, cartesian.x);
 	
 	return vec2(theta, phi);

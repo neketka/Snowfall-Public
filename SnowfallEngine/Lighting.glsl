@@ -11,13 +11,8 @@ struct Light
 	float Range;
 	float RangeCutoff;
 
-	float Padding0[2]; // SIMD ALIGNMENT SUCKS
-
 	int Type; //0:dir 1:point 2:spot
-
 	int HighIndex;
-	int MiddleIndex;
-	int LowIndex;
 };
 
 struct Material
@@ -26,6 +21,7 @@ struct Material
 	vec3 Emissive;
 	vec3 Subsurface;
 	vec3 Normal;
+	float Alpha;
 	float Metalness;
 	float Roughness;
 	float AO;
@@ -169,7 +165,7 @@ vec3 CalculateLight(vec3 camPos, vec3 fragPos, Light light, Material material, f
 
 	vec3 color = CookOrenBRDF(N, V, L, H, radiance * atten * spot, material.Diffuse, material.Metalness, material.Roughness) * material.AO;
 
-	return color * shadow + vec3(0.1) * mix(material.Diffuse, vec3(1.0), material.Metalness);
+	return color * shadow + vec3(0.05) * mix(material.Diffuse, vec3(1.0), material.Metalness);
 }
 
 #endif

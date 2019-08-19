@@ -7,9 +7,12 @@
 #include "WorkerManager.h"
 
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
+#include <concurrent_unordered_set.h>
+#include <concurrent_unordered_map.h>
 
 #define LOD_COUNT 4
 
+using TerrainOperation = std::function<void(float& height, glm::vec4& alpha, float& lowerBound, glm::vec2 chunkVertexPos, glm::ivec2 chunkVertexIndex, glm::ivec2 chunkPos)>;
 using PhysicsTerrainShape = btHeightfieldTerrainShape;
 
 class TerrainChunk
@@ -27,11 +30,12 @@ public:
 	float *Heights[LOD_COUNT];
 	glm::vec4 *AlphaMap[LOD_COUNT];
 
-	bool PropagatingLOD = false;
-	bool LoadingLOD[LOD_COUNT];
+	int LockReadLOD[LOD_COUNT];
+	int LockWriteLOD[LOD_COUNT];
 
 	float *LowerBoundHeights = nullptr;
 
+	int RenderedLOD = -1;
 	int CurrentLOD = LOD_COUNT;
 	int MaxLoadedLOD = LOD_COUNT;
 	int LowestLoadedLOD = LOD_COUNT;
@@ -59,6 +63,7 @@ class CalculatedGPUData
 public:
 	TerrainChunk *chunk;
 	int lod;
+	int addr;
 	std::vector<glm::vec4> terrainData;
 	std::vector<glm::vec4> normalData;
 };
@@ -83,16 +88,18 @@ public:
 	SNOWFALLENGINE_API GeometryHandle GetGeometry(int lod);
 
 	SNOWFALLENGINE_API int ChunkToAddress(glm::ivec2 pos);
+	SNOWFALLENGINE_API glm::ivec2 AddressToChunk(int address);
 	SNOWFALLENGINE_API glm::ivec4 WorldPosToChunk(glm::ivec2 pos);
 
 	SNOWFALLENGINE_API void SetTerrainMaterial(MaterialAsset *asset);
 	SNOWFALLENGINE_API void RequestChunkMaxLOD(int pX, int pY, int lod);
+	SNOWFALLENGINE_API void UnloadChunks(std::vector<int> addresses, bool allNotIncluded);
 
 	SNOWFALLENGINE_API void SetLowerBoundArea(int address, float *data);
-	SNOWFALLENGINE_API void ModifyArea(float *data, int x, int y, int w, int h);
-	SNOWFALLENGINE_API void ModifyArea(int address, float *data);
-	SNOWFALLENGINE_API void ModifyAlphaMap(glm::vec4 *data, int x, int y, int w, int h);
-	SNOWFALLENGINE_API void ModifyAlphaMap(int address, glm::vec4 *data);
+	SNOWFALLENGINE_API void SetArea(int address, float *data);
+	SNOWFALLENGINE_API void SetAlphaMap(int address, glm::vec4 *data);
+	SNOWFALLENGINE_API void ApplyOperation(TerrainOperation op, int x, int y, int w, int h, bool async = false);
+	SNOWFALLENGINE_API void ApplyOperation(TerrainOperation op, int address, bool async = false);
 
 	SNOWFALLENGINE_API void ClearLodUpdates();
 	SNOWFALLENGINE_API std::vector<TerrainLoadUpdate>& GetLoadUpdates();
@@ -115,6 +122,7 @@ public:
 
 private:
 	bool m_dead = false;
+	TerrainChunk *PullChunkConcurrent(int address);
 	void TryLoadChunkLODFromAsset(TerrainChunk *chunk, int lod);
 	void TrySaveChunkToAsset(TerrainChunk *chunk);
 	void DisposeChunk(TerrainChunk *chunk);
@@ -124,6 +132,12 @@ private:
 
 	void ReloadPageFile();
 	void SavePageFile();
+	
+	bool LockForReading(int address, int lod);
+	bool LockForWriting(int address, int lod);
+	
+	void UnlockReading(int address, int lod);
+	void UnlockWriting(int address, int lod);
 
 	void LoadGeometries();
 
@@ -148,10 +162,11 @@ private:
 	bool m_loadedPageFile = false;
 
 	std::map<int, std::string> m_addressToPath;
-	std::map<int, TerrainChunk *> m_addressMap;
+	concurrency::concurrent_unordered_map<int, TerrainChunk *> m_addressMap;
 	std::vector<TerrainLoadRequest> m_loadRequests;
 	std::vector<TerrainLoadUpdate> m_updates;
-	std::set<int> m_changedChunks;
+
+	concurrency::concurrent_unordered_set<int> m_changedChunks;
 };
 
 class TerrainAssetReader : public IAssetReader

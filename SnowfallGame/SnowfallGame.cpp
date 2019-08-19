@@ -14,6 +14,7 @@
 #include <PhysicsRigidBodySystem.h>
 #include <TerrainAsset.h>
 #include <TerrainStreamingSystem.h>
+#include <EyeAdaptationSystem.h>
 
 #include "CameraFlyComponent.h"
 #include "TestComponent.h"
@@ -25,7 +26,7 @@ Scene *scene;
 
 void MakeMaterials()
 {
-	Sampler sampler[11];
+	Sampler sampler[2];
 
 	for (Sampler s : sampler)
 	{
@@ -46,28 +47,12 @@ void MakeMaterials()
 	materialTerr.PerObjectParameterCount = 1;
 
 	Snowfall::GetGameInstance().GetAssetManager().AddAsset(new MaterialAsset("FortMaterialTerr", 
-		{ sampler[1], sampler[2], sampler[3], sampler[4], sampler[5], sampler[6], sampler[7], sampler[8] },
+		{ sampler[1] },
 		{ 
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Snow.Diffuse"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Snow.Normal"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Snow.Roughness"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Snow.AO"),
-
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Ground.Diffuse"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Ground.Normal"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Ground.Roughness"),
-			&AssetManager::LocateAssetGlobal<TextureAsset>("Ground.AO")
+			&AssetManager::LocateAssetGlobal<TextureAsset>("Terrain.Terrain")
 		}, 
 		{ 
-			SamplerProperty(0, 0, 20),
-			SamplerProperty(1, 1, 21),
-			SamplerProperty(2, 2, 22),
-			SamplerProperty(3, 3, 23),
-
-			SamplerProperty(4, 4, 24),
-			SamplerProperty(5, 5, 25),
-			SamplerProperty(6, 6, 26),
-			SamplerProperty(7, 7, 27)
+			SamplerProperty(0, 0, 20)
 		}, materialTerr));
 
 	Snowfall::GetGameInstance().GetAssetManager().AddAsset(new MaterialAsset("TonemappingMaterial",
@@ -99,11 +84,10 @@ void SnowfallGame::InitializeModule()
 
 	scene->GetSystemManager().AddEnabledSystems({
 		"CameraFlySystem", "TransformSystem", "PhysicsRigidBodySystem", "PhysicsWorldSystem", "TerrainStreamingSystem", "MeshRenderingSystem", "ShadowMapRenderSystem",
-		"LightSystem", "CameraSystem", "PostProcessRenderSystem", "CameraUIRenderSystem",
-		"CameraViewportRenderSystem" 
+		"LightSystem", "SkyRenderSystem", "CameraSystem", "EyeAdaptationSystem", "PostProcessRenderSystem", "CameraUIRenderSystem", "CameraViewportRenderSystem" 
 	});
 
-	Entity camera = scene->GetEntityManager().CreateEntity({ "TransformComponent", "CameraComponent", "CameraFlyComponent", "CameraUIRenderComponent", "PhysicsRigidBodyComponent", "PhysicsSphereCollisionComponent" });
+	Entity camera = scene->GetEntityManager().CreateEntity({ "TransformComponent", "CameraComponent", "CameraFlyComponent", "CameraUIRenderComponent", "PhysicsRigidBodyComponent", "PhysicsSphereCollisionComponent", "EyeAdaptationComponent" });
 
 	camera.GetComponent<TransformComponent>()->Position = glm::vec3(0, 25, 5);
 	camera.GetComponent<CameraComponent>()->ViewportIndex = 0;
@@ -114,6 +98,16 @@ void SnowfallGame::InitializeModule()
 	camera.GetComponent<CameraComponent>()->PostProcessStack.push_back(&AssetManager::LocateAssetGlobal<MaterialAsset>("FxaaMaterial"));
 	camera.GetComponent<CameraComponent>()->PostProcessStack.push_back(&AssetManager::LocateAssetGlobal<MaterialAsset>("BloomMaterial"));
 	camera.GetComponent<CameraComponent>()->PostProcessStack.push_back(&AssetManager::LocateAssetGlobal<MaterialAsset>("TonemappingMaterial"));
+
+	camera.GetComponent<EyeAdaptationComponent>()->MinLuma = 0.1f;
+	camera.GetComponent<EyeAdaptationComponent>()->MaxLuma = 100;
+	camera.GetComponent<EyeAdaptationComponent>()->KeyValue = 0.2f;
+	camera.GetComponent<EyeAdaptationComponent>()->ExposureBias = 0;
+	camera.GetComponent<EyeAdaptationComponent>()->EaseConstant = 1;
+
+	camera.GetComponent<EyeAdaptationComponent>()->TonemappingMaterial = &AssetManager::LocateAssetGlobal<MaterialAsset>("TonemappingMaterial");
+	camera.GetComponent<EyeAdaptationComponent>()->BloomMaterial = &AssetManager::LocateAssetGlobal<MaterialAsset>("BloomMaterial");
+
 	camera.GetComponent<PhysicsRigidBodyComponent>()->ShapeTransform = glm::mat4();
 	camera.GetComponent<PhysicsRigidBodyComponent>()->ShapeType = CollisionShapeType::Sphere;
 	camera.GetComponent<PhysicsRigidBodyComponent>()->LinearFactor = glm::vec3(0, 0, 0);
@@ -122,7 +116,7 @@ void SnowfallGame::InitializeModule()
 	camera.GetComponent<PhysicsSphereCollisionComponent>()->Radius = 0.75f;
 
 	Entity skybox = scene->GetEntityManager().CreateEntity({ "SkyboxComponent" });
-	skybox.GetComponent<SkyboxComponent>()->Cubemap = &AssetManager::LocateAssetGlobal<TextureAsset>("Daylight");
+	skybox.GetComponent<SkyboxComponent>()->Cubemap = new TextureAsset("", TextureType::TextureCubemap, TextureInternalFormat::RGBA32F, 256, 256, 1, 1);
 
 	Entity e = scene->GetEntityManager().CreateEntity({ "TransformComponent", "MeshRenderComponent", "PhysicsRigidBodyComponent", "PhysicsBoxCollisionComponent" });
 	
@@ -136,23 +130,28 @@ void SnowfallGame::InitializeModule()
 	e.GetComponent<PhysicsRigidBodyComponent>()->ShapeType = CollisionShapeType::Box;
 	e.GetComponent<PhysicsRigidBodyComponent>()->Mass = 1.f;
 	e.GetComponent<PhysicsBoxCollisionComponent>()->Size = glm::vec3(2, 2, 2);
-
 	e.SetName("Box");
 
-	Entity light0 = scene->GetEntityManager().CreateEntity({ "TransformComponent", "LightComponent" });
-				  
-	light0.GetComponent<TransformComponent>()->Position = glm::vec3(0, 5, 5);
+	Entity light0 = scene->GetEntityManager().CreateEntity({ "TransformComponent", "DirectionalLightComponent" });
+
 	light0.GetComponent<TransformComponent>()->Rotation = glm::vec3(45, 0, 0);
-	light0.GetComponent<LightComponent>()->Enabled = true;
-	light0.GetComponent<LightComponent>()->Shadowing = true;
-	light0.GetComponent<LightComponent>()->Intensity = 6.f;
-	light0.GetComponent<LightComponent>()->ShadowLayerMask = 0xFFFFFFFFFFFFFFFF;
-	light0.GetComponent<LightComponent>()->Type = LightType::Directional;
-	light0.GetComponent<LightComponent>()->Color = glm::vec3(1, 1, 1);
+	light0.GetComponent<DirectionalLightComponent>()->Enabled = true;
+	light0.GetComponent<DirectionalLightComponent>()->Shadowing = true;
+	light0.GetComponent<DirectionalLightComponent>()->Intensity = 3.f;
+	light0.GetComponent<DirectionalLightComponent>()->ShadowLayerMask = 0x8000000000000000;
+	light0.GetComponent<DirectionalLightComponent>()->Color = glm::vec3(1, 1, 1);
+
+	light0.GetComponent<DirectionalLightComponent>()->CascadeSizes[0] = 40;
+	light0.GetComponent<DirectionalLightComponent>()->CascadeSizes[1] = 100;
+	light0.GetComponent<DirectionalLightComponent>()->CascadeSizes[2] = 300;
+	light0.GetComponent<DirectionalLightComponent>()->CascadeSizes[3] = 400;
 
 	Entity terrainEnt = scene->GetEntityManager().CreateEntity({ "TerrainComponent" });
 
 	terrainEnt.GetComponent<TerrainComponent>()->Terrain = &AssetManager::LocateAssetGlobal<TerrainAsset>("TestTerrain");
+	terrainEnt.GetComponent<TerrainComponent>()->StreamingCamera = camera;
+	terrainEnt.GetComponent<TerrainComponent>()->MaxStreamDistance = 3;
+	terrainEnt.GetComponent<TerrainComponent>()->LayerMask = 0x7FFFFFFFFFFFFFFF;
 
 	scene->GetSystemManager().InitializeSystems();
 

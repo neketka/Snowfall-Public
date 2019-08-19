@@ -160,14 +160,15 @@ void PerformVertexLighting()
 
 	data.PixelPosition = out_Position;
 	data.CameraPosition = Snowfall_GetCameraPosition();
-	data.TBNMatrix = mat3(out_Normal, out_Tangent, cross(out_Normal, out_Tangent));
+	data.TBNMatrix = mat3(out_Tangent, cross(out_Tangent, out_Normal), out_Normal);
 	data.Texcoord = out_Texcoord;
 	data.Normal = out_Normal;
 	data.Color = out_Color;
+	data.Tangent = out_Tangent;
 
 	MaterialProps(mat, data);
 
-	out_VertexColor = vec4(Snowfall_GetMaterialResult(mat, data), 1);
+	out_VertexColor = vec4(Snowfall_GetMaterialResult(mat, data), mat.Alpha);
 }
 
 #else
@@ -190,7 +191,7 @@ void Snowfall_SetOutputData(VertexOutputData oData)
 	out_ObjectId = Snowfall_GetObjectID();
 	out_ParamCount = ParamCount;
 	out_Time = Snowfall_GetTime();
-	out_VertexColor = vec4(0);
+	out_VertexColor = vec4(0); 
 	PerformVertexLighting();
 #else
 	gl_Position = vec4(oData.Position, 1.0);
@@ -370,7 +371,7 @@ vec3 Snowfall_GetTangent()
 
 vec3 Snowfall_GetBinormal()
 {
-	return cross(Normal, Tangent);
+	return -cross(Normal, Tangent);
 }
 
 vec2 Snowfall_GetTexcoord()
@@ -400,14 +401,15 @@ void main()
 
 	data.PixelPosition = Snowfall_GetPosition();
 	data.CameraPosition = Snowfall_GetCameraPosition();
-	data.TBNMatrix = mat3(Snowfall_GetNormal(), Snowfall_GetTangent(), Snowfall_GetBinormal());
+	data.TBNMatrix = transpose(mat3(Snowfall_GetTangent(), Snowfall_GetBinormal(), Snowfall_GetNormal()));
 	data.Texcoord = Snowfall_GetTexcoord();
+	data.Tangent = Snowfall_GetTangent();
 	data.Normal = Snowfall_GetNormal();
 	data.Color = Snowfall_GetColor();
 
 	MaterialProps(mat, data);
 
-	fragment = vec4(Snowfall_GetMaterialResult(mat, data), 1);
+	fragment = vec4(Snowfall_GetMaterialResult(mat, data), mat.Alpha);
 }
 
 #endif

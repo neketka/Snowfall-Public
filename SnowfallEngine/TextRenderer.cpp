@@ -15,8 +15,8 @@ TextRenderer::TextRenderer(int maxChars)
 	m_vao.SetAttributeEnabled(0, true);
 	m_vao.SetAttributeEnabled(1, true);
 
-	m_sample.SetMinificationFilter(MinificationFilter::Linear);
-	m_sample.SetMagnificationFilter(MagnificationFilter::Linear);
+	m_sample.SetMinificationFilter(MinificationFilter::Nearest);
+	m_sample.SetMagnificationFilter(MagnificationFilter::Nearest);
 }
 
 TextRenderer::~TextRenderer()

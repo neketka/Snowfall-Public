@@ -128,7 +128,7 @@ void UIRenderer::PopClip()
 		m_clipStack.pop();
 }
 
-void UIRenderer::RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, glm::vec4 tint)
+void UIRenderer::RenderTexture(Quad2D src, Quad2D dest, Texture texture, glm::vec4 tint)
 {
 	CommandBuffer cmd;
 	Pipeline p;
@@ -139,7 +139,7 @@ void UIRenderer::RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, g
 	consts.AddConstant(2, dest.Size);
 	consts.AddConstant(3, src.Position);
 	consts.AddConstant(4, src.Size);
-	consts.AddConstant(5, texture->GetTextureObject(), m_sampler);
+	consts.AddConstant(5, texture, m_sampler);
 	consts.AddConstant(6, tint);
 
 	p.Shader = m_texShader->GetShaderVariant({ "TEXTURED" });
@@ -150,6 +150,11 @@ void UIRenderer::RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, g
 	m_basicQuad->DrawMeshDirect(cmd);
 
 	cmd.ExecuteCommands();
+}
+
+void UIRenderer::RenderTexture(Quad2D src, Quad2D dest, TextureAsset *texture, glm::vec4 tint)
+{
+	RenderTexture(src, dest, texture->GetTextureObject(), tint);
 }
 
 void UIRenderer::RenderRectangle(Quad2D quad, glm::vec4 fillColor)

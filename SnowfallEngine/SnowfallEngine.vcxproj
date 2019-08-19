@@ -169,6 +169,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Event.cpp" />
+    <ClCompile Include="EyeAdaptationSystem.cpp" />
     <ClCompile Include="FontAsset.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Frustum.cpp" />
@@ -182,7 +183,9 @@
     <ClCompile Include="MeshAsset.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Noise.cpp" />
     <ClCompile Include="OcclusionQuery.cpp" />
+    <ClCompile Include="ParticleGenerationSystem.cpp" />
     <ClCompile Include="PhysicsConstraintSystem.cpp" />
     <ClCompile Include="PhysicsRigidBodySystem.cpp" />
     <ClCompile Include="PhysicsWorldSystem.cpp" />
@@ -201,6 +204,7 @@
     <ClCompile Include="ShaderPreprocessor.cpp" />
     <ClCompile Include="ShadowMapRenderSystem.cpp" />
     <ClCompile Include="SkyboxComponent.cpp" />
+    <ClCompile Include="SkyRenderSystem.cpp" />
     <ClCompile Include="Snowfall.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -244,6 +248,7 @@
     <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="export.h" />
+    <ClInclude Include="EyeAdaptationSystem.h" />
     <ClInclude Include="FontAsset.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Frustum.h" />
@@ -261,8 +266,10 @@
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Module.h" />
+    <ClInclude Include="Noise.h" />
     <ClInclude Include="NullStreamSource.h" />
     <ClInclude Include="OcclusionQuery.h" />
+    <ClInclude Include="ParticleGenerationSystem.h" />
     <ClInclude Include="PhysicsConstraintSystem.h" />
     <ClInclude Include="PhysicsRigidBodySystem.h" />
     <ClInclude Include="PhysicsWorldSystem.h" />
@@ -280,6 +287,7 @@
     <ClInclude Include="ShaderPreprocessor.h" />
     <ClInclude Include="ShadowMapRenderSystem.h" />
     <ClInclude Include="SkyboxComponent.h" />
+    <ClInclude Include="SkyRenderSystem.h" />
     <ClInclude Include="Snowfall.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SubmitBuffer.h" />
@@ -314,14 +322,24 @@
     <ClInclude Include="WorkerManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AtmosphericSkyFunc.glsl" />
+    <None Include="AtmosphericSkyShader.glsl" />
     <None Include="BloomPost.glsl" />
     <None Include="ChromaticAbberationPost.glsl" />
+    <None Include="ComputeTest.glsl" />
     <None Include="CopyToSDR.glsl" />
     <None Include="cpp.hint" />
+    <None Include="EyeAdaptationEase.glsl" />
+    <None Include="EyeAdaptationStore.glsl" />
     <None Include="FontRenderShader.glsl" />
     <None Include="FxaaPost.glsl" />
     <None Include="Lighting.glsl" />
+    <None Include="ParticleDef.glsl" />
+    <None Include="ParticleGeneration.glsl" />
+    <None Include="ParticleSimulation.glsl" />
+    <None Include="ParticleSorting.glsl" />
     <None Include="PostProcessShader.glsl" />
+    <None Include="RenderToCubemap.glsl" />
     <None Include="SimplePBRShader.glsl" />
     <None Include="SimpleTerrainShader.glsl" />
     <None Include="SkyboxShader.glsl" />

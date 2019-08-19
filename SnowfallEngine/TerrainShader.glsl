@@ -15,6 +15,13 @@ layout(location = 17) uniform sampler2D NormalMap;
 layout(location = 18) uniform vec4 WorldOffsets;
 layout(location = 19) uniform vec4 TextureOffsets;
 
+const vec3 MyArray[4] = vec3[4](
+	vec3(0, 0, 0),
+	vec3(1, 0, 0),
+	vec3(0, 1, 0),
+	vec3(0, 0, 1)
+);
+
 void main()
 {
 	vec4 terrain = textureLod(TerrainMap, UV * TextureOffsets.x, WorldOffsets.z); // (height, alphamap, unused, unused)

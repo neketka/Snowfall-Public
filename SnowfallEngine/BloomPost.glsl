@@ -2,6 +2,9 @@
 
 //Based on LearnOpenGL basic method
 
+layout(location = 5) uniform sampler2D avgLuma;
+layout(location = 6) uniform vec4 lumaValues;
+
 #passes PASS0 PASS1_0 PASS2_0 PASS1_1 PASS2_1 PASS1_2 PASS2_2 PASS1_3 PASS2_3 PASS1_4 PASS2_4 PASS3
 
 #downscale 0
@@ -95,9 +98,10 @@ void main()
 	NO_COLOR;
 
 	vec4 FragColor = Snowfall_GetColor();
+	float luma = clamp(texture(avgLuma, vec2(0, 0)).r, lumaValues.x, lumaValues.y) + 1;
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-	vec4 BrightColor = vec4(FragColor.rgb * float(brightness > 1.0), 1.0);
+	vec4 BrightColor = vec4(FragColor.rgb * float(brightness > luma), 1.0);
 
 	Snowfall_SetAuxillary(BrightColor);
 }

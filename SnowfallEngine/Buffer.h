@@ -90,6 +90,7 @@ public:
 	void CopyBufferData(int offset, int size, TBuffer dest, int destOffset);
 	void FlushBuffer(int offset, int length);
 	void MapBuffer(int offset, int length, MappingOptions options);
+	void CopyFromBuffer(void *dest, int offset, int length);
 	inline void *GetMappedPointer() { return m_mappingPtr; }
 	bool operator==(const TBuffer& other) const { return m_id == other.m_id; }
 private:
@@ -109,12 +110,12 @@ public:
 	Buffer(T *data, int length, BufferOptions options)
 		: TBuffer(data, sizeof(T), length, options) {}
 
-	Buffer(std::vector<T> data, BufferOptions options)
+	Buffer(std::vector<T>& data, BufferOptions options)
 		: TBuffer(data.data(), sizeof(T), static_cast<int>(data.size()), options) {}
 
 	Buffer() {}
 
-	void CopyData(std::vector<T> data, int offset)
+	void CopyData(std::vector<T>& data, int offset)
 	{
 		TBuffer::CopyData(data.data(), static_cast<int>(offset), static_cast<int>(data.size()));
 	}
@@ -137,6 +138,16 @@ public:
 	void FlushBuffer(int offset, int length)
 	{
 		TBuffer::FlushBuffer(offset, length);
+	}
+
+	void CopyFromBuffer(T *dest, int offset, int length)
+	{
+		TBuffer::CopyFromBuffer(dest, offset, length);
+	}
+
+	void CopyFromBuffer(std::vector<T>& dest, int destOffset, int offset, int length)
+	{
+		TBuffer::CopyFromBuffer(dest.data() + destOffset, offset, length);
 	}
 
 	inline int GetLength() { return GetSize(); }
