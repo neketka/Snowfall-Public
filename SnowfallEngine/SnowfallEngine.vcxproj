@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\lib-vc2019;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)\Dependencies\stb\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -84,7 +84,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;D:\Nikita\Documents\Visual Studio 2015\Snowfall\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\include;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\include;$(SolutionDir)\Dependencies\glm;$(SolutionDir)\Dependencies\stb\include;$(SolutionDir)\Dependencies\bullet3\include;$(SolutionDir)\Dependencies\boost_1_69_0;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Dependencies\glew-2.0.0-win32\glew-2.0.0\lib\Release\x64;$(SolutionDir)\Dependencies\glfw-3.3.bin.WIN64\lib-vc2019;$(SolutionDir)\Dependencies\bullet3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)\Dependencies\stb\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
