@@ -11,9 +11,8 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
-!/boost/debug
-!/boost/debug/*
+Debug/
+!debug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
