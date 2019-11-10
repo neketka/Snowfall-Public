@@ -34,7 +34,7 @@ void main()
 	particle.Position.xyz += particle.Velocity.xyz * deltaTime;
 	particle.Scale.w += deltaTime;
 
-	bool outOfKillBox = hasKillBox && (any(greaterThan(particle.Position.xyz, maxKillBoxExtent)) || all(lessThan(particle.Position.xyz, minKillBoxExtent)));
+	bool outOfKillBox = hasKillBox && (any(greaterThan(particle.Position.xyz, maxKillBoxExtent)) || any(lessThan(particle.Position.xyz, minKillBoxExtent)));
 	int dead = int(particle.Scale.w > particle.Position.w || outOfKillBox); //Helps reduce branching
 
 	DeadParticleIndices[atomicAdd(DeadParticleCount, dead)] = particleIndex;

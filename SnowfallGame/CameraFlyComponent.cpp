@@ -7,6 +7,7 @@
 #include <InputManager.h>
 #include <PhysicsRigidBodySystem.h>
 
+
 std::vector<SerializationField> ComponentDescriptor<CameraFlyComponent>::GetSerializationFields()
 {
 	return {

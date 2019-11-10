@@ -37,7 +37,7 @@ public:
 
 	float EmissionVelocityMin;
 	float EmissionVelocityMax;
-
+	//-MqfHmifZ8UiqCp
 	BoundingBox SpawnArea;
 	BoundingBox KillBox;
 

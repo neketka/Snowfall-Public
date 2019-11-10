@@ -9,7 +9,8 @@ Build
    * Build the project
    * Copy the assets from the Snowfall folder to the to the folder with the executable
 
-![Screenshot](screenshot.png?raw=true "Current stage of development")
+![Screenshot](screenshot.png?raw=true "UI demostration")
+![Screenshot](screenshot2.png?raw=true "Current stage of development")
 
 Currently implemented features
 ------------------------------
